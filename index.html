@@ -54,11 +54,11 @@
 		<div id="grid">
 		</div>
 
-		<div id="trivia-div">
+		<div id="trivia-div" data-bind-trivia=" click: testMethot">
 			value:
 			<input type="text" id="text1" /><br />
 			copy:
-			<input type="text" id="text2" data-bind-trivia="value: testProp" /><br />
+			<input type="text" id="text2" data-bind-trivia="click: testProp" /><br />
 			<input type="button" id="button1" value="View value" data-bind-trivia="click: testMethot" />
             <div>
                 <div>

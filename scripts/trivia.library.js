@@ -5,7 +5,7 @@ var trivia = trivia || {};
 trivia.classManager = trivia.classManager || {};
 
 trivia.classManager.createClass = function (baseClass, currentClassConstructor) {
-    var SubClass = function() {
+    var SubClass = function () {
     };
 
     var baseClassObject = null;
@@ -15,7 +15,7 @@ trivia.classManager.createClass = function (baseClass, currentClassConstructor) 
         SubClass.prototype = baseClass.prototype;
         baseClassObject = new baseClass();
     }
-    
+
     var CurrentClass = currentClassConstructor;
 
     CurrentClass.prototype = new SubClass();
@@ -24,7 +24,7 @@ trivia.classManager.createClass = function (baseClass, currentClassConstructor) 
     //Linck the base class object to allow base methods access
     CurrentClass.prototype.baseClassObject = baseClassObject;
 
-    return CurrentClass;    
+    return CurrentClass;
 }
 //#endregion
 
@@ -34,6 +34,10 @@ trivia.viewModels = trivia.viewModels || {};
 //Definition of observalbe class using event handler to watch for a property changes
 trivia.viewModels.ObservableClass = trivia.classManager.createClass(null, function () {
     var self = this;
+
+    //Store list with properties to observe. 
+    //Needed to support a property being wathed by multiple watchers
+    var observablePropertiesHandlers = {};
 
     Object.defineProperty(trivia.viewModels.ObservableClass.prototype, "watchProperty", {
 
@@ -51,14 +55,22 @@ trivia.viewModels.ObservableClass = trivia.classManager.createClass(null, functi
 
             var setter = function (newPropertyValue) {
                 propertyValue = newPropertyValue;
-                handler.call(this, newPropertyValue);
+                for (handlerIndex = 0; handlerIndex < observablePropertiesHandlers[property].length; handlerIndex++) {                    
+                    observablePropertiesHandlers[property][handlerIndex].call(this, newPropertyValue);
+                }
                 return newPropertyValue;
             };
 
-            Object.defineProperty(this, property, {
-                get: getter,
-                set: setter
-            });            
+            if (!observablePropertiesHandlers[property]) {
+                Object.defineProperty(this, property, {
+                    get: getter,
+                    set: setter
+                });
+
+                observablePropertiesHandlers[property] = [];
+            }
+
+            observablePropertiesHandlers[property].push(handler);
         }
     });
 
@@ -67,15 +79,20 @@ trivia.viewModels.ObservableClass = trivia.classManager.createClass(null, functi
 
 //Definition of ViewModel class managing binding
 trivia.viewModels.ViewModel = trivia.classManager.createClass(trivia.viewModels.ObservableClass, function () {
-    
+
     // private members
     var self = this,
     bindedElementsList = [];
-    
-    //public methods
-    self.bind = function(DOMElement) {
-        var elementsToBind = $(DOMElement).find("[data-bind-trivia]");
 
+    //public methods
+    self.bind = function (DOMElement) {
+        //Collect all the binded elements
+        var elementsToBind = $(DOMElement).find("[data-bind-trivia]");
+        //Check if the containder is bided as well
+        if ($(DOMElement).data("bind-trivia")) {
+            elementsToBind = elementsToBind.add(DOMElement);
+        }
+        
         for (elementToBindIndex = 0; elementToBindIndex < elementsToBind.length; elementToBindIndex++) {
             var elementToBind = elementsToBind[elementToBindIndex];
             var BindingList = parseElementBinding(elementToBind);
@@ -101,6 +118,7 @@ trivia.viewModels.ViewModel = trivia.classManager.createClass(trivia.viewModels.
     var bindAction = function (DOMElement, actionName) {
         $(DOMElement).on("change input propertyChange click", function (e) {
             e.preventDefault();
+            e.stopPropagation();
             if (self[actionName] instanceof Function) {
                 self[actionName].call(self, DOMElement);
             }
@@ -108,7 +126,7 @@ trivia.viewModels.ViewModel = trivia.classManager.createClass(trivia.viewModels.
     }
 
     var parseElementBinding = function (DOMElement) {
-        
+
         var bindingStringFull = $(DOMElement).data("bind-trivia") || "";
         var bindingStringsList = bindingStringFull.split(";");
         var result = [];
@@ -123,8 +141,8 @@ trivia.viewModels.ViewModel = trivia.classManager.createClass(trivia.viewModels.
         return result;
     }
 
-    var bindSingleElement = function(DOMElement, BindingList) {
-    	
+    var bindSingleElement = function (DOMElement, BindingList) {
+
         for (bindingProperty in BindingList) {
             if (bindingProperty == "click") {
                 bindAction(DOMElement, BindingList[bindingProperty]);
