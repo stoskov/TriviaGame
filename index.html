@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Tivia Game</title>
+
+		<meta charset="utf-8" />
+		<meta name="author" content="Svetozar Toskov" />
+		<meta name="application-name" content="Trivia Game" />
+		<meta name="description" content="Simple quiz game displaying the user list of questions with 3 wrong and 1 correct answers" />
+		<meta name="keywords" content="trivia, trivia game, game, quiz, questions, question game, Svetozar, Toskov, Svetozar Toskov, Telerik, Telerik Academy, Final Project" />
+
+		<link type="text/css" rel="stylesheet" href="styles/kendo.common.css" />
+		<link type="text/css" rel="stylesheet" href="styles/kendo.metro.css" />
+		<link type="text/css" rel="stylesheet" href="styles/styles.css" />
+
+		<script type="text/javascript" src="scripts/modernizr-2.6.2.js"></script>
+		<script type="text/javascript" src="scripts/jquery-1.8.3.min.js"></script>
+		<script type="text/javascript" src="scripts/kendo.web.js"></script>
+		<script type="text/javascript" src="scripts/trivia.library.js"></script>
+		<script type="text/javascript" src="scripts/trivia.js"></script>
+
+	</head>
+	<body>
+
+		<ul id="main-nav">
+			<li data-option="home">home </li>
+			<li>new game </li>
+			<li>user info </li>
+			<li>all users </li>
+			<li>all categories </li>
+			<li>add new category </li>
+			<li>add new question </li>
+		</ul>
+
+		<!-- View -->
+		<div id="view">
+			<!-- The value of the INPUT element is bound to the "firstName" field of the View-Model.
+			When the value changes so will the "firstName" field and vice versa.  -->
+			<label>
+				First Name:
+				<input data-bind="value: firstName" />
+			</label>
+			<!-- The value of the INPUT element is bound to the "lastName" field of the View-Model.
+			When the value changes so will the "lastName" field and vice versa.   -->
+			<label>
+				Last Name:
+				<input data-bind="value: lastName" />
+			</label>
+			<!-- The click event of the BUTTON element is bound to the "displayGreeting" method of the View-Model.
+			When the user clicks the button the "displayGreeting" method will be invoked.  -->
+			<button data-bind="click: displayGreeting">Display Greeting</button>
+		</div>
+
+		<div id="grid">
+		</div>
+
+		<div id="trivia-div">
+			value:
+			<input type="text" id="text1" /><br />
+			copy:
+			<input type="text" id="text2" data-bind-trivia="value: testProp" /><br />
+			<input type="button" id="button1" value="View value" data-bind-trivia="click: testMethot" />
+            <div>
+                <div>
+                    <input type="text" id="text3" data-bind-trivia="value: testProp" /><br />
+                </div>
+            </div>
+            <br />
+			<span id="output"></span>
+		</div>
+
+	</body>
+</html>
