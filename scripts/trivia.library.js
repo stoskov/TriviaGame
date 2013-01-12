@@ -28,18 +28,25 @@ trivia.classManager.createClass = function (baseClass, currentClassConstructor) 
 }
 //#endregion
 
-//#region trivia.viewModels namespace
-trivia.viewModels = trivia.viewModels || {};
+//#region trivia.models namespace
+trivia.models = trivia.models || {};
 
 //Definition of observalbe class using event handler to watch for a property changes
-trivia.viewModels.ObservableClass = trivia.classManager.createClass(null, function () {
+trivia.models.ObservableModel = trivia.classManager.createClass(null, function (model) {
     var self = this;
+
+    //If model passed as parameter trasnfer properties
+    if (model != null) {
+        for (modelProperty in model) {
+            self[modelProperty] = model[modelProperty];
+        }
+    }
 
     //Store list with properties to observe. 
     //Needed to support a property being wathed by multiple watchers
     var observablePropertiesHandlers = {};
 
-    Object.defineProperty(trivia.viewModels.ObservableClass.prototype, "watchProperty", {
+    Object.defineProperty(trivia.models.ObservableModel.prototype, "watchProperty", {
 
         enumerable: false,
         configurable: true,
@@ -61,6 +68,7 @@ trivia.viewModels.ObservableClass = trivia.classManager.createClass(null, functi
                 return newPropertyValue;
             };
 
+            //Wrap the property only once
             if (!observablePropertiesHandlers[property]) {
                 Object.defineProperty(this, property, {
                     get: getter,
@@ -70,64 +78,75 @@ trivia.viewModels.ObservableClass = trivia.classManager.createClass(null, functi
                 observablePropertiesHandlers[property] = [];
             }
 
+            //Add bind the new handler
             observablePropertiesHandlers[property].push(handler);
+
+            setter(propertyValue);
         }
     });
 
     return self;
 })
+//#endregion
+
+//#region trivia.viewModels namespace
+trivia.viewModels = trivia.viewModels || {};
 
 //Definition of ViewModel class managing binding
-trivia.viewModels.ViewModel = trivia.classManager.createClass(trivia.viewModels.ObservableClass, function () {
+trivia.viewModels.ViewModel = function (modelToObserve) {
 
     // private members
     var self = this,
-    bindedElementsList = [];
+    bindedElementsList = [],
+    model = {};
 
     //public methods
-    self.bind = function (DOMElement) {
+    self.bind = function (domElement) {
         //Collect all the binded elements
-        var elementsToBind = $(DOMElement).find("[data-bind-trivia]");
+        var elementsToBind = $(domElement).find("[data-bind-trivia]");
+
         //Check if the containder is bided as well
-        if ($(DOMElement).data("bind-trivia")) {
-            elementsToBind = elementsToBind.add(DOMElement);
+        if ($(domElement).data("bind-trivia")) {
+            elementsToBind = elementsToBind.add(domElement);
         }
         
         for (elementToBindIndex = 0; elementToBindIndex < elementsToBind.length; elementToBindIndex++) {
             var elementToBind = elementsToBind[elementToBindIndex];
-            var BindingList = parseElementBinding(elementToBind);
-            bindSingleElement(elementToBind, BindingList);
+            var bindingList = parseElementBindings(elementToBind);
+            bindSingleElement(elementToBind, bindingList);
         }
 
-        bindedElementsList.push(DOMElement)
+        //Push the DOM element in the list with bindings
+        bindedElementsList.push(domElement)
     }
 
     //private methods
-    var bindProperty = function (DOMElement, propertyName) {
+    var bindProperty = function (domElement, domAttribute, propertyName) {
 
-        $(DOMElement).on("change input propertyChange", function (e) {
+        $(domElement).on("change input propertyChange", function (e) {
             e.preventDefault();
-            self[propertyName] = $(DOMElement).val();
+            model[propertyName] = $(domElement).attr(domAttribute);
         });
 
-        self.watchProperty(propertyName, function (newPropertyValue) {
-            $(DOMElement).val(newPropertyValue);
+        model.watchProperty(propertyName, function (newPropertyValue) {            
+            $(domElement).attr(domAttribute, newPropertyValue);
+            
         })
     }
 
-    var bindAction = function (DOMElement, actionName) {
-        $(DOMElement).on("change input propertyChange click", function (e) {
+    var bindAction = function (domElement, domAttribute, actionName) {
+        $(domElement).on(domAttribute, function (e) {
             e.preventDefault();
             e.stopPropagation();
-            if (self[actionName] instanceof Function) {
-                self[actionName].call(self, DOMElement);
+            if (model[actionName] instanceof Function) {
+                model[actionName].call(model, domElement);
             }
         });
     }
 
-    var parseElementBinding = function (DOMElement) {
+    var parseElementBindings = function (domElement) {
 
-        var bindingStringFull = $(DOMElement).data("bind-trivia") || "";
+        var bindingStringFull = $(domElement).data("bind-trivia") || "";
         var bindingStringsList = bindingStringFull.split(";");
         var result = [];
 
@@ -141,22 +160,33 @@ trivia.viewModels.ViewModel = trivia.classManager.createClass(trivia.viewModels.
         return result;
     }
 
-    var bindSingleElement = function (DOMElement, BindingList) {
+    var bindSingleElement = function (domElement, BindingList) {
 
         for (bindingProperty in BindingList) {
-            if (bindingProperty == "click") {
-                bindAction(DOMElement, BindingList[bindingProperty]);
+            var modelPropertyName = BindingList[bindingProperty];
+
+            //If the model member is a function bind one way action, elase two ways property update
+            if (model[modelPropertyName] instanceof Function) {
+                bindAction(domElement, bindingProperty, modelPropertyName);
             }
             else {
-                bindProperty(DOMElement, BindingList[bindingProperty])
+                bindProperty(domElement, bindingProperty, modelPropertyName)
             }
         }
     }
 
+    //Class initialisation
+    if (modelToObserve instanceof trivia.models.ObservableModel) {
+        model = modelToObserve;
+    }
+    else {
+        model = new trivia.models.ObservableModel();
+        for (modelProperty in modelToObserve) {
+            model[modelProperty] = modelToObserve[modelProperty];
+        }
+    }
+
     return self;
-})
+}
 //#endregion
-
-
-
 //#endregion

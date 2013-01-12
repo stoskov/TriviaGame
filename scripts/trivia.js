@@ -232,15 +232,15 @@
         //    alert("Hidden");
         //});
 
-        vm = new trivia.viewModels.ViewModel();
+        mod = new trivia.models.ObservableModel(); 
+        mod.testProp = 1;
+        mod.testMethot = function () {
+            alert("Works!!!!!!!!!");
+        }        
+
+        vm = new trivia.viewModels.ViewModel(mod);
 
         vm.bind($('#trivia-div'));
-        vm.testProp = 1;
-        vm.testMethot = function () {
-            alert("Works!!!!!!!!!");
-        };
-
-        $("").get()
-
+        
     })
 })(jQuery)

@@ -21,6 +21,15 @@
 
 	</head>
 	<body>
+		<div id="site-wrap">
+			<header>
+				<h1>
+					trivia game
+				</h1>
+
+			</header>
+
+		</div>
 
 		<ul id="main-nav">
 			<li data-option="home">home </li>
@@ -54,18 +63,18 @@
 		<div id="grid">
 		</div>
 
-		<div id="trivia-div" data-bind-trivia=" click: testMethot">
+		<div id="trivia-div" >
 			value:
 			<input type="text" id="text1" /><br />
 			copy:
-			<input type="text" id="text2" data-bind-trivia="click: testProp" /><br />
+			<input type="text" id="text2" data-bind-trivia="value: testProp" /><br />
 			<input type="button" id="button1" value="View value" data-bind-trivia="click: testMethot" />
-            <div>
-                <div>
-                    <input type="text" id="text3" data-bind-trivia="value: testProp" /><br />
-                </div>
-            </div>
-            <br />
+			<div>
+				<div>
+					<input type="text" id="text3" data-bind-trivia="change: testMethot" /><br />
+				</div>
+			</div>
+			<br />
 			<span id="output"></span>
 		</div>
 

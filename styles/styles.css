@@ -27,7 +27,7 @@ body {
 html {
   font: 75% SegoeUIRegular, arial, helvetica, sans-serif;
 }
-body {
+#site-wrap {
   margin: 0 auto;
   width: 960px;
 }
