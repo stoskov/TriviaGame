@@ -1,3 +1,6 @@
+/*Constants*/
+/*Colors*/
+/*Sizes*/
 /* Embed fonts*/
 @font-face {
   font-family: 'SegoeUIRegular';
@@ -8,10 +11,18 @@
   src: url('../fonts/SEGUISB.TTF'), url('../fonts/SEGUISB.eot');/* IE9+ */
 }
 /* Reseters */
-body {
+body,
+h1,
+span,
+nav {
   margin: 0;
   padding: 0;
   font-family: inherit;
+}
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 /* Utilities */
 .clear {
@@ -28,9 +39,65 @@ html {
   font: 75% SegoeUIRegular, arial, helvetica, sans-serif;
 }
 #site-wrap {
-  margin: 0 auto;
+  margin: 20px auto;
   width: 960px;
 }
-#main-nav {
-  display: inline-block;
+/*Site heder*/
+#site-header {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  height: 32px;
+  border-bottom: 1px solid #8ebc00;
+  text-transform: lowercase;
+}
+#site-header #site-title {
+  float: left;
+  width: 50%;
+  height: 100%;
+  color: #787878;
+}
+#site-header #site-header-user-account-wrap {
+  width: 50%;
+  height: 100%;
+  float: right;
+}
+#site-header #site-header-user-account-wrap  > div {
+  height: 100%;
+}
+#site-header #site-header-user-account-wrap .site-header-user-account-widget {
+  display: block;
+  float: right;
+  margin: 0 15px;
+  height: 32px;
+}
+#site-header #site-header-user-account-wrap .site-header-user-account-widget-separator {
+  margin: 8px 0;
+  width: 1px;
+  height: 16px;
+  background-color: #787878;
+}
+#site-header #site-header-user-account-wrap .site-header-user-account-widget-link {
+  height: 32px;
+  color: #787878;
+  font-size: 125%;
+  line-height: 32px;
+  cursor: pointer;
+}
+#site-header #site-header-user-account-wrap .site-header-user-account-widget-link:hover {
+  color: #8ebc00;
+}
+#site-header #site-header-user-account-wrap .site-header-user-account-widget-static {
+  height: 32px;
+  color: #8ebc00;
+  font-size: 125%;
+  line-height: 32px;
+}
+/*Main navigation*/
+#site-main-nav-wrap {
+  display: block;
+  width: 100%;
+}
+#site-main-nav-wrap .site-main-nav-item {
+  min-width: 135.85714285714286px;
+  text-align: center;
 }

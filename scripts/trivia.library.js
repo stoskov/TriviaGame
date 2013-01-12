@@ -33,7 +33,10 @@ trivia.models = trivia.models || {};
 
 //Definition of observalbe class using event handler to watch for a property changes
 trivia.models.ObservableModel = trivia.classManager.createClass(null, function (model) {
-    var self = this;
+    var self = this,
+    //Store list with properties to observe. 
+    //Needed to support a property being wathed by multiple watchers
+    observablePropertiesHandlers = {};
 
     //If model passed as parameter trasnfer properties
     if (model != null) {
@@ -42,17 +45,29 @@ trivia.models.ObservableModel = trivia.classManager.createClass(null, function (
         }
     }
 
-    //Store list with properties to observe. 
-    //Needed to support a property being wathed by multiple watchers
-    var observablePropertiesHandlers = {};
-
     Object.defineProperty(trivia.models.ObservableModel.prototype, "watchProperty", {
 
         enumerable: false,
         configurable: true,
         writable: false,
 
-        value: function (property, handler) {
+        value: function (property, handlerHost, handler) {
+
+            //if (!property) {
+            //    throw new Error("Define the watchable property");
+            //}
+
+            //if (!handlerHost) {
+            //    throw new Error("Define the handler host");
+            //}
+
+            //if (!handler) {
+            //    throw new Error("Define the handler");
+            //}
+
+            //if (!(this[property])) {
+            //    throw new Error("The object does not contain property " + property);
+            //}
 
             var propertyValue = this[property];
 
@@ -62,8 +77,15 @@ trivia.models.ObservableModel = trivia.classManager.createClass(null, function (
 
             var setter = function (newPropertyValue) {
                 propertyValue = newPropertyValue;
-                for (handlerIndex = 0; handlerIndex < observablePropertiesHandlers[property].length; handlerIndex++) {                    
-                    observablePropertiesHandlers[property][handlerIndex].call(this, newPropertyValue);
+                var currentPropertyHandlersList = observablePropertiesHandlers[property];
+
+                for (handlerIndex = 0; handlerIndex < currentPropertyHandlersList.length; handlerIndex++) {
+
+                    var currentHandler = currentPropertyHandlersList[handlerIndex];
+                    var currentHandlerHost = currentHandler["handlerHost"];
+                    var currentHandlerFunction = currentHandler["handler"];
+
+                    currentHandlerFunction.call(currentHandlerHost, newPropertyValue);
                 }
                 return newPropertyValue;
             };
@@ -74,16 +96,26 @@ trivia.models.ObservableModel = trivia.classManager.createClass(null, function (
                     get: getter,
                     set: setter
                 });
-
+                
                 observablePropertiesHandlers[property] = [];
             }
 
-            //Add bind the new handler
-            observablePropertiesHandlers[property].push(handler);
+            handlerHost = handlerHost || this;
 
-            setter(propertyValue);
+            //Add the new handler and the handler host for later executioin
+            var handlerObject = {
+                "handler": handler,
+                "handlerHost": handlerHost
+            }
+            observablePropertiesHandlers[property].push(handlerObject);
+            //Call the setter for first init
+            setter.call(handlerHost, propertyValue)
         }
     });
+
+    if (self["init"] && self["init"] instanceof Function) {
+        self["init"].call(self);
+    }
 
     return self;
 })
@@ -121,29 +153,6 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
     }
 
     //private methods
-    var bindProperty = function (domElement, domAttribute, propertyName) {
-
-        $(domElement).on("change input propertyChange", function (e) {
-            e.preventDefault();
-            model[propertyName] = $(domElement).attr(domAttribute);
-        });
-
-        model.watchProperty(propertyName, function (newPropertyValue) {            
-            $(domElement).attr(domAttribute, newPropertyValue);
-            
-        })
-    }
-
-    var bindAction = function (domElement, domAttribute, actionName) {
-        $(domElement).on(domAttribute, function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (model[actionName] instanceof Function) {
-                model[actionName].call(model, domElement);
-            }
-        });
-    }
-
     var parseElementBindings = function (domElement) {
 
         var bindingStringFull = $(domElement).data("bind-trivia") || "";
@@ -160,18 +169,109 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
         return result;
     }
 
-    var bindSingleElement = function (domElement, BindingList) {
+    var bindSingleElement = function (domElement, bindingList) {
 
-        for (bindingProperty in BindingList) {
-            var modelPropertyName = BindingList[bindingProperty];
+        for (bindingProperty in bindingList) {
+            var modelPropertyName = bindingList[bindingProperty];
+            bindProperty(domElement, bindingProperty, modelPropertyName)
+        }
+    }
+    
+    var bindProperty = function (domElement, domAttribute, propertyName) {
+        //Get the jQuery method and arguments
+        var jqDelegateInfo = getMethodWithArguments(domAttribute);
 
-            //If the model member is a function bind one way action, elase two ways property update
-            if (model[modelPropertyName] instanceof Function) {
-                bindAction(domElement, bindingProperty, modelPropertyName);
+        var jqDelegate = jqDelegateInfo["delegate"],
+        jqDelegateArguments = jqDelegateInfo["arguments"],
+        jqMethodType = jqDelegateInfo["methodType"];
+
+        if (!jqDelegate) {
+            throw new Error("The bind type is not supported:" + domAttribute);
+        }
+
+        var isModelPropertFunction = model[propertyName] instanceof Function;
+
+        //A model function is bind to an event
+        if (jqMethodType === "action") {
+           
+            if (!isModelPropertFunction) {
+                throw new Error(domAttribute + " can only be bind to action (" + model[propertyName] + ")");
             }
-            else {
-                bindProperty(domElement, bindingProperty, modelPropertyName)
+
+            if (!jqDelegateArguments[0]) {
+                throw new Error(domAttribute + " does not contain action");
             }
+
+            var event = jqDelegateArguments[0];
+
+            $(domElement).on(event, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                model[propertyName].call(model, domElement);
+            });
+        }
+        //A model value is bind to a DOM property
+        else if (!isModelPropertFunction) {
+            //Bind from DOM to Model
+            $(domElement).on("change input propertyChange", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                model[propertyName] = jqDelegate.apply($(domElement), jqDelegateArguments);
+            });
+            //Bind from Model to DOM
+            model.watchProperty(propertyName, model, function (newPropertyValue) {
+                jqDelegateArguments.push(newPropertyValue);
+                jqDelegate.apply($(domElement), jqDelegateArguments);
+                jqDelegateArguments.pop();
+            })
+        }
+        //A model function is bind to a DOM property
+        else {
+            //Bind from DOM to Model
+            $(domElement).on("refresh", function (e) {
+                e.stopPropagation();
+                var modelValue = model[propertyName].call(model, domElement);
+                jqDelegateArguments.push(modelValue);
+                jqDelegate.apply($(domElement), jqDelegateArguments);
+                jqDelegateArguments.pop();
+            });
+        }
+    }
+
+    var getMethodWithArguments = function (domAttribute) {
+        var atributeMethodsMap = {};
+        //In casae the dom element has no value attribute
+        atributeMethodsMap["text"] = $().text;
+        atributeMethodsMap["html"] = $().html;
+        atributeMethodsMap["css"] = $().css;
+        atributeMethodsMap["attr"] = $().attr;
+        atributeMethodsMap["event"] = $().on;
+
+        var jqDelegate = null,
+        jqDelegateArguments = [],
+        methodType = "";
+
+        var domAttributeSplitList = domAttribute.split("-");
+
+        if (domAttributeSplitList[0] && atributeMethodsMap[domAttributeSplitList[0]]) {
+            jqDelegate = atributeMethodsMap[domAttributeSplitList[0]];
+        }
+
+        if (domAttributeSplitList[0] === "event") {
+            methodType = "action";
+        }
+        else {
+            methodType = "value";
+        }
+
+        if (domAttributeSplitList[1]) {
+            jqDelegateArguments = [domAttributeSplitList[1]];
+        }
+
+        return {
+            "delegate": jqDelegate,
+            "arguments": jqDelegateArguments,
+            "methodType": methodType
         }
     }
 
@@ -180,10 +280,7 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
         model = modelToObserve;
     }
     else {
-        model = new trivia.models.ObservableModel();
-        for (modelProperty in modelToObserve) {
-            model[modelProperty] = modelToObserve[modelProperty];
-        }
+        model = new trivia.models.ObservableModel(modelToObserve);
     }
 
     return self;

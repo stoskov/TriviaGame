@@ -14,7 +14,7 @@
 		<link type="text/css" rel="stylesheet" href="styles/styles.css" />
 
 		<script type="text/javascript" src="scripts/modernizr-2.6.2.js"></script>
-		<script type="text/javascript" src="scripts/jquery-1.8.3.min.js"></script>
+		<script type="text/javascript" src="scripts/jquery-1.8.3.js"></script>
 		<script type="text/javascript" src="scripts/kendo.web.js"></script>
 		<script type="text/javascript" src="scripts/trivia.library.js"></script>
 		<script type="text/javascript" src="scripts/trivia.js"></script>
@@ -22,60 +22,113 @@
 	</head>
 	<body>
 		<div id="site-wrap">
-			<header>
-				<h1>
+
+			<!-- Site header -->
+			<header id="site-header" class="clear">
+
+				<h1 id="site-title">
 					trivia game
 				</h1>
 
+				<!-- User account -->
+				<div id="site-header-user-account-wrap" class="clear">
+
+					<!-- Widget for loged users -->
+					<div id="site-header-user-account-logedin" data-bind-trivia="css-display: logoutVisibility">
+
+						<a id="site-header-user-account-logout" 
+							class="site-header-user-account-widget site-header-user-account-widget-link"
+							data-bind-trivia="event-click: logout">logout</a>
+
+						<span class="site-header-user-account-widget site-header-user-account-widget-separator"></span>
+
+						<span id="site-header-user-account-username" 
+							class="site-header-user-account-widget site-header-user-account-widget-static" 
+							data-bind-trivia="text: userDisplayName"></span>
+
+					</div>
+
+					<!-- Widget for not loged users -->
+					<div id="site-header-user-account-logedout" class="clear" data-bind-trivia="css-display: loginVisibility">
+
+						<a id="site-header-user-account-register" 
+							class="site-header-user-account-widget site-header-user-account-widget-link">register</a>
+
+						<span class="site-header-user-account-widget site-header-user-account-widget-separator"></span>
+
+						<a id="site-header-user-account-login" 
+							class="site-header-user-account-widget site-header-user-account-widget-link"
+							data-bind-trivia="event-click: login">login</a>
+
+					</div>
+
+				</div>
+
 			</header>
 
-		</div>
+			<!-- Site navigation -->
+			<nav id="site-main-nav-wrap" class="clear">
+				<ul id="site-main-nav">
+					<li class="site-main-nav-item">home </li>
+					<li class="site-main-nav-item">new game </li>
+					<li class="site-main-nav-item">user info </li>
+					<li class="site-main-nav-item">all users </li>
+					<li class="site-main-nav-item">all categories </li>
+					<li class="site-main-nav-item">add new category </li>
+					<li class="site-main-nav-item">add new question </li>
+				</ul>
+			</nav>
 
-		<ul id="main-nav">
-			<li data-option="home">home </li>
-			<li>new game </li>
-			<li>user info </li>
-			<li>all users </li>
-			<li>all categories </li>
-			<li>add new category </li>
-			<li>add new question </li>
-		</ul>
+			<div id="login-register-forms-wrap">
+				<div id="login-form">
 
-		<!-- View -->
-		<div id="view">
-			<!-- The value of the INPUT element is bound to the "firstName" field of the View-Model.
-			When the value changes so will the "firstName" field and vice versa.  -->
-			<label>
-				First Name:
-				<input data-bind="value: firstName" />
-			</label>
-			<!-- The value of the INPUT element is bound to the "lastName" field of the View-Model.
-			When the value changes so will the "lastName" field and vice versa.   -->
-			<label>
-				Last Name:
-				<input data-bind="value: lastName" />
-			</label>
-			<!-- The click event of the BUTTON element is bound to the "displayGreeting" method of the View-Model.
-			When the user clicks the button the "displayGreeting" method will be invoked.  -->
-			<button data-bind="click: displayGreeting">Display Greeting</button>
-		</div>
-
-		<div id="grid">
-		</div>
-
-		<div id="trivia-div" >
-			value:
-			<input type="text" id="text1" /><br />
-			copy:
-			<input type="text" id="text2" data-bind-trivia="value: testProp" /><br />
-			<input type="button" id="button1" value="View value" data-bind-trivia="click: testMethot" />
-			<div>
-				<div>
-					<input type="text" id="text3" data-bind-trivia="change: testMethot" /><br />
 				</div>
+				<div id="register-form">
+
+				</div>
+
 			</div>
-			<br />
-			<span id="output"></span>
+
+		</div>
+
+		<div style="display: none">
+
+			<!-- View -->
+			<div id="view">
+				<!-- The value of the INPUT element is bound to the "firstName" field of the View-Model.
+				When the value changes so will the "firstName" field and vice versa.  -->
+				<label>
+					First Name:
+					<input data-bind="value: firstName" />
+				</label>
+				<!-- The value of the INPUT element is bound to the "lastName" field of the View-Model.
+				When the value changes so will the "lastName" field and vice versa.   -->
+				<label>
+					Last Name:
+					<input data-bind="value: lastName" />
+				</label>
+				<!-- The click event of the BUTTON element is bound to the "displayGreeting" method of the View-Model.
+				When the user clicks the button the "displayGreeting" method will be invoked.  -->
+				<button data-bind="click: displayGreeting">Display Greeting</button>
+			</div>
+
+			<div id="grid">
+			</div>
+
+			<div id="trivia-div" >
+				value:
+				<input type="text" id="text1" /><br />
+				copy:
+				<input type="text" id="text2" data-bind-trivia="value: testProp" /><br />
+				<input type="button" id="button1" value="View value" data-bind-trivia="click: testMethot" />
+				<div>
+					<div>
+						<input type="text" id="text3" data-bind-trivia="change: testMethot" /><br />
+					</div>
+				</div>
+				<br />
+				<span id="output"></span>
+			</div>
 		</div>
 
 	</body>

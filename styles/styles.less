@@ -1,3 +1,16 @@
+/*Constants*/
+
+/*Colors*/
+@header-text-main-color-active: #8ebc00;
+@header-text-main-color-inactive: #787878;
+@header-user-account-widget-active: @header-text-main-color-active;
+@header-user-account-widget-inactive: @header-text-main-color-inactive;
+
+/*Sizes*/
+@site-header-heigh: 32px;
+@site-header-user-account-widget-height: @site-header-heigh;
+@site-header-user-account-widget-separator-height: ( @site-header-heigh / 2);
+
 /* Embed fonts*/
 @font-face {
 	font-family: 'SegoeUIRegular';
@@ -10,11 +23,18 @@
 }
 
 /* Reseters */
-body {
+body, h1, span, nav {
 	margin: 0;
 	padding: 0;
 	font-family: inherit;
 }
+
+ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
 
 /* Utilities */
 .clear {
@@ -34,12 +54,76 @@ html {
 }
 
 #site-wrap {
-	margin: 0 auto;
+	margin: 20px auto;
 	width: 960px;
-
 }
 
+/*Site heder*/
+#site-header {
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	height: @site-header-heigh;
+	border-bottom: 1px solid @header-text-main-color-active;
+	text-transform: lowercase;
 
-#main-nav {
-	display: inline-block;
+	#site-title {
+		float: left;
+		width: 50%;
+		height: 100%;
+		color: @header-text-main-color-inactive;
+	}
+
+	#site-header-user-account-wrap {
+		width: 50%;
+		height: 100%;
+		float: right;
+
+		& > div {
+			height: 100%;
+		}
+
+		.site-header-user-account-widget {
+			display: block;
+			float: right;
+			margin: 0 15px;
+			height: @site-header-user-account-widget-height;
+		}
+
+		.site-header-user-account-widget-separator {
+			margin: ( @site-header-heigh / 4) 0;
+			width: 1px;
+			height: ( @site-header-heigh / 2);
+			background-color: @header-user-account-widget-inactive;
+		}
+
+		.site-header-user-account-widget-link {
+			height: @site-header-user-account-widget-height;
+			color: @header-user-account-widget-inactive;
+			font-size: 125%;
+			line-height: @site-header-user-account-widget-height;
+			cursor: pointer;
+
+			&:hover {
+				color: @header-user-account-widget-active;
+			}
+		}
+
+		.site-header-user-account-widget-static {
+			height: @site-header-user-account-widget-height;
+			color: @header-user-account-widget-active;
+			font-size: 125%;
+			line-height: @site-header-user-account-widget-height;
+		}
+	}
+}
+
+/*Main navigation*/
+#site-main-nav-wrap {
+	display: block;
+	width: 100%;
+
+	& .site-main-nav-item {
+		min-width: (958px / 7 - 1);
+		text-align: center;
+	}
 }
