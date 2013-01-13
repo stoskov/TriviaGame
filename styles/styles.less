@@ -125,5 +125,42 @@ html {
 	& .site-main-nav-item {
 		min-width: (958px / 7 - 1);
 		text-align: center;
+		text-transform:lowercase;
 	}
+}
+
+
+/*Login and Register forms*/
+#login-register-forms-wrap {
+	display: none;
+}
+
+#login-form, #registtration-form {
+	padding: 10px;
+	width: 400px;
+
+	.k-textbox {
+		display: block;
+		margin-bottom: 10px;
+		width: 100%;
+		text-transform:lowercase;
+	}
+
+	.k-button {
+		float: right;
+		margin-left: 10px;
+		width: 80px;
+		height: 30px;
+		text-transform:lowercase;
+	}
+
+	.k-invalid-msg {
+		display: block;
+		margin: 15px;
+	}
+}
+
+.k-window-titlebar {
+	text-align: center;
+	text-transform:lowercase;
 }

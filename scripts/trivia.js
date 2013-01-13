@@ -1,30 +1,53 @@
-﻿(function($) {
-    $(document).ready(function() {
+﻿(function ($) {
+    $(document).ready(function () {
 
         //User account model
         userAccount = new trivia.models.ObservableModel({
-            userName: "stoskov",
-            nickName: "Svetozar Toskov",
+            username: "",
+            nickname: "",
             authCode: "",
             isLogedIn: false,
         });
 
         //Busuness layer controler staying between user accout model and the user account view
-        headerUserAccountController = new trivia.viewModels.ViewModel({        	
+        headerUserAccountController = new trivia.viewModels.ViewModel({
             loginVisibility: "block",
             logoutVisibility: "none",
+            username: "",
+            nickname: "",
+            password: "",
             userDisplayName: "",
+            loginFormAnchor: $("#login-form"),
+            registtrationFormAnchor: $("#registtration-form"),
 
-            login: function() {
-                userAccount.isLogedIn = true;
+            init: function () {
+                userAccount.watchProperty("isLogedIn", this, this.updateControlerState);
+                userAccount.watchProperty("nickName", this, this.updateControlerState);
+
+                //Initialise login form
+                if (!this.loginFormAnchor.data("kendoWindow")) {
+                    this.loginFormAnchor.kendoWindow({
+                        title: "Login",
+                        modal: true,
+                        resizable: false,
+                    });
+                    this.loginFormAnchor.data("kendoWindow").close();
+                }
+
+                //Initialise registration form
+                if (!this.registtrationFormAnchor.data("kendoWindow")) {
+                    this.registtrationFormAnchor.kendoWindow({
+                        title: "Registration",
+                        modal: true,
+                        resizable: false,
+                    });
+                    this.registtrationFormAnchor.data("kendoWindow").close();
+                }
+
             },
 
-            logout: function () {
-                userAccount.isLogedIn = false;
-            },
+            updateControlerState: function () {
 
-            updateControlerState: function() {
-            	
                 if (userAccount.isLogedIn == true) {
                     this.loginVisibility = "none";
                     this.logoutVisibility = "block";
@@ -37,25 +60,88 @@
                 this.userDisplayName = userAccount.nickName;
             },
 
-            init: function () {
-                userAccount.watchProperty("isLogedIn", this, this.updateControlerState);
-                userAccount.watchProperty("nickName", this, this.updateControlerState);
-            }
+            clearUserInfo : function() {
+                this.password = "";
+                this.username = "";
+                this.nickname = "";
+            },
+
+            login: function () {
+                if (!userAccount.isLogedIn) {
+                    this.openLoginForm();
+                }
+
+            },
+
+            openLoginForm: function () {
+                this.clearUserInfo();
+                this.loginFormAnchor.data("kendoWindow").center();
+                this.loginFormAnchor.data("kendoWindow").open();
+            },
+
+            sendLoginRequest: function () {
+               
+            },
+
+            closeLoginForm: function () {
+                this.clearUserInfo();
+                this.loginFormAnchor.data("kendoWindow").close();
+            },
+
+            register: function () {
+                this.openRegistrationForm();
+            },
+
+            openRegistrationForm: function () {
+                this.clearUserInfo();
+                this.registtrationFormAnchor.data("kendoWindow").center();
+                this.registtrationFormAnchor.data("kendoWindow").open();
+            },
+
+            sendRegistrationRequest:function() {
+                var hash = CryptoJS.SHA1(this.username + this.password);
+                var registrationRequest = {
+                    "username": this.username,
+                    "nickname" : this.nickname,
+                    "authCode": hash.toString()
+                }
+
+                registrationRequest = JSON.stringify(registrationRequest);
+                trivia.restComunicator.sendPostRequest("http://trivia-game.apphb.com/api/trivia/register-user", registrationRequest,
+                                                       function (data) {
+                                                           alert(JSON.stringify(data));
+                                                       }, function (data) {
+                                                           alert(JSON.stringify(data));
+                                                       });
+
+            },
+
+            closeRegistrationForm: function () {
+                this.clearUserInfo();
+                this.registtrationFormAnchor.data("kendoWindow").close();
+            },
+
+            logout: function () {
+                this.clearUserInfo();
+                userAccount.isLogedIn = false;
+                userAccount.authCode = "";
+                userAccount.username = "";
+                userAccount.nickname = "";
+            },
         })
 
         headerUserAccountController.bind($("#site-header-user-account-wrap"));
-        
+        headerUserAccountController.bind($("#login-form"));
+        headerUserAccountController.bind($("#registtration-form"));
+
         $("#site-main-nav").kendoMenu({
             //select: onSelect
         });
-
 
         //function onSelect(e) {
         //    console.log("Selected: " + $(e.item).children(".k-link").text());
         //    viewModel.firstName = $(e.item).children(".k-link").text();
         //}
-
-     
 
         //var viewModel = kendo.observable({
         //    firstName: "John",
@@ -139,7 +225,7 @@
         //    },
 
         //];
-        
+
         //$("#grid").kendoGrid({
         //    dataSource: {
         //        data: users,
@@ -226,7 +312,7 @@
         //ctrl.secret = 'null';
         //ctrl._bind($('#text1'), 'secret'); // I want the model to reflect changes in #text1
         //ctrl._watch($('#text1'), 'secret'); // I want the dom element #text2 to reflect changes in the model
-   
+
         //var ObservableClass = function () {
         //    var self = this;
 
@@ -236,7 +322,7 @@
         //        writable: false,
 
         //        value: function (element, property) {
-                    
+
         //            $(element).on("change input propertyChange click", function (e) {
         //                e.preventDefault();
         //                if (self[property] instanceof Function) {
@@ -245,9 +331,9 @@
         //                else {
         //                    self[property] = $(element).val();
         //                }
-                        
+
         //            });
-                    
+
         //            var _value = self[property];
 
         //            Object.defineProperty(self, property, {
@@ -274,7 +360,7 @@
         ////    alert("Test Function");
         ////}
         ////obs.bind($('#button1'), "testFunc")
-        
+
         ////$('#button1').on("click", function () {
         ////    alert("Hidden");
         ////});
@@ -288,6 +374,6 @@
         //vm = new trivia.viewModels.ViewModel(mod);
 
         //vm.bind($('#trivia-div'));
-        
+
     })
 })(jQuery)

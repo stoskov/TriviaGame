@@ -28,6 +28,33 @@ trivia.classManager.createClass = function (baseClass, currentClassConstructor) 
 }
 //#endregion
 
+//#region trivia.restComunicator namespace
+trivia.restComunicator = trivia.restComunicator || {};
+
+trivia.restComunicator.sendGetRequest = function (serviceUrl, onSuccess, onError) {
+    $.ajax({
+        url: serviceUrl,
+        type: "GET",
+        timeout: 5000,
+        dataType: "json",
+        success: onSuccess,
+        error: onError
+    });
+}
+
+trivia.restComunicator.sendPostRequest = function (serviceUrl, data, onSuccess, onError) {
+    $.ajax({
+        url: serviceUrl,
+        type: "POST",
+        timeout: 5000,
+        dataType: "json",
+        data: data,
+        success: onSuccess,
+        error: onError
+    });
+}
+//#endregion
+
 //#region trivia.models namespace
 trivia.models = trivia.models || {};
 

@@ -100,4 +100,38 @@ html {
 #site-main-nav-wrap .site-main-nav-item {
   min-width: 135.85714285714286px;
   text-align: center;
+  text-transform: lowercase;
+}
+/*Login and Register forms*/
+#login-register-forms-wrap {
+  display: none;
+}
+#login-form,
+#registtration-form {
+  padding: 10px;
+  width: 400px;
+}
+#login-form .k-textbox,
+#registtration-form .k-textbox {
+  display: block;
+  margin-bottom: 10px;
+  width: 100%;
+  text-transform: lowercase;
+}
+#login-form .k-button,
+#registtration-form .k-button {
+  float: right;
+  margin-left: 10px;
+  width: 80px;
+  height: 30px;
+  text-transform: lowercase;
+}
+#login-form .k-invalid-msg,
+#registtration-form .k-invalid-msg {
+  display: block;
+  margin: 15px;
+}
+.k-window-titlebar {
+  text-align: center;
+  text-transform: lowercase;
 }
