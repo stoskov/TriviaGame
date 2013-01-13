@@ -54,7 +54,7 @@
 
 						<a id="site-header-user-account-register" 
 							class="site-header-user-account-widget site-header-user-account-widget-link"
-                            data-bind-trivia="event-click: register">Register</a>
+							data-bind-trivia="event-click: register">Register</a>
 
 						<span class="site-header-user-account-widget site-header-user-account-widget-separator"></span>
 
@@ -67,36 +67,92 @@
 					<!-- Login and Register forms -->
 					<div id="login-register-forms-wrap">
 						<div id="login-form">
+                            <!-- Login username -->
+							<div class="user-account-form-widget-group clear">
+								<label id="login-form-username-label" class="user-account-form-widget user-account-form-label"
+									for="login-form-username">Username</label>
+								<input type="text" id="login-form-username" name="login-form-username" required="required"
+									class="k-textbox user-account-form-widget user-account-form-field" 
+									data-bind-trivia="attr-value: username"/>
+							</div>
 
-							<input type="text" id="login-form-username" name="login-form-username" class="k-textbox" placeholder="Username"
-								data-bind-trivia="attr-value: username"/>
+                            <!-- Login password -->
+							<div class="user-account-form-widget-group clear">
+								<label id="Label1" class="user-account-form-widget user-account-form-label"
+                                    for="login-form-password">Password</label>
+								<input type="password" id="login-form-password" name="login-form-password" 
+									class="k-textbox user-account-form-widget user-account-form-field"
+									data-bind-trivia="attr-value: password"/>
+							</div>
 
-							<input type="password" id="login-form-password" name="login-form-password" class="k-textbox" placeholder="Password"
-								data-bind-trivia="attr-value: password"/>
+                            <!-- Login buttons -->
+							<div class="user-account-form-widget-group clear">
+								<input type="submit" id="login-form-close" value="Close"
+									class="k-button user-account-form-widget user-account-form-button"
+									data-bind-trivia="event-click: closeLoginForm"/>
 
-							<input type="submit" id="login-form-close" class="k-button" value="Close"
-								data-bind-trivia="event-click: closeLoginForm"/>
+								<input type="submit" id="login-form-login" value="Login"
+									class="k-button user-account-form-widget user-account-form-button"
+									data-bind-trivia="event-click: sendLoginRequest"/>
+							</div>
 
-							<input type="submit" id="login-form-login" class="k-button" value="Login"
-								data-bind-trivia="event-click: sendLoginRequest"/>
+                            <!-- Login status bar -->
+							<span class="user-account-form-status"
+								data-bind-trivia="css-display: loginFromStatusBarVisibility; html: loginFromStatusBarMessage"></span>
 
 						</div>
-						<div id="registtration-form">
+						<div id="registration-form">
 
-							<input type="text" id="registtration-form-username" name="registtration-form-username" class="k-textbox" placeholder="Username"
-								data-bind-trivia="attr-value: username"/>
+                            <!-- Registration username -->
+							<div class="user-account-form-widget-group clear">
+								<label id="registration-form-username-label" class="user-account-form-widget user-account-form-label"
+                                    for="registration-form-username">Username</label>
+								<input type="text" id="registration-form-username" name="registration-form-username" 
+									class="k-textbox user-account-form-widget user-account-form-field" 
+									data-bind-trivia="attr-value: username"/>
+							</div>
 
-							<input type="text" id="registtration-form-nickname" name="registtration-form-username" class="k-textbox" placeholder="Nickname"
-								data-bind-trivia="attr-value: nickname"/>
+                            <!-- Registration nickname -->
+							<div class="user-account-form-widget-group clear">
+								<label id="registration-form-nickname-label" class="user-account-form-widget user-account-form-label"
+                                    for="registration-form-nickname">Nickname</label>
+								<input type="text" id="registration-form-nickname" name="registration-form-nickname" 
+									class="k-textbox user-account-form-widget user-account-form-field"
+									data-bind-trivia="attr-value: nickname"/>
+							</div>
 
-							<input type="password" id="registtration-form-password" name="registtration-form-password" class="k-textbox" placeholder="Password"
-								data-bind-trivia="attr-value: password"/>
+                            <!-- Registration password -->
+							<div class="user-account-form-widget-group clear">
+								<label id="registration-form-password-label" class="user-account-form-widget user-account-form-label"
+                                    for="registration-form-password">Password</label>
+								<input type="password" id="registration-form-password" name="registration-form-password" 
+									class="k-textbox user-account-form-widget user-account-form-field"
+									data-bind-trivia="attr-value: password"/>
+							</div>
 
-							<input type="submit" id="registtration-form-close" class="k-button" value="Close"
-								data-bind-trivia="event-click: closeRegistrationForm"/>
+                            <!-- Registration password verification -->
+                            <div class="user-account-form-widget-group clear">
+								<label id="registration-form-password-verification-babel" class="user-account-form-widget user-account-form-label"
+                                    for="registration-form-password-verification">Re-type Password</label>
+								<input type="password" id="registration-form-password-verification" name="registration-form-password-verification" 
+									class="k-textbox user-account-form-widget user-account-form-field"
+									data-bind-trivia="attr-value: passwordVerification"/>
+							</div>
 
-							<input type="submit" id="registtration-form-register" class="k-button" value="Register"
-								data-bind-trivia="event-click: sendRegistrationRequest"/>
+                            <!-- Registration bouttons -->
+							<div class="user-account-form-widget-group clear">
+								<input type="submit" id="registration-form-close"  value="Close"
+									class="k-button user-account-form-widget user-account-form-button"
+									data-bind-trivia="event-click: closeRegistrationForm"/>
+
+								<input type="submit" id="registration-form-register" value="Register"
+									class="k-button user-account-form-widget user-account-form-button"
+									data-bind-trivia="event-click: sendRegistrationRequest"/>
+							</div>
+
+                            <!-- Registration status bar -->
+							<span class="user-account-form-status"
+								data-bind-trivia="css-display: registrationFromStatusBarVisibility; html: registrationFromStatusBarMessage"></span>
 
 						</div>
 
@@ -113,8 +169,8 @@
 					<li class="site-main-nav-item">User info </li>
 					<li class="site-main-nav-item">All users </li>
 					<li class="site-main-nav-item">All categories </li>
-					<li class="site-main-nav-item">Add new category </li>
-					<li class="site-main-nav-item">Add new question </li>
+					<li class="site-main-nav-item">New category </li>
+					<li class="site-main-nav-item">New question </li>
 				</ul>
 			</nav>
 

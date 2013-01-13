@@ -31,28 +31,45 @@ trivia.classManager.createClass = function (baseClass, currentClassConstructor) 
 //#region trivia.restComunicator namespace
 trivia.restComunicator = trivia.restComunicator || {};
 
-trivia.restComunicator.sendGetRequest = function (serviceUrl, onSuccess, onError) {
-    $.ajax({
-        url: serviceUrl,
-        type: "GET",
-        timeout: 5000,
-        dataType: "json",
-        success: onSuccess,
-        error: onError
-    });
-}
+trivia.restComunicator.Comunicator = trivia.classManager.createClass(null, function (hostUrl) {
+    var self = this,
+    host = hostUrl;
 
-trivia.restComunicator.sendPostRequest = function (serviceUrl, data, onSuccess, onError) {
-    $.ajax({
-        url: serviceUrl,
-        type: "POST",
-        timeout: 5000,
-        dataType: "json",
-        data: data,
-        success: onSuccess,
-        error: onError
-    });
-}
+    //Public members
+    self.setHostUrl = function(hostUrl) {
+        host = hostUrl;
+    }
+
+    self.getHostUrl = function () {
+        return host;
+    }
+
+    self.sendGetRequest = function (serviceUrl, data, onSuccess, onError) {
+        var requestUrl = host + serviceUrl;
+        $.ajax({
+            url: requestUrl,
+            type: "GET",
+            timeout: 5000,
+            dataType: "json",
+            data: data,
+            success: onSuccess,
+            error: onError
+        });
+    }
+
+    self.sendPostRequest = function (serviceUrl, data, onSuccess, onError) {
+        var requestUrl = host + serviceUrl;
+        $.ajax({
+            url: requestUrl,
+            type: "POST",
+            timeout: 5000,
+            dataType: "json",
+            data: data,
+            success: onSuccess,
+            error: onError
+        });
+    }
+});
 //#endregion
 
 //#region trivia.models namespace
@@ -233,7 +250,7 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
 
             $(domElement).on(event, function (e) {
                 e.preventDefault();
-                e.stopPropagation();
+                //  e.stopPropagation();
                 model[propertyName].call(model, domElement);
             });
         }
@@ -242,7 +259,7 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
             //Bind from DOM to Model
             $(domElement).on("change input propertyChange", function (e) {
                 e.preventDefault();
-                e.stopPropagation();
+                // e.stopPropagation();
                 model[propertyName] = jqDelegate.apply($(domElement), jqDelegateArguments);
             });
             //Bind from Model to DOM
@@ -256,7 +273,7 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
         else {
             //Bind from DOM to Model
             $(domElement).on("refresh", function (e) {
-                e.stopPropagation();
+                //e.stopPropagation();
                 var modelValue = model[propertyName].call(model, domElement);
                 jqDelegateArguments.push(modelValue);
                 jqDelegate.apply($(domElement), jqDelegateArguments);

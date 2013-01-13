@@ -1,24 +1,52 @@
 ﻿(function ($) {
     $(document).ready(function () {
 
-        //User account model
+
+        //#region User account model
         userAccount = new trivia.models.ObservableModel({
             username: "",
             nickname: "",
             authCode: "",
             isLogedIn: false,
-        });
 
+            login: function (username, nickname, authCode) {
+                this.username = username;
+                this.nickname = nickname;
+                this.authCode = authCode;
+                this.isLogedIn = true;
+            },
+
+            logout: function (username, nickname, authCode) {
+                this.username = "";
+                this.nickname = "";
+                this.authCode = "";
+                this.isLogedIn = false;
+            },
+        });
+        //#endregion
+
+        //#region User account controller
         //Busuness layer controler staying between user accout model and the user account view
-        headerUserAccountController = new trivia.viewModels.ViewModel({
+        userAccountController = new trivia.viewModels.ViewModel({
             loginVisibility: "block",
             logoutVisibility: "none",
+
+            loginFromStatusBarVisibility: "none",
+            loginFromStatusBarMessage: "",
+
+            registrationFromStatusBarVisibility: "none",
+            registrationFromStatusBarMessage: "",
+
             username: "",
             nickname: "",
             password: "",
+            passwordVerification: "",
+            authCode: "",
             userDisplayName: "",
+
             loginFormAnchor: $("#login-form"),
-            registtrationFormAnchor: $("#registtration-form"),
+            registrationFormAnchor: $("#registration-form"),
+            restComunicator: new trivia.restComunicator.Comunicator("http://trivia-game.apphb.com/api/trivia"),
 
             init: function () {
                 userAccount.watchProperty("isLogedIn", this, this.updateControlerState);
@@ -35,13 +63,13 @@
                 }
 
                 //Initialise registration form
-                if (!this.registtrationFormAnchor.data("kendoWindow")) {
-                    this.registtrationFormAnchor.kendoWindow({
+                if (!this.registrationFormAnchor.data("kendoWindow")) {
+                    this.registrationFormAnchor.kendoWindow({
                         title: "Registration",
                         modal: true,
                         resizable: false,
                     });
-                    this.registtrationFormAnchor.data("kendoWindow").close();
+                    this.registrationFormAnchor.data("kendoWindow").close();
                 }
 
             },
@@ -57,86 +85,174 @@
                     this.logoutVisibility = "none";
                 }
 
-                this.userDisplayName = userAccount.nickName;
+                this.userDisplayName = userAccount.username;
             },
 
-            clearUserInfo : function() {
+            clearInfo: function () {
                 this.password = "";
+                this.passwordVerification = "";
                 this.username = "";
                 this.nickname = "";
+
+                this.loginFromStatusBarVisibility = "none";
+                this.registrationFromStatusBarMessage = "";
+
+                this.registrationFromStatusBarVisibility = "none";
+                this.loginFromStatusBarMessage = "";
             },
 
+            //#region Login/Logout services
             login: function () {
                 if (!userAccount.isLogedIn) {
                     this.openLoginForm();
                 }
-
             },
 
             openLoginForm: function () {
-                this.clearUserInfo();
+                this.clearInfo();
                 this.loginFormAnchor.data("kendoWindow").center();
                 this.loginFormAnchor.data("kendoWindow").open();
             },
 
             sendLoginRequest: function () {
-               
+                if (this.verifyLoginRequest()) {
+
+                    var hash = CryptoJS.SHA1(this.username + this.password);
+                    this.authCode = hash.toString();
+
+                    var registrationRequest = {
+                        "username": this.username,
+                        "authCode": this.authCode
+                    };
+
+                    var self = this;
+
+                    this.restComunicator.sendPostRequest("/login-user", registrationRequest,
+                                                         function (data) {
+                                                             self.onSuccessfullLogin(data)
+                                                         },
+                                                         function (data) {
+                                                             self.onErrorLogin(data)
+                                                         });
+                }
+            },
+
+            verifyLoginRequest: function () {
+                if (this.username == "" || this.password == "") {
+                    this.loginFromStatusBarVisibility = "block";
+                    this.loginFromStatusBarMessage = "Username and password are required";
+                    return false;
+                }
+                return true;
+            },
+
+            onSuccessfullLogin: function () {
+                userAccount.login(this.username, this.nickname, this.authCode);
+                this.clearInfo();
+                this.closeLoginForm();
+            },
+
+            onErrorLogin: function (data) {
+                var errorResponse = JSON.parse(data.responseText);
+                var message = errorResponse["Message"];
+                message = message.replace("\n", "<br/>");
+                this.loginFromStatusBarVisibility = "block";
+                this.loginFromStatusBarMessage = message;
             },
 
             closeLoginForm: function () {
-                this.clearUserInfo();
+                this.clearInfo();
                 this.loginFormAnchor.data("kendoWindow").close();
             },
 
+            logout: function () {
+                this.clearInfo();
+                userAccount.logout();
+            },
+            //#endregion
+
+            //#region Registration services
             register: function () {
-                this.openRegistrationForm();
+                if (!userAccount.isLogedIn) {
+                    this.openRegistrationForm();
+                }
+            },
+
+            sendRegistrationRequest: function () {
+                if (this.verifyRegistrationRequest()) {
+
+                    var hash = CryptoJS.SHA1(this.username + this.password);
+                    this.authCode = hash.toString();
+
+                    var registrationRequest = {
+                        "username": this.username,
+                        "nickname": this.nickname,
+                        "authCode": this.authCode
+                    };
+
+                    var self = this;
+
+                    this.restComunicator.sendPostRequest("/register-user", registrationRequest,
+                                                         function (data) {
+                                                             self.onSuccessfullRegistration(data)
+                                                         },
+                                                         function (data) {
+                                                             self.onErrorRegistration(data)
+                                                         });
+                }
+            },
+
+            verifyRegistrationRequest: function () {
+                if (this.username == "" || this.nickname == "" ||
+                    this.password == "" || this.passwordVerification == "") {
+
+                    this.registrationFromStatusBarVisibility = "block";
+                    this.registrationFromStatusBarMessage = "All fields are required";
+                    return false;
+                }
+                else if (this.password !== this.passwordVerification){
+                    this.registrationFromStatusBarVisibility = "block";
+                    this.registrationFromStatusBarMessage = "Passwords don't match";
+                    return false;
+                }
+                
+                return true;
+            },
+
+            onSuccessfullRegistration: function (data) {
+                userAccount.login(this.username, this.nickname, this.authCode);
+                this.clearInfo();
+                this.closeRegistrationForm();
+            },
+
+            onErrorRegistration: function (data) {
+                var errorResponse = JSON.parse(data.responseText);
+                var message = errorResponse["Message"];
+                message = message.replace("\n", "<br/>");
+                this.registrationFromStatusBarVisibility = "block";
+                this.registrationFromStatusBarMessage = message;
             },
 
             openRegistrationForm: function () {
-                this.clearUserInfo();
-                this.registtrationFormAnchor.data("kendoWindow").center();
-                this.registtrationFormAnchor.data("kendoWindow").open();
-            },
-
-            sendRegistrationRequest:function() {
-                var hash = CryptoJS.SHA1(this.username + this.password);
-                var registrationRequest = {
-                    "username": this.username,
-                    "nickname" : this.nickname,
-                    "authCode": hash.toString()
-                }
-
-                registrationRequest = JSON.stringify(registrationRequest);
-                trivia.restComunicator.sendPostRequest("http://trivia-game.apphb.com/api/trivia/register-user", registrationRequest,
-                                                       function (data) {
-                                                           alert(JSON.stringify(data));
-                                                       }, function (data) {
-                                                           alert(JSON.stringify(data));
-                                                       });
-
+                this.clearInfo();
+                this.registrationFormAnchor.data("kendoWindow").center();
+                this.registrationFormAnchor.data("kendoWindow").open();
             },
 
             closeRegistrationForm: function () {
-                this.clearUserInfo();
-                this.registtrationFormAnchor.data("kendoWindow").close();
+                this.clearInfo();
+                this.registrationFormAnchor.data("kendoWindow").close();
             },
+            //#endregion
 
-            logout: function () {
-                this.clearUserInfo();
-                userAccount.isLogedIn = false;
-                userAccount.authCode = "";
-                userAccount.username = "";
-                userAccount.nickname = "";
-            },
         })
 
-        headerUserAccountController.bind($("#site-header-user-account-wrap"));
-        headerUserAccountController.bind($("#login-form"));
-        headerUserAccountController.bind($("#registtration-form"));
+        userAccountController.bind($("#site-header-user-account-wrap"));
+        userAccountController.bind($("#login-form"));
+        userAccountController.bind($("#registration-form"));
+        //#endregion
 
-        $("#site-main-nav").kendoMenu({
-            //select: onSelect
-        });
+        $("#site-main-nav").kendoMenu();
 
         //function onSelect(e) {
         //    console.log("Selected: " + $(e.item).children(".k-link").text());

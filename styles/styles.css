@@ -36,7 +36,7 @@ ul {
 }
 /* Styles */
 html {
-  font: 75% SegoeUIRegular, arial, helvetica, sans-serif;
+  font: 100% SegoeUIRegular, arial, helvetica, sans-serif;
 }
 #site-wrap {
   margin: 20px auto;
@@ -45,8 +45,8 @@ html {
 /*Site heder*/
 #site-header {
   margin-bottom: 10px;
-  padding-bottom: 10px;
-  height: 32px;
+  padding-bottom: 5px;
+  height: 48px;
   border-bottom: 1px solid #8ebc00;
   text-transform: lowercase;
 }
@@ -68,29 +68,29 @@ html {
   display: block;
   float: right;
   margin: 0 15px;
-  height: 32px;
+  height: 48px;
 }
 #site-header #site-header-user-account-wrap .site-header-user-account-widget-separator {
-  margin: 8px 0;
+  margin: 12px 0;
   width: 1px;
-  height: 16px;
+  height: 24px;
   background-color: #787878;
 }
 #site-header #site-header-user-account-wrap .site-header-user-account-widget-link {
-  height: 32px;
+  height: 48px;
   color: #787878;
   font-size: 125%;
-  line-height: 32px;
+  line-height: 48px;
   cursor: pointer;
 }
 #site-header #site-header-user-account-wrap .site-header-user-account-widget-link:hover {
   color: #8ebc00;
 }
 #site-header #site-header-user-account-wrap .site-header-user-account-widget-static {
-  height: 32px;
+  height: 48px;
   color: #8ebc00;
   font-size: 125%;
-  line-height: 32px;
+  line-height: 48px;
 }
 /*Main navigation*/
 #site-main-nav-wrap {
@@ -107,31 +107,50 @@ html {
   display: none;
 }
 #login-form,
-#registtration-form {
+#registration-form {
   padding: 10px;
-  width: 400px;
+  width: 500px;
 }
-#login-form .k-textbox,
-#registtration-form .k-textbox {
+#login-form .user-account-form-widget,
+#registration-form .user-account-form-widget {
+  height: 2.2em;
+  text-transform: lowercase;
+}
+#login-form .user-account-form-button,
+#registration-form .user-account-form-button {
+  float: right;
+  margin-left: 10px;
+  width: 6.6000000000000005em;
+}
+#login-form .user-account-form-status,
+#registration-form .user-account-form-status {
+  display: none;
+  padding-bottom: 5px;
+  width: 100%;
+  color: #e24a17;
+  line-height: 2.2em;
+}
+#login-form .user-account-form-widget-group,
+#registration-form .user-account-form-widget-group {
   display: block;
   margin-bottom: 10px;
   width: 100%;
-  text-transform: lowercase;
 }
-#login-form .k-button,
-#registtration-form .k-button {
-  float: right;
-  margin-left: 10px;
-  width: 80px;
-  height: 30px;
-  text-transform: lowercase;
-}
-#login-form .k-invalid-msg,
-#registtration-form .k-invalid-msg {
+#login-form .user-account-form-widget-group .user-account-form-field,
+#registration-form .user-account-form-widget-group .user-account-form-field {
   display: block;
-  margin: 15px;
+  width: 100%;
 }
-.k-window-titlebar {
+#login-form .user-account-form-widget-group .user-account-form-label,
+#registration-form .user-account-form-widget-group .user-account-form-label {
+  display: block;
+  width: 100%;
+  color: #8ebc00;
+  line-height: 2.2em;
+}
+.k-window-title {
+  color: #8ebc00;
+  line-height: 1.2em;
   text-align: center;
   text-transform: lowercase;
 }

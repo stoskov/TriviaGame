@@ -5,11 +5,15 @@
 @header-text-main-color-inactive: #787878;
 @header-user-account-widget-active: @header-text-main-color-active;
 @header-user-account-widget-inactive: @header-text-main-color-inactive;
+@user-account-form-widget-satus-bar-color: #e24a17;
 
 /*Sizes*/
-@site-header-heigh: 32px;
+@site-wrap-size: 960px;
+@site-header-heigh: 48px;
 @site-header-user-account-widget-height: @site-header-heigh;
 @site-header-user-account-widget-separator-height: ( @site-header-heigh / 2);
+@login-registration-forms-size: 500px;
+@user-account-form-widget-height: 2.2em;
 
 /* Embed fonts*/
 @font-face {
@@ -35,7 +39,6 @@ ul {
 	list-style: none;
 }
 
-
 /* Utilities */
 .clear {
 	min-height: 0;
@@ -50,18 +53,18 @@ ul {
 
 /* Styles */
 html {
-	font: 75% SegoeUIRegular, arial, helvetica, sans-serif;
+	font: 100% SegoeUIRegular, arial, helvetica, sans-serif;
 }
 
 #site-wrap {
 	margin: 20px auto;
-	width: 960px;
+	width: @site-wrap-size;
 }
 
 /*Site heder*/
 #site-header {
 	margin-bottom: 10px;
-	padding-bottom: 10px;
+	padding-bottom: 5px;
 	height: @site-header-heigh;
 	border-bottom: 1px solid @header-text-main-color-active;
 	text-transform: lowercase;
@@ -123,9 +126,9 @@ html {
 	width: 100%;
 
 	& .site-main-nav-item {
-		min-width: (958px / 7 - 1);
+		min-width: ((@site-wrap-size - 2 ) / 7 - 1);
 		text-align: center;
-		text-transform:lowercase;
+		text-transform: lowercase;
 	}
 }
 
@@ -135,32 +138,51 @@ html {
 	display: none;
 }
 
-#login-form, #registtration-form {
+#login-form, #registration-form {
 	padding: 10px;
-	width: 400px;
+	width: @login-registration-forms-size;
 
-	.k-textbox {
+	.user-account-form-widget {
+		height: @user-account-form-widget-height;
+		text-transform: lowercase;
+	}
+
+	.user-account-form-button {
+		float: right;
+		margin-left: 10px;
+		width: (@user-account-form-widget-height * 3);
+	}
+
+	.user-account-form-status {
+		display: none;
+		padding-bottom: 5px;
+		width: 100%;
+		color: @user-account-form-widget-satus-bar-color;
+		line-height:@user-account-form-widget-height;
+	}
+
+	.user-account-form-widget-group {
 		display: block;
 		margin-bottom: 10px;
 		width: 100%;
-		text-transform:lowercase;
-	}
 
-	.k-button {
-		float: right;
-		margin-left: 10px;
-		width: 80px;
-		height: 30px;
-		text-transform:lowercase;
-	}
+		.user-account-form-field {
+			display: block;
+			width: 100%;
+		}
 
-	.k-invalid-msg {
-		display: block;
-		margin: 15px;
+		.user-account-form-label {
+			display: block;
+			width: 100%;
+			color: @header-text-main-color-active;
+			line-height:@user-account-form-widget-height;
+		}
 	}
 }
 
-.k-window-titlebar {
+.k-window-title {
+	color: @header-text-main-color-active;
+	line-height: 1.2em;
 	text-align: center;
-	text-transform:lowercase;
+	text-transform: lowercase;
 }
