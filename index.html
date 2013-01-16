@@ -176,45 +176,5 @@
 
 		</div>
 
-		<div style="display: none">
-
-			<!-- View -->
-			<div id="view">
-				<!-- The value of the INPUT element is bound to the "firstName" field of the View-Model.
-				When the value changes so will the "firstName" field and vice versa.  -->
-				<label>
-					First Name:
-					<input data-bind="value: firstName" />
-				</label>
-				<!-- The value of the INPUT element is bound to the "lastName" field of the View-Model.
-				When the value changes so will the "lastName" field and vice versa.   -->
-				<label>
-					Last Name:
-					<input data-bind="value: lastName" />
-				</label>
-				<!-- The click event of the BUTTON element is bound to the "displayGreeting" method of the View-Model.
-				When the user clicks the button the "displayGreeting" method will be invoked.  -->
-				<button data-bind="click: displayGreeting">Display Greeting</button>
-			</div>
-
-			<div id="grid">
-			</div>
-
-			<div id="trivia-div" >
-				value:
-				<input type="text" id="text1" /><br />
-				copy:
-				<input type="text" id="text2" data-bind-trivia="value: testProp" /><br />
-				<input type="button" id="button1" value="View value" data-bind-trivia="click: testMethot" />
-				<div>
-					<div>
-						<input type="text" id="text3" data-bind-trivia="change: testMethot" /><br />
-					</div>
-				</div>
-				<br />
-				<span id="output"></span>
-			</div>
-		</div>
-
 	</body>
 </html>
