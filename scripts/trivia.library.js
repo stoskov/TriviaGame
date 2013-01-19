@@ -31,12 +31,14 @@ trivia.classManager.createClass = function (baseClass, currentClassConstructor) 
 //#region trivia.restComunicator namespace
 trivia.restComunicator = trivia.restComunicator || {};
 
-trivia.restComunicator.Comunicator = trivia.classManager.createClass(null, function (hostUrl) {
+trivia.restComunicator.Comunicator = function (hostUrl) {
     var self = this,
-    host = hostUrl;
+    host = hostUrl,
+    serviceMap = {},
+    timeOut = 50000;
 
     //Public members
-    self.setHostUrl = function(hostUrl) {
+    self.setHostUrl = function (hostUrl) {
         host = hostUrl;
     }
 
@@ -44,12 +46,26 @@ trivia.restComunicator.Comunicator = trivia.classManager.createClass(null, funct
         return host;
     }
 
-    self.sendGetRequest = function (serviceUrl, data, onSuccess, onError) {
+    self.addServiceUrl = function (serviceName, serviceUrl) {
+        serviceMap[serviceName] = serviceUrl;
+    }
+
+    self.getServiceUrl = function (serviceName, serviceUrl) {
+        verifyServiceUrl(serviceName);
+        return serviceMap[serviceName];
+    }
+
+    self.setTimeout = function (timeoutInMs) {
+        timeOut = timeoutInMs;
+    };
+
+    self.sendGetRequest = function (serviceName, data, onSuccess, onError) {
+        var serviceUrl = this.getServiceUrl(serviceName);
         var requestUrl = host + serviceUrl;
         $.ajax({
             url: requestUrl,
             type: "GET",
-            timeout: 5000,
+            timeout: timeOut,
             dataType: "json",
             data: data,
             success: onSuccess,
@@ -57,30 +73,52 @@ trivia.restComunicator.Comunicator = trivia.classManager.createClass(null, funct
         });
     }
 
-    self.sendPostRequest = function (serviceUrl, data, onSuccess, onError) {
+    self.sendPostRequest = function (serviceName, data, onSuccess, onError) {
+        var serviceUrl = this.getServiceUrl(serviceName);
         var requestUrl = host + serviceUrl;
         $.ajax({
             url: requestUrl,
             type: "POST",
-            timeout: 5000,
+            timeout: timeOut,
             dataType: "json",
             data: data,
             success: onSuccess,
             error: onError
         });
     }
-});
+
+    self.parseResponseMessage = function (data) {
+        var message = "";
+
+        if (data.statusText) {
+            message = data.statusText;
+        }
+
+        if (data.responseText) {
+            var errorResponse = JSON.parse(data.responseText);
+            message = message + "\n" + errorResponse["Message"];           
+        }
+
+        message = message.replace("\n", "<br/>");
+        return message;
+    }
+
+    //Private members
+    var verifyServiceUrl = function (serviceName) {
+        if (serviceMap[serviceName] == undefined || serviceMap[serviceName] == null) {
+            throw new Error("Url for service " + serviceName + " is not defined");
+        }
+    }
+}
 //#endregion
 
 //#region trivia.models namespace
 trivia.models = trivia.models || {};
 
 //Definition of observalbe class using event handler to watch for a property changes
-trivia.models.ObservableModel = trivia.classManager.createClass(null, function (model) {
-    var self = this,
-    //Store list with properties to observe. 
-    //Needed to support a property being wathed by multiple watchers
-    observablePropertiesHandlers = {};
+
+trivia.models.ObservableModel = function (model) {
+    var self = this;
 
     //If model passed as parameter trasnfer properties
     if (model != null) {
@@ -97,21 +135,21 @@ trivia.models.ObservableModel = trivia.classManager.createClass(null, function (
 
         value: function (property, handlerHost, handler) {
 
-            //if (!property) {
-            //    throw new Error("Define the watchable property");
-            //}
+            if (!property) {
+                throw new Error("Define the watchable property");
+            }
 
-            //if (!handlerHost) {
-            //    throw new Error("Define the handler host");
-            //}
+            if (!handlerHost) {
+                throw new Error("Define the handler host");
+            }
 
-            //if (!handler) {
-            //    throw new Error("Define the handler");
-            //}
+            if (!handler) {
+                throw new Error("Define the handler");
+            }
 
-            //if (!(this[property])) {
-            //    throw new Error("The object does not contain property " + property);
-            //}
+            if ((this[property]) == undefined || this[property] == null) {
+                throw new Error("The object does not contain property " + property);
+            }
 
             var propertyValue = this[property];
 
@@ -121,27 +159,29 @@ trivia.models.ObservableModel = trivia.classManager.createClass(null, function (
 
             var setter = function (newPropertyValue) {
                 propertyValue = newPropertyValue;
-                var currentPropertyHandlersList = observablePropertiesHandlers[property];
-
-                for (handlerIndex = 0; handlerIndex < currentPropertyHandlersList.length; handlerIndex++) {
+                var currentPropertyHandlersList = this.observablePropertiesHandlers[property];
+                for (var handlerIndex = 0; handlerIndex < currentPropertyHandlersList.length; handlerIndex++) {
 
                     var currentHandler = currentPropertyHandlersList[handlerIndex];
                     var currentHandlerHost = currentHandler["handlerHost"];
                     var currentHandlerFunction = currentHandler["handler"];
 
-                    currentHandlerFunction.call(currentHandlerHost, newPropertyValue);
+                    callHandler(currentHandlerHost, currentHandlerFunction, newPropertyValue);
                 }
                 return newPropertyValue;
             };
 
+            var callHandler = function (handlerHost, handlerFunction, propertyValue) {
+
+                handlerFunction.call(handlerHost, propertyValue);
+            };
+
             //Wrap the property only once
-            if (!observablePropertiesHandlers[property]) {
+            if (!this["observablePropertiesHandlers"] || !this["observablePropertiesHandlers"][property]) {
                 Object.defineProperty(this, property, {
                     get: getter,
                     set: setter
                 });
-                
-                observablePropertiesHandlers[property] = [];
             }
 
             handlerHost = handlerHost || this;
@@ -151,9 +191,16 @@ trivia.models.ObservableModel = trivia.classManager.createClass(null, function (
                 "handler": handler,
                 "handlerHost": handlerHost
             }
-            observablePropertiesHandlers[property].push(handlerObject);
-            //Call the setter for first init
-            setter.call(handlerHost, propertyValue)
+
+            //Check if the property laready has observes
+            this["observablePropertiesHandlers"] = this["observablePropertiesHandlers"] || [];
+            this["observablePropertiesHandlers"][property] = this["observablePropertiesHandlers"][property] || [];
+
+            //Att the listener
+            this.observablePropertiesHandlers[property].push(handlerObject);
+
+            //Call the handler to init the value
+            callHandler(handlerHost, handler, propertyValue);
         }
     });
 
@@ -162,13 +209,14 @@ trivia.models.ObservableModel = trivia.classManager.createClass(null, function (
     }
 
     return self;
-})
+}
 //#endregion
 
 //#region trivia.viewModels namespace
 trivia.viewModels = trivia.viewModels || {};
 
 //Definition of ViewModel class managing binding
+
 trivia.viewModels.ViewModel = function (modelToObserve) {
 
     // private members
@@ -179,13 +227,13 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
     //public methods
     self.bind = function (domElement) {
         //Collect all the binded elements
-        var elementsToBind = $(domElement).find("[data-bind-trivia]");
+        var elementsToBind = $(domElement).find("[data-trivia-bind]");
 
         //Check if the containder is bided as well
-        if ($(domElement).data("bind-trivia")) {
+        if ($(domElement).data("trivia-bind")) {
             elementsToBind = elementsToBind.add(domElement);
         }
-        
+
         for (elementToBindIndex = 0; elementToBindIndex < elementsToBind.length; elementToBindIndex++) {
             var elementToBind = elementsToBind[elementToBindIndex];
             var bindingList = parseElementBindings(elementToBind);
@@ -199,7 +247,7 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
     //private methods
     var parseElementBindings = function (domElement) {
 
-        var bindingStringFull = $(domElement).data("bind-trivia") || "";
+        var bindingStringFull = $(domElement).data("trivia-bind") || "";
         var bindingStringsList = bindingStringFull.split(";");
         var result = [];
 
@@ -220,7 +268,7 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
             bindProperty(domElement, bindingProperty, modelPropertyName)
         }
     }
-    
+
     var bindProperty = function (domElement, domAttribute, propertyName) {
         //Get the jQuery method and arguments
         var jqDelegateInfo = getMethodWithArguments(domAttribute);
@@ -233,12 +281,13 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
             throw new Error("The bind type is not supported:" + domAttribute);
         }
 
-        var isModelPropertFunction = model[propertyName] instanceof Function;
+        var isModelPropertyFunction = model[propertyName] instanceof Function;
+        var bindedParameters = parseBindedParameters(domElement);
 
         //A model function is bind to an event
         if (jqMethodType === "action") {
-           
-            if (!isModelPropertFunction) {
+
+            if (!isModelPropertyFunction) {
                 throw new Error(domAttribute + " can only be bind to action (" + model[propertyName] + ")");
             }
 
@@ -250,12 +299,11 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
 
             $(domElement).on(event, function (e) {
                 e.preventDefault();
-                //  e.stopPropagation();
-                model[propertyName].call(model, domElement);
+                model[propertyName].call(model, bindedParameters, domElement);
             });
         }
         //A model value is bind to a DOM property
-        else if (!isModelPropertFunction) {
+        else if (!isModelPropertyFunction) {
             //Bind from DOM to Model
             $(domElement).on("change input propertyChange", function (e) {
                 e.preventDefault();
@@ -264,6 +312,7 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
             });
             //Bind from Model to DOM
             model.watchProperty(propertyName, model, function (newPropertyValue) {
+                //Append the binded property value to the list with parameters
                 jqDelegateArguments.push(newPropertyValue);
                 jqDelegate.apply($(domElement), jqDelegateArguments);
                 jqDelegateArguments.pop();
@@ -274,7 +323,7 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
             //Bind from DOM to Model
             $(domElement).on("refresh", function (e) {
                 //e.stopPropagation();
-                var modelValue = model[propertyName].call(model, domElement);
+                var modelValue = model[propertyName].call(model, bindedParameters, domElement);
                 jqDelegateArguments.push(modelValue);
                 jqDelegate.apply($(domElement), jqDelegateArguments);
                 jqDelegateArguments.pop();
@@ -317,6 +366,23 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
             "arguments": jqDelegateArguments,
             "methodType": methodType
         }
+    }
+
+    var parseBindedParameters = function (domElement) {
+        var parametersStringFull = $(domElement).data("trivia-parameters") || "";
+        var parametersStringList = parametersStringFull.split(";");
+        var result = [];
+
+        if (parametersStringFull != "") {
+            for (i in parametersStringList) {
+                var parametersStrings = parametersStringList[i].split(":");
+                var parameterProperty = parametersStrings[0].trim();
+                var parameterValue = parametersStrings[1].trim();
+                result[parameterProperty] = parameterValue;
+            }
+        }
+
+        return result;
     }
 
     //Class initialisation

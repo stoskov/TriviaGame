@@ -1,17 +1,24 @@
 /*Constants*/
 
 /*Colors*/
-@header-text-main-color-active: #8ebc00;
-@header-text-main-color-inactive: #787878;
-@header-user-account-widget-active: @header-text-main-color-active;
-@header-user-account-widget-inactive: @header-text-main-color-inactive;
+@header-text-main-color-main: #8ebc00;
+@header-text-main-color-secondary: #787878;
+@header-border-color: #8ebc00;
+@header-user-account-widget-main: @header-text-main-color-main;
+@header-user-account-widget-secondary: @header-text-main-color-secondary;
+@footer-text-main-color-inactive: @header-text-main-color-secondary;
+@footer-border-color: #8ebc00;
 @user-account-form-widget-satus-bar-color: #e24a17;
+@color-main: @header-text-main-color-main;
+@color-secondary: @header-text-main-color-secondary;
 
 /*Sizes*/
 @site-wrap-size: 960px;
 @site-header-heigh: 48px;
 @site-header-user-account-widget-height: @site-header-heigh;
 @site-header-user-account-widget-separator-height: ( @site-header-heigh / 2);
+@site-content-height: 698px;
+@site-footer-height: 20px;
 @login-registration-forms-size: 500px;
 @user-account-form-widget-height: 2.2em;
 
@@ -27,7 +34,7 @@
 }
 
 /* Reseters */
-body, h1, span, nav {
+body, section, nav, h1, span, nav, p {
 	margin: 0;
 	padding: 0;
 	font-family: inherit;
@@ -51,9 +58,27 @@ ul {
 	}
 }
 
+.color-main {
+	color: @color-main
+}
+
+.color-secondary {
+	color: @color-main
+}
+
+.float-left {
+	float: left;
+}
+
+.float-right {
+	float: right;
+}
+
+
 /* Styles */
 html {
 	font: 100% SegoeUIRegular, arial, helvetica, sans-serif;
+	text-transform: lowercase;
 }
 
 #site-wrap {
@@ -61,19 +86,26 @@ html {
 	width: @site-wrap-size;
 }
 
-/*Site heder*/
+/*Site header */
 #site-header {
 	margin-bottom: 10px;
 	padding-bottom: 5px;
 	height: @site-header-heigh;
-	border-bottom: 1px solid @header-text-main-color-active;
-	text-transform: lowercase;
+	border-bottom: 1px solid @header-border-color;
 
 	#site-title {
 		float: left;
 		width: 50%;
 		height: 100%;
-		color: @header-text-main-color-inactive;
+
+		a {
+			color: @header-text-main-color-secondary;
+			text-decoration: none;
+
+			&:hover {
+				color: @header-text-main-color-main;
+			}
+		}
 	}
 
 	#site-header-user-account-wrap {
@@ -96,24 +128,24 @@ html {
 			margin: ( @site-header-heigh / 4) 0;
 			width: 1px;
 			height: ( @site-header-heigh / 2);
-			background-color: @header-user-account-widget-inactive;
+			background-color: @header-user-account-widget-secondary;
 		}
 
 		.site-header-user-account-widget-link {
 			height: @site-header-user-account-widget-height;
-			color: @header-user-account-widget-inactive;
+			color: @header-user-account-widget-secondary;
 			font-size: 125%;
 			line-height: @site-header-user-account-widget-height;
 			cursor: pointer;
 
 			&:hover {
-				color: @header-user-account-widget-active;
+				color: @header-user-account-widget-main;
 			}
 		}
 
 		.site-header-user-account-widget-static {
 			height: @site-header-user-account-widget-height;
-			color: @header-user-account-widget-active;
+			color: @header-user-account-widget-main;
 			font-size: 125%;
 			line-height: @site-header-user-account-widget-height;
 		}
@@ -128,10 +160,34 @@ html {
 	& .site-main-nav-item {
 		min-width: ((@site-wrap-size - 2 ) / 7 - 1);
 		text-align: center;
-		text-transform: lowercase;
 	}
 }
 
+/* Site pages */
+#site-content {
+	position: relative;
+	padding: 10px 0;
+	min-height: @site-content-height;
+
+	.single-page-header {
+		margin-bottom: 10px;
+		color: @color-main;
+		font-size: 200%;
+	}
+}
+
+
+/* Site footer */
+#site-footer {
+	margin-top: 10px;
+	padding-top: 5px;
+	height: @site-footer-height;
+	border-top: 1px solid @footer-border-color;
+
+	p {
+		font-size: 75%;
+	}
+}
 
 /*Login and Register forms*/
 #login-register-forms-wrap {
@@ -144,7 +200,6 @@ html {
 
 	.user-account-form-widget {
 		height: @user-account-form-widget-height;
-		text-transform: lowercase;
 	}
 
 	.user-account-form-button {
@@ -158,7 +213,7 @@ html {
 		padding-bottom: 5px;
 		width: 100%;
 		color: @user-account-form-widget-satus-bar-color;
-		line-height:@user-account-form-widget-height;
+		line-height: @user-account-form-widget-height;
 	}
 
 	.user-account-form-widget-group {
@@ -174,15 +229,20 @@ html {
 		.user-account-form-label {
 			display: block;
 			width: 100%;
-			color: @header-text-main-color-active;
-			line-height:@user-account-form-widget-height;
+			color: @header-text-main-color-main;
+			line-height: @user-account-form-widget-height;
 		}
 	}
 }
 
 .k-window-title {
-	color: @header-text-main-color-active;
+	color: @header-text-main-color-main;
 	line-height: 1.2em;
 	text-align: center;
-	text-transform: lowercase;
+}
+
+
+.page-message-box {
+	margin-top: 20%;
+	text-align: center;
 }

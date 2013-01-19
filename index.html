@@ -16,6 +16,7 @@
 		<script src="http://crypto-js.googlecode.com/svn/tags/3.1/build/rollups/sha1.js"></script>
 		<script type="text/javascript" src="scripts/modernizr-2.6.2.js"></script>
 		<script type="text/javascript" src="scripts/jquery-1.8.3.js"></script>
+		<script type="text/javascript" src="scripts/kendo.core.js"></script>
 		<script type="text/javascript" src="scripts/kendo.web.js"></script>
 		<script type="text/javascript" src="scripts/trivia.library.js"></script>
 		<script type="text/javascript" src="scripts/trivia.js"></script>
@@ -28,131 +29,131 @@
 			<header id="site-header" class="clear">
 
 				<h1 id="site-title">
-					trivia game
+					<a href="index.html">trivia game</a>
 				</h1>
 
 				<!-- User account -->
 				<div id="site-header-user-account-wrap" class="clear">
 
 					<!-- Widget for loged users -->
-					<div id="site-header-user-account-logedin" data-bind-trivia="css-display: logoutVisibility">
+					<div id="site-header-user-account-logedin" data-trivia-bind="css-display: logoutVisibility">
 
 						<a id="site-header-user-account-logout" 
 							class="site-header-user-account-widget site-header-user-account-widget-link"
-							data-bind-trivia="event-click: logout">Logout</a>
+							data-trivia-bind="event-click: logout">Logout</a>
 
 						<span class="site-header-user-account-widget site-header-user-account-widget-separator"></span>
 
 						<span id="site-header-user-account-username" 
 							class="site-header-user-account-widget site-header-user-account-widget-static" 
-							data-bind-trivia="text: userDisplayName"></span>
+							data-trivia-bind="text: userDisplayName"></span>
 
 					</div>
 
 					<!-- Widget for not loged users -->
-					<div id="site-header-user-account-logedout" class="clear" data-bind-trivia="css-display: loginVisibility">
+					<div id="site-header-user-account-logedout" class="clear" data-trivia-bind="css-display: loginVisibility">
 
 						<a id="site-header-user-account-register" 
 							class="site-header-user-account-widget site-header-user-account-widget-link"
-							data-bind-trivia="event-click: register">Register</a>
+							data-trivia-bind="event-click: register">Register</a>
 
 						<span class="site-header-user-account-widget site-header-user-account-widget-separator"></span>
 
 						<a id="site-header-user-account-login" 
 							class="site-header-user-account-widget site-header-user-account-widget-link"
-							data-bind-trivia="event-click: login">Login</a>
+							data-trivia-bind="event-click: login">Login</a>
 
 					</div>
 
 					<!-- Login and Register forms -->
 					<div id="login-register-forms-wrap">
 						<div id="login-form">
-                            <!-- Login username -->
+							<!-- Login username -->
 							<div class="user-account-form-widget-group clear">
 								<label id="login-form-username-label" class="user-account-form-widget user-account-form-label"
 									for="login-form-username">Username</label>
 								<input type="text" id="login-form-username" name="login-form-username" required="required"
 									class="k-textbox user-account-form-widget user-account-form-field" 
-									data-bind-trivia="attr-value: username"/>
+									data-trivia-bind="attr-value: username"/>
 							</div>
 
-                            <!-- Login password -->
+							<!-- Login password -->
 							<div class="user-account-form-widget-group clear">
 								<label id="Label1" class="user-account-form-widget user-account-form-label"
-                                    for="login-form-password">Password</label>
+									for="login-form-password">Password</label>
 								<input type="password" id="login-form-password" name="login-form-password" 
 									class="k-textbox user-account-form-widget user-account-form-field"
-									data-bind-trivia="attr-value: password"/>
+									data-trivia-bind="attr-value: password"/>
 							</div>
 
-                            <!-- Login buttons -->
+							<!-- Login buttons -->
 							<div class="user-account-form-widget-group clear">
 								<input type="submit" id="login-form-close" value="Close"
 									class="k-button user-account-form-widget user-account-form-button"
-									data-bind-trivia="event-click: closeLoginForm"/>
+									data-trivia-bind="event-click: closeLoginForm"/>
 
 								<input type="submit" id="login-form-login" value="Login"
 									class="k-button user-account-form-widget user-account-form-button"
-									data-bind-trivia="event-click: sendLoginRequest"/>
+									data-trivia-bind="event-click: sendLoginRequest"/>
 							</div>
 
-                            <!-- Login status bar -->
+							<!-- Login status bar -->
 							<span class="user-account-form-status"
-								data-bind-trivia="css-display: loginFromStatusBarVisibility; html: loginFromStatusBarMessage"></span>
+								data-trivia-bind="css-display: loginFromStatusBarVisibility; html: loginFromStatusBarMessage"></span>
 
 						</div>
 						<div id="registration-form">
 
-                            <!-- Registration username -->
+							<!-- Registration username -->
 							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-username-label" class="user-account-form-widget user-account-form-label"
-                                    for="registration-form-username">Username</label>
+									for="registration-form-username">Username</label>
 								<input type="text" id="registration-form-username" name="registration-form-username" 
 									class="k-textbox user-account-form-widget user-account-form-field" 
-									data-bind-trivia="attr-value: username"/>
+									data-trivia-bind="attr-value: username"/>
 							</div>
 
-                            <!-- Registration nickname -->
+							<!-- Registration nickname -->
 							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-nickname-label" class="user-account-form-widget user-account-form-label"
-                                    for="registration-form-nickname">Nickname</label>
+									for="registration-form-nickname">Nickname</label>
 								<input type="text" id="registration-form-nickname" name="registration-form-nickname" 
 									class="k-textbox user-account-form-widget user-account-form-field"
-									data-bind-trivia="attr-value: nickname"/>
+									data-trivia-bind="attr-value: nickname"/>
 							</div>
 
-                            <!-- Registration password -->
+							<!-- Registration password -->
 							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-password-label" class="user-account-form-widget user-account-form-label"
-                                    for="registration-form-password">Password</label>
+									for="registration-form-password">Password</label>
 								<input type="password" id="registration-form-password" name="registration-form-password" 
 									class="k-textbox user-account-form-widget user-account-form-field"
-									data-bind-trivia="attr-value: password"/>
+									data-trivia-bind="attr-value: password"/>
 							</div>
 
-                            <!-- Registration password verification -->
-                            <div class="user-account-form-widget-group clear">
+							<!-- Registration password verification -->
+							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-password-verification-babel" class="user-account-form-widget user-account-form-label"
-                                    for="registration-form-password-verification">Re-type Password</label>
+									for="registration-form-password-verification">Re-type Password</label>
 								<input type="password" id="registration-form-password-verification" name="registration-form-password-verification" 
 									class="k-textbox user-account-form-widget user-account-form-field"
-									data-bind-trivia="attr-value: passwordVerification"/>
+									data-trivia-bind="attr-value: passwordVerification"/>
 							</div>
 
-                            <!-- Registration bouttons -->
+							<!-- Registration bouttons -->
 							<div class="user-account-form-widget-group clear">
 								<input type="submit" id="registration-form-close"  value="Close"
 									class="k-button user-account-form-widget user-account-form-button"
-									data-bind-trivia="event-click: closeRegistrationForm"/>
+									data-trivia-bind="event-click: closeRegistrationForm"/>
 
 								<input type="submit" id="registration-form-register" value="Register"
 									class="k-button user-account-form-widget user-account-form-button"
-									data-bind-trivia="event-click: sendRegistrationRequest"/>
+									data-trivia-bind="event-click: sendRegistrationRequest"/>
 							</div>
 
-                            <!-- Registration status bar -->
+							<!-- Registration status bar -->
 							<span class="user-account-form-status"
-								data-bind-trivia="css-display: registrationFromStatusBarVisibility; html: registrationFromStatusBarMessage"></span>
+								data-trivia-bind="css-display: registrationFromStatusBarVisibility; html: registrationFromStatusBarMessage"></span>
 
 						</div>
 
@@ -164,16 +165,91 @@
 			<!-- Site navigation -->
 			<nav id="site-main-nav-wrap" class="clear">
 				<ul id="site-main-nav">
-					<li class="site-main-nav-item">Home </li>
-					<li class="site-main-nav-item">New game </li>
-					<li class="site-main-nav-item">User info </li>
-					<li class="site-main-nav-item">All users </li>
-					<li class="site-main-nav-item">All categories </li>
-					<li class="site-main-nav-item">New category </li>
-					<li class="site-main-nav-item">New question </li>
+					<li class="site-main-nav-item" 
+						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-parameters="page: page-home">Home</li>
+					<li class="site-main-nav-item"
+						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-parameters="page: page-new-game">New game</li>
+					<li class="site-main-nav-item"
+						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-parameters="page: page-all-categories">All categories </li>
+					<li class="site-main-nav-item"
+						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-parameters="page: page-new-category">New category </li>
+					<li class="site-main-nav-item"
+						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-parameters="page: page-new-question">New question </li>
+					<li class="site-main-nav-item"
+						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-parameters="page: page-user-info">User info </li>
+					<li class="site-main-nav-item"
+						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-parameters="page: page-all-users">All users </li>
 				</ul>
 			</nav>
 
+			<section id="site-content">
+
+				<!--<div id="page-home" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">Home</header>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+					</section>
+					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				</div>
+
+				<div id="page-new-game" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">New game</header>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+					</section>
+					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				</div>-->
+
+				<div id="page-all-categories" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">All categories</header>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+                        <div id="page-all-categories-grid"></div>
+					</section>
+					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				</div>
+
+				<!--<div id="page-new-category" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">Home</header>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+					</section>
+					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				</div>
+
+				<div id="page-new-question" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">Home</header>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+					</section>
+					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				</div>
+
+				<div id="page-user-info" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">Home</header>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+					</section>
+					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				</div>-->
+
+				<div id="page-all-users" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">All users</header>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+						<div id="page-all-users-grid"></div>
+					</section>
+					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				</div>
+
+			</section>
+
+			<footer id="site-footer" class="clear">
+				<p class="float-right">
+					developed by <span class="color-main">stoskov</span>
+				</p>
+
+			</footer>
 		</div>
 
 	</body>
