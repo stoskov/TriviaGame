@@ -60,8 +60,8 @@
                     sessionStorage.setItem("triviaGameIsLoggedIn", isLoggenIn);
                 }
             },
-            
-            getAuthorisationInfo: function() {
+
+            getAuthorisationInfo: function () {
                 var authorisationInfo = {
                     "username": this.username,
                     "authCode": this.authCode
@@ -76,7 +76,7 @@
         var restComunicator = new trivia.restComunicator.Comunicator("http://trivia-game.apphb.com/api/trivia");
         restComunicator.addServiceUrl("login-user", "/login-user");
         restComunicator.addServiceUrl("register-user", "/register-user");
-        restComunicator.addServiceUrl("user-score", "/user-score");
+        restComunicator.addServiceUrl("user-info", "/user-score");
         restComunicator.addServiceUrl("all-users", "/users-all");
         restComunicator.addServiceUrl("all-categories", "/categories");
         restComunicator.addServiceUrl("add-category", "/add-category");
@@ -286,7 +286,7 @@
             onErrorRegistration: function (data) {
                 var message = restComunicator.parseResponseMessage(data);
                 this.postRegistrationStatusMessage(message);
-               
+
             },
 
             openRegistrationForm: function () {
@@ -320,63 +320,10 @@
         //#region Page: All categories
         var pageAllCategoriesController = new trivia.models.ObservableModel({
 
-            
-            renderData: function (responseData) {
-                this.pageContainer.html('<div id="page-all-categories-grid"></div>');
-                $("#page-all-categories-grid").kendoGrid({
-                    dataSource: {
-                        data: responseData,
-                        pageSize: 15
-                    },
-                    groupable: false,
-                    sortable: {
-                        allowUnsort: true
-                    },
-                    pageable: {
-                        refresh:
-                        false,
-                        pageSizes
-                        : false
-                    },
-                    columns: [
-                        {
-                            field: "id",
-                            width: 20,
-                            title: "No",
-                            headerAttributes: {
-                                style: "text-align: center"
-                            },
-                            attributes: {
-                                style: "text-align: center"
-                            }
-                        }, {
-                            field: "name",
-                            width: 80,
-                            title: "Category name",
-                            headerAttributes: {
-                                style: "text-align: center"
-                            },
-                        }
-                    ]
-                })
-            },
-
-            renderMessage: function (message) {
-                var messageBoxId = this.pageContainer.attr("id") + "-message-box";
-                this.pageContainer.html('<div class="page-message-box color-main" id="' + messageBoxId + '"></div>');
-                $("#" + messageBoxId).text(message);
-            },
-
-        });
-
-        //#endregion
-
-        //#region Page: All categories
-        var pageAllCategoriesController = new trivia.models.ObservableModel({
-
             needLogin: false,
             isActivePage: false,
             serviceName: "all-categories",
+            pageName: "page-all-categories",
             pageContainer: $("#page-all-categories"),
             pageContent: $("#page-all-categories").find(".page-content"),
             pageMessageBoxContainer: $("#page-all-categories").find(".page-message-box"),
@@ -445,12 +392,13 @@
                             model: {
                                 fields: {
                                     id: { type: "string" },
-                                    name: { type: "string" },                                  
+                                    name: { type: "string" },
                                 }
                             }
                         },
                     },
                     groupable: false,
+                    selectable: "row",
                     sortable: {
                         allowUnsort: true
                     },
@@ -458,7 +406,7 @@
                     pageable: {
                         refresh: false,
                         pageSize: 15,
-                        pageSizes: [5,10,15,30, 50, 100]
+                        pageSizes: [5, 10, 15, 30, 50, 100]
                     },
                     columns: [
                         {
@@ -491,7 +439,7 @@
         });
 
         var pageAllCategoriesViewBinder = new trivia.viewModels.ViewModel(pageAllCategoriesController);
-        pageAllCategoriesViewBinder.bind($("#page-all-categories"));
+        pageAllCategoriesViewBinder.bind(pageAllCategoriesController.pageContainer);
         //#endregion
 
         //#region Page: All users
@@ -500,6 +448,7 @@
             needLogin: false,
             isActivePage: false,
             serviceName: "all-users",
+            pageName: "page-all-users",
             pageContainer: $("#page-all-users"),
             pageContent: $("#page-all-users").find(".page-content"),
             pageMessageBoxContainer: $("#page-all-users").find(".page-message-box"),
@@ -560,7 +509,7 @@
             renderContent: function (responseData) {
                 this.contentDisplay = "block";
                 this.messageBoxDisplay = "none";
-                
+
                 this.pageContent.find("#page-all-users-grid").kendoGrid({
                     dataSource: {
                         data: responseData,
@@ -575,6 +524,7 @@
                         },
                     },
                     groupable: false,
+                    selectable: "row",
                     sortable: {
                         allowUnsort: true
                     },
@@ -625,7 +575,198 @@
         });
 
         var pageAllUserViewBilder = new trivia.viewModels.ViewModel(pageAllUsersController);
-        pageAllUserViewBilder.bind($("#page-all-users"));
+        pageAllUserViewBilder.bind(pageAllUsersController.pageContainer);
+        //#endregion
+
+        //#region Page: User info
+        var pageUserInfoController = new trivia.models.ObservableModel({
+
+            needLogin: false,
+            isActivePage: false,
+            serviceName: "user-info",
+            pageName: "page-user-info",
+            pageContainer: $("#page-user-info"),
+            pageContent: $("#page-user-info").find(".page-content"),
+            pageMessageBoxContainer: $("#page-user-info").find(".page-message-box"),
+            pageDisplay: "none",
+            contentDisplay: "none",
+            messageBoxDisplay: "none",
+
+            nickname: "",
+            playedGames: "",
+            averageScore: "",
+            allUsers: [],
+
+            init: function () {
+                this.viewDisplay = "none";
+
+                if (this.needLogin) {
+                    userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
+                }
+            },
+
+            onUserLoginLogout: function () {
+                if (this.isActivePage) {
+                    this.load()
+                }
+            },
+
+            load: function () {
+                var self = this;
+                this.pageDisplay = "block";
+
+                if (!this.needLogin || userAccount.isLoggedIn) {
+
+                    if (this.allUsers.length == 0) {
+                        this.loadUsersList();
+                    }
+
+                    this.contentDisplay = "block";
+
+                    if (this.nickname !== "") {
+                        this.renderMessage("Loading ...");
+
+                        var requestParameters = {
+                            nickname: this.nickname,
+                        };
+
+                        restComunicator.sendGetRequest(self.serviceName, requestParameters,
+                                                       function (data) {
+                                                           self.onLoadSuccess(data)
+                                                       },
+                                                       function (data) {
+                                                           self.onLoadError(data)
+                                                       });
+                    }
+                }
+                else {
+                    this.renderMessage("Please, login to see this page!")
+                    userAccountController.login();
+                }
+            },
+
+            unload: function () {
+                this.pageContent.find("#page-user-info-grid").html("");
+                this.pageDisplay = "none";
+                this.allUsers = [];
+                this.nickname = "";
+                this.playedGames = "";
+                this.averageScore = "";
+            },
+
+            onLoadSuccess: function (responseData) {
+                this.renderContent(responseData);
+            },
+
+            onLoadError: function (data) {
+                var message = restComunicator.parseResponseMessage(data);
+                this.renderMessage(message);
+            },
+
+            loadUsersList: function () {
+                this.pageContainer.find("#page-user-info-users-list-combo").kendoComboBox({});
+                var self = this;
+
+                restComunicator.sendGetRequest("all-users", {},
+                                               function (data) {
+                                                   self.onLoadUsersListSuccess(data)
+                                               },
+                                               function (data) {
+                                               });
+            },
+
+            onLoadUsersListSuccess: function (data) {
+                var self = this;
+                this.allUsers = data;
+                this.pageContainer.find("#page-user-info-users-list-combo").kendoComboBox({
+                    dataTextField: "nickname",
+                    dataValueField: "nickname",
+                    dataSource: this.allUsers,
+                    filter: "contains",
+                    height: 500,
+                    suggest: true,
+                    select: function (data) {
+                        var nickname = this.dataItem(data.item.index()).nickname;
+                        self.nickname = nickname;
+                        self.load();
+                    }
+                });
+            },
+
+            renderContent: function (responseData) {
+                this.contentDisplay = "block";
+                this.messageBoxDisplay = "none";
+
+                this.nickname = responseData["nickname"];
+                this.playedGames = responseData["totalGamesPlayed"];
+                this.averageScore = responseData["totalScore"];
+
+                this.pageContent.find("#page-user-info-grid").kendoGrid({
+                    dataSource: {
+                        data: responseData["categoryScores"],
+                        schema: {
+                            model: {
+                                fields: {
+                                    category: { type: "string" },
+                                    gamesPlayed: { type: "string" },
+                                    score: { type: "string" },
+                                }
+                            }
+                        },
+                    },
+                    groupable: false,
+                    selectable: "row",
+                    sortable: {
+                        allowUnsort: true
+                    },
+                    filterable: true,
+                    pageable: {
+                        refresh: false,
+                        pageSize: 10,
+                        pageSizes: [5, 10, 15, 30, 50, 100]
+                    },
+                    columns: [
+                        {
+                            field: "category",
+                            width: 50,
+                            title: "Category",
+                            headerAttributes: {
+                                style: "text-align: center"
+                            },
+                        }, {
+                            field: "score",
+                            width: 25,
+                            title: "Average score",
+                            headerAttributes: {
+                                style: "text-align: center"
+                            },
+                            attributes: {
+                                style: "text-align: center"
+                            }
+                        }, {
+                            field: "gamesPlayed",
+                            width: 25,
+                            title: "Played games",
+                            headerAttributes: {
+                                style: "text-align: center"
+                            },
+                            attributes: {
+                                style: "text-align: center"
+                            }
+                        }
+                    ]
+                })
+            },
+
+            renderMessage: function (message) {
+                this.contentDisplay = "none";
+                this.messageBoxDisplay = "block";
+                this.pageMessageBoxContainer.text(message);
+            },
+        });
+
+        var pageUserInfoViewBilder = new trivia.viewModels.ViewModel(pageUserInfoController);
+        pageUserInfoViewBilder.bind(pageUserInfoController.pageContainer);
         //#endregion
 
         //#region Page controller
@@ -639,7 +780,7 @@
             },
 
             requestPageChange: function (parameters) {
-                var pageName = parameters["page"];
+                var pageName = parameters["pageName"];
                 this.changeActivePage(pageName);
             },
 
@@ -649,7 +790,6 @@
                     this.activePage.unload();
                 }
 
-                
                 if (pageName != undefined && pageName != null) {
                     this.activePage = this.pageControllersMap[pageName];
                     this.activePage.isActivePage = true;
@@ -658,8 +798,9 @@
             }
         });
 
-        navigationController.addPage("page-all-categories", pageAllCategoriesController);
-        navigationController.addPage("page-all-users", pageAllUsersController);
+        navigationController.addPage(pageAllCategoriesController.pageName, pageAllCategoriesController);
+        navigationController.addPage(pageAllUsersController.pageName, pageAllUsersController);
+        navigationController.addPage(pageUserInfoController.pageName, pageUserInfoController);
 
         var navigationViewBinder = new trivia.viewModels.ViewModel(navigationController);
         navigationViewBinder.bind($("#site-main-nav"));

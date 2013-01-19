@@ -21,6 +21,7 @@
 @site-footer-height: 20px;
 @login-registration-forms-size: 500px;
 @user-account-form-widget-height: 2.2em;
+@single-page-widget: 32px;
 
 /* Embed fonts*/
 @font-face {
@@ -59,11 +60,11 @@ ul {
 }
 
 .color-main {
-	color: @color-main
+	color: @color-main;
 }
 
 .color-secondary {
-	color: @color-main
+	color: @color-main;
 }
 
 .float-left {
@@ -173,6 +174,31 @@ html {
 		margin-bottom: 10px;
 		color: @color-main;
 		font-size: 200%;
+	}
+
+	.single-page-widget-group-33 {
+		display: block;
+		float: left;
+		margin: 15px 0;
+		width: (100% / 3);
+	}
+
+	.single-page-widget-label {
+		display: block;
+		float: left;
+		margin-right: 10px;
+		height: @single-page-widget;
+		color: @color-secondary;
+		line-height: @single-page-widget;
+	}
+
+	.single-page-widget-label-value {
+		display: block;
+		float: left;
+		margin-right: 10px;
+		height: @single-page-widget;
+		color: @color-main;
+		line-height: @single-page-widget;
 	}
 }
 

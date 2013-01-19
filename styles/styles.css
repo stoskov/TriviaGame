@@ -133,6 +133,28 @@ html {
   color: #8ebc00;
   font-size: 200%;
 }
+#site-content .single-page-widget-group-33 {
+  display: block;
+  float: left;
+  margin: 15px 0;
+  width: 33.333333333333336%;
+}
+#site-content .single-page-widget-label {
+  display: block;
+  float: left;
+  margin-right: 10px;
+  height: 32px;
+  color: #787878;
+  line-height: 32px;
+}
+#site-content .single-page-widget-label-value {
+  display: block;
+  float: left;
+  margin-right: 10px;
+  height: 32px;
+  color: #8ebc00;
+  line-height: 32px;
+}
 /* Site footer */
 #site-footer {
   margin-top: 10px;

@@ -29,7 +29,7 @@
 			<header id="site-header" class="clear">
 
 				<h1 id="site-title">
-					<a href="index.html">trivia game</a>
+					<a href="/">trivia game</a>
 				</h1>
 
 				<!-- User account -->
@@ -167,77 +167,98 @@
 				<ul id="site-main-nav">
 					<li class="site-main-nav-item" 
 						data-trivia-bind="event-click: requestPageChange" 
-						data-trivia-parameters="page: page-home">Home</li>
+						data-trivia-parameters="pageName: page-home">Home</li>
 					<li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
-						data-trivia-parameters="page: page-new-game">New game</li>
+						data-trivia-parameters="pageName: page-new-game">New game</li>
 					<li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
-						data-trivia-parameters="page: page-all-categories">All categories </li>
+						data-trivia-parameters="pageName: page-all-categories">All categories </li>
 					<li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
-						data-trivia-parameters="page: page-new-category">New category </li>
+						data-trivia-parameters="pageName: page-new-category">New category </li>
 					<li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
-						data-trivia-parameters="page: page-new-question">New question </li>
+						data-trivia-parameters="pageName: page-new-question">New question </li>
 					<li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
-						data-trivia-parameters="page: page-user-info">User info </li>
+						data-trivia-parameters="pageName: page-all-users">All users </li>
 					<li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
-						data-trivia-parameters="page: page-all-users">All users </li>
+						data-trivia-parameters="pageName: page-user-info">User info </li>
 				</ul>
 			</nav>
 
 			<section id="site-content">
 
 				<!--<div id="page-home" data-trivia-bind="css-display: pageDisplay">
-					<header class="single-page-header">Home</header>
-					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
-					</section>
-					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				<header class="single-page-header">Home</header>
+				<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+				</section>
+				<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 				</div>
 
 				<div id="page-new-game" data-trivia-bind="css-display: pageDisplay">
-					<header class="single-page-header">New game</header>
-					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
-					</section>
-					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				<header class="single-page-header">New game</header>
+				<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+				</section>
+				<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 				</div>-->
 
 				<div id="page-all-categories" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">All categories</header>
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
-                        <div id="page-all-categories-grid"></div>
+						<div id="page-all-categories-grid"></div>
 					</section>
 					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 				</div>
 
 				<!--<div id="page-new-category" data-trivia-bind="css-display: pageDisplay">
-					<header class="single-page-header">Home</header>
-					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
-					</section>
-					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				<header class="single-page-header">Home</header>
+				<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+				</section>
+				<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 				</div>
 
 				<div id="page-new-question" data-trivia-bind="css-display: pageDisplay">
-					<header class="single-page-header">Home</header>
-					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
-					</section>
-					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
-				</div>
-
-				<div id="page-user-info" data-trivia-bind="css-display: pageDisplay">
-					<header class="single-page-header">Home</header>
-					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
-					</section>
-					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				<header class="single-page-header">Home</header>
+				<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+				</section>
+				<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 				</div>-->
 
 				<div id="page-all-users" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">All users</header>
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
 						<div id="page-all-users-grid"></div>
+					</section>
+					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+				</div>
+
+				<div id="page-user-info" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">User information</header>
+					<div class="clear">
+						<div class="single-page-widget-group-33">
+							<label class="single-page-widget-label">Nickname:</label>
+							<!--<label class="single-page-widget-label-value" 
+							data-trivia-bind="text: nickname"></label>-->
+							<input type="text" id="page-user-info-users-list-combo" />
+						</div>
+
+						<div class="single-page-widget-group-33">
+							<label class="single-page-widget-label">Average score:</label>
+							<label class="single-page-widget-label-value"
+								data-trivia-bind="text: averageScore"></label>
+						</div>
+
+						<div class="single-page-widget-group-33">
+							<label class="single-page-widget-label">Played games:</label>
+							<label class="single-page-widget-label-value"
+								data-trivia-bind="text: playedGames"></label>
+						</div>
+					</div>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+						<div id="page-user-info-grid"></div>
 					</section>
 					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 				</div>
