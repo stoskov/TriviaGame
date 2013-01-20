@@ -62,10 +62,12 @@ trivia.restComunicator.Comunicator = function (hostUrl) {
     self.sendGetRequest = function (serviceName, data, onSuccess, onError) {
         var serviceUrl = this.getServiceUrl(serviceName);
         var requestUrl = host + serviceUrl;
+        $.support.cors = true;
         $.ajax({
             url: requestUrl,
             type: "GET",
             timeout: timeOut,
+            contentType: "application/json; charset=utf-8",
             dataType: "json",
             data: data,
             cache: true,
@@ -77,10 +79,12 @@ trivia.restComunicator.Comunicator = function (hostUrl) {
     self.sendPostRequest = function (serviceName, data, onSuccess, onError) {
         var serviceUrl = this.getServiceUrl(serviceName);
         var requestUrl = host + serviceUrl;
+        $.support.cors = true;
         $.ajax({
             url: requestUrl,
             type: "POST",
             timeout: timeOut,
+            contentType: "application/json; charset=utf-8",
             dataType: "json",
             data: data,
             success: onSuccess,

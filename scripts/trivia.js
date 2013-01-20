@@ -317,18 +317,27 @@
         triviaGame.controllers.pages = triviaGame.controllers.pages || {};
         triviaGame.viewModelBinders.pages = triviaGame.viewModelBinders.pages || {};
 
-        //#region Page: All categories
-        triviaGame.controllers.pages.pageAllCategoriesController = new trivia.models.ObservableModel({
-
+        //#region Page: Main page model
+        triviaGame.controllers.pages.mainPageModel = new trivia.models.ObservableModel({
+            //defines if the page needs authorisation or not
             needLogin: false,
+            //Defines if the page is currently active
             isActivePage: false,
-            serviceName: "all-categories",
-            pageName: "page-all-categories",
-            pageContainer: $("#page-all-categories"),
-            pageContent: $("#page-all-categories").find(".page-content"),
-            pageMessageBoxContainer: $("#page-all-categories").find(".page-message-box"),
+            //Service to call
+            serviceName: "",
+            //Page name
+            pageName: "",
+            //The DOM object containing the page view
+            pageContainer: null,
+            //The DOM object containing the page content
+            pageContent: null,
+            //The DOM element displaying the page status and errors
+            pageMessageBoxContainer: null,
+            //Defined the whole page visibility
             pageDisplay: "none",
+            //Defined the page content visibility
             contentDisplay: "none",
+            //Defined the page message box visibility
             messageBoxDisplay: "none",
 
             init: function () {
@@ -344,6 +353,38 @@
                     this.load()
                 }
             },
+
+            unload: function () {
+                this.pageContent.find("#page-all-categories-grid").html("");
+                this.pageDisplay = "none";
+            },
+
+            onLoadSuccess: function (responseData) {
+                this.renderContent(responseData);
+            },
+
+            onLoadError: function (data) {
+                var message = triviaGame.restComunicator.parseResponseMessage(data);
+                this.renderMessage(message);
+            },
+
+            renderMessage: function (message) {
+                this.contentDisplay = "none";
+                this.messageBoxDisplay = "block";
+                this.pageMessageBoxContainer.text(message);
+            },
+
+        });
+        //#endregion
+
+        //#region Page: All categories
+        triviaGame.controllers.pages.pageAllCategoriesController = triviaGame.controllers.pages.mainPageModel.getExtendedModel({
+
+            serviceName: "all-categories",
+            pageName: "page-all-categories",
+            pageContainer: $("#page-all-categories"),
+            pageContent: $("#page-all-categories").find(".page-content"),
+            pageMessageBoxContainer: $("#page-all-categories").find(".page-message-box"),
 
             load: function () {
                 var self = this;
@@ -364,20 +405,6 @@
                     this.renderMessage("Please, login to see this page!")
                     triviaGame.controllers.userAccountController.login();
                 }
-            },
-
-            unload: function () {
-                this.pageContent.find("#page-all-categories-grid").html("");
-                this.pageDisplay = "none";
-            },
-
-            onLoadSuccess: function (responseData) {
-                this.renderContent(responseData);
-            },
-
-            onLoadError: function (data) {
-                var message = triviaGame.restComunicator.parseResponseMessage(data);
-                this.renderMessage(message);
             },
 
             renderContent: function (responseData) {
@@ -427,14 +454,128 @@
                         }
                     ]
                 })
-            },
-
-            renderMessage: function (message) {
-                this.contentDisplay = "none";
-                this.messageBoxDisplay = "block";
-                this.pageMessageBoxContainer.text(message);
-            },
+            },            
         });
+
+        //#region old page
+        //triviaGame.controllers.pages.pageAllCategoriesController = new trivia.models.ObservableModel({
+
+        //    needLogin: false,
+        //    isActivePage: false,
+        //    serviceName: "all-categories",
+        //    pageName: "page-all-categories",
+        //    pageContainer: $("#page-all-categories"),
+        //    pageContent: $("#page-all-categories").find(".page-content"),
+        //    pageMessageBoxContainer: $("#page-all-categories").find(".page-message-box"),
+        //    pageDisplay: "none",
+        //    contentDisplay: "none",
+        //    messageBoxDisplay: "none",
+
+        //    init: function () {
+        //        this.viewDisplay = "none";
+
+        //        if (this.needLogin) {
+        //            triviaGame.userAccountManager.userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
+        //        }
+        //    },
+
+        //    onUserLoginLogout: function () {
+        //        if (this.isActivePage) {
+        //            this.load()
+        //        }
+        //    },
+
+        //    load: function () {
+        //        var self = this;
+        //        this.pageDisplay = "block";
+
+        //        if (!this.needLogin || triviaGame.userAccountManager.userAccount.isLoggedIn) {
+        //            this.renderMessage("Loading ...");
+
+        //            triviaGame.restComunicator.sendGetRequest(self.serviceName, {},
+        //                                                      function (data) {
+        //                                                          self.onLoadSuccess(data)
+        //                                                      },
+        //                                                      function (data) {
+        //                                                          self.onLoadError(data)
+        //                                                      });
+        //        }
+        //        else {
+        //            this.renderMessage("Please, login to see this page!")
+        //            triviaGame.controllers.userAccountController.login();
+        //        }
+        //    },
+
+        //    unload: function () {
+        //        this.pageContent.find("#page-all-categories-grid").html("");
+        //        this.pageDisplay = "none";
+        //    },
+
+        //    onLoadSuccess: function (responseData) {
+        //        this.renderContent(responseData);
+        //    },
+
+        //    onLoadError: function (data) {
+        //        var message = triviaGame.restComunicator.parseResponseMessage(data);
+        //        this.renderMessage(message);
+        //    },
+
+        //    renderContent: function (responseData) {
+        //        this.contentDisplay = "block";
+        //        this.messageBoxDisplay = "none";
+
+        //        this.pageContent.find("#page-all-categories-grid").kendoGrid({
+        //            dataSource: {
+        //                data: responseData,
+        //                schema: {
+        //                    model: {
+        //                        fields: {
+        //                            id: { type: "string" },
+        //                            name: { type: "string" },
+        //                        }
+        //                    }
+        //                },
+        //            },
+        //            groupable: false,
+        //            sortable: {
+        //                allowUnsort: true
+        //            },
+        //            filterable: true,
+        //            pageable: {
+        //                refresh: false,
+        //                pageSize: 15,
+        //                pageSizes: [5, 10, 15, 30, 50, 100]
+        //            },
+        //            columns: [
+        //                {
+        //                    field: "id",
+        //                    width: 20,
+        //                    title: "No",
+        //                    headerAttributes: {
+        //                        style: "text-align: center"
+        //                    },
+        //                    attributes: {
+        //                        style: "text-align: center"
+        //                    }
+        //                }, {
+        //                    field: "name",
+        //                    width: 80,
+        //                    title: "Category name",
+        //                    headerAttributes: {
+        //                        style: "text-align: center"
+        //                    },
+        //                }
+        //            ]
+        //        })
+        //    },
+
+        //    renderMessage: function (message) {
+        //        this.contentDisplay = "none";
+        //        this.messageBoxDisplay = "block";
+        //        this.pageMessageBoxContainer.text(message);
+        //    },
+        //});
+        //#endregion
 
         triviaGame.viewModelBinders.pages.pageAllCategoriesViewBinder = new trivia.viewModels.ViewModel(triviaGame.controllers.pages.pageAllCategoriesController);
         triviaGame.viewModelBinders.pages.pageAllCategoriesViewBinder.bind(triviaGame.controllers.pages.pageAllCategoriesController.pageContainer);
@@ -504,7 +645,7 @@
             },
 
             renderContent: function (responseData) {
-                var self = navigationController
+                var self = triviaGame.controllers.navigationController;
                 this.contentDisplay = "block";
                 this.messageBoxDisplay = "none";
 
@@ -892,7 +1033,7 @@
             triviaGame.controllers.pages.pageUserInfoController.pageName,
             triviaGame.controllers.pages.pageUserInfoController);
 
-        triviaGame.viewModelBinders.navigationViewBinder = new trivia.viewModels.ViewModel(navigationController);
+        triviaGame.viewModelBinders.navigationViewBinder = new trivia.viewModels.ViewModel(triviaGame.controllers.navigationController);
         triviaGame.viewModelBinders.navigationViewBinder.bind($("#site-main-nav"));
         //#endregion      
     })
