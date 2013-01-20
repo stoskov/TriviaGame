@@ -68,6 +68,7 @@ trivia.restComunicator.Comunicator = function (hostUrl) {
             timeout: timeOut,
             dataType: "json",
             data: data,
+            cache: true,
             success: onSuccess,
             error: onError
         });

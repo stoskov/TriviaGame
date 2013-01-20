@@ -398,7 +398,6 @@
                         },
                     },
                     groupable: false,
-                    selectable: "row",
                     sortable: {
                         allowUnsort: true
                     },
@@ -507,6 +506,7 @@
             },
 
             renderContent: function (responseData) {
+                var self = navigationController
                 this.contentDisplay = "block";
                 this.messageBoxDisplay = "none";
 
@@ -524,7 +524,6 @@
                         },
                     },
                     groupable: false,
-                    selectable: "row",
                     sortable: {
                         allowUnsort: true
                     },
@@ -544,7 +543,7 @@
                             },
                         }, {
                             field: "score",
-                            width: 25,
+                            width: 20,
                             title: "Average score",
                             headerAttributes: {
                                 style: "text-align: center"
@@ -554,7 +553,7 @@
                             }
                         }, {
                             field: "games",
-                            width: 25,
+                            width: 20,
                             title: "Played games",
                             headerAttributes: {
                                 style: "text-align: center"
@@ -562,7 +561,18 @@
                             attributes: {
                                 style: "text-align: center"
                             }
-                        }
+                        }, {                         	
+                            command: {                         		
+                                text: "Details",
+                                click: function (data) { 
+                                    var dataItem = this.dataItem($(data.currentTarget).closest("tr"));
+                                    navigationController.changeActivePage("page-user-info", dataItem)
+                                }
+                            },
+
+                            title: " ",
+                            width: 15
+                        }                        
                     ]
                 })
             },
@@ -570,7 +580,7 @@
             renderMessage: function (message) {
                 this.contentDisplay = "none";
                 this.messageBoxDisplay = "block";
-                this.pageMessageBoxContainer.text(message);
+                this.pageMessageBoxContainer.html(message);
             },
         });
 
@@ -611,9 +621,13 @@
                 }
             },
 
-            load: function () {
+            load: function (requestParameters) {
                 var self = this;
                 this.pageDisplay = "block";
+
+                if (requestParameters != undefined && requestParameters["nickname"]) {
+                    this.nickname = requestParameters["nickname"];
+                }
 
                 if (!this.needLogin || userAccount.isLoggedIn) {
 
@@ -664,7 +678,11 @@
             },
 
             loadUsersList: function () {
-                this.pageContainer.find("#page-user-info-users-list-combo").kendoComboBox({});
+
+                this.pageContainer.find("#page-user-info-nickname").kendoAutoComplete({
+                    placeholder: "Enter nickname ..."
+                });
+
                 var self = this;
 
                 restComunicator.sendGetRequest("all-users", {},
@@ -678,19 +696,19 @@
             onLoadUsersListSuccess: function (data) {
                 var self = this;
                 this.allUsers = data;
-                this.pageContainer.find("#page-user-info-users-list-combo").kendoComboBox({
-                    dataTextField: "nickname",
-                    dataValueField: "nickname",
+                var autocomplete = this.pageContainer.find("#page-user-info-nickname").data("kendoAutoComplete");
+
+                this.pageContainer.find("#page-user-info-nickname").kendoAutoComplete({
                     dataSource: this.allUsers,
-                    filter: "contains",
-                    height: 500,
-                    suggest: true,
-                    select: function (data) {
-                        var nickname = this.dataItem(data.item.index()).nickname;
-                        self.nickname = nickname;
-                        self.load();
-                    }
+                    dataTextField: "nickname",
+                    filter: "startswith",
+                    placeholder: "Enter nickname ...",
+                    change: function() {
+                        self.load()
+                    },
                 });
+
+                autocomplete.refresh();
             },
 
             renderContent: function (responseData) {
@@ -715,7 +733,6 @@
                         },
                     },
                     groupable: false,
-                    selectable: "row",
                     sortable: {
                         allowUnsort: true
                     },
@@ -761,7 +778,7 @@
             renderMessage: function (message) {
                 this.contentDisplay = "none";
                 this.messageBoxDisplay = "block";
-                this.pageMessageBoxContainer.text(message);
+                this.pageMessageBoxContainer.html(message);
             },
         });
 
@@ -781,19 +798,19 @@
 
             requestPageChange: function (parameters) {
                 var pageName = parameters["pageName"];
-                this.changeActivePage(pageName);
+                this.changeActivePage(pageName, {});
             },
 
-            changeActivePage: function (pageName) {
+            changeActivePage: function (pageName, data) {
                 if (this.activePage != null && this.activePage != undefined) {
                     this.activePage.isActivePage = false;
-                    this.activePage.unload();
+                    this.activePage.unload(data);
                 }
 
                 if (pageName != undefined && pageName != null) {
                     this.activePage = this.pageControllersMap[pageName];
                     this.activePage.isActivePage = true;
-                    this.activePage.load();
+                    this.activePage.load(data);
                 }
             }
         });
