@@ -30,12 +30,12 @@ trivia.classManager.createClass = function (baseClass, currentClassConstructor) 
 
 //#region trivia.restComunicator namespace
 trivia.restComunicator = trivia.restComunicator || {};
-
+//Defines class for communication betwewn the application and the rest server
 trivia.restComunicator.Comunicator = function (hostUrl) {
     var self = this,
     host = hostUrl,
     serviceMap = {},
-    timeOut = 50000;
+    timeOut = 5000;
 
     //Public members
     self.setHostUrl = function (hostUrl) {
@@ -115,19 +115,41 @@ trivia.restComunicator.Comunicator = function (hostUrl) {
 
 //#region trivia.models namespace
 trivia.models = trivia.models || {};
-
 //Definition of observalbe class using event handler to watch for a property changes
-
 trivia.models.ObservableModel = function (model) {
     var self = this;
 
-    //If model passed as parameter trasnfer properties
-    if (model != null) {
-        for (modelProperty in model) {
-            self[modelProperty] = model[modelProperty];
+    //Makes extension of and existing model and returnes a new object
+    self.getExtendedModel = function(extension) {
+        var newModel = new trivia.models.ObservableModel(self);
+        copyMembers(extension, newModel);
+        initializeModel(newModel);
+        return newModel;
+    }
+
+    //Transfers the members from the protopype model to the current object
+    var copyMembers = function (copyFrom, copyTo) {
+        if (copyFrom == null || (typeof copyFrom) != "object") {
+            throw new Error("The element to copy from must be and object!")
+        }
+
+        if (copyTo == null || (typeof copyTo) != "object") {
+            throw new Error("The element to copy from must be and object!")
+        }
+
+        for (modelProperty in copyFrom) {
+            copyTo[modelProperty] = copyFrom[modelProperty];
         }
     }
 
+    //Call init member if defined
+    var initializeModel = function (model) {
+        if (model && model["init"] && model["init"] instanceof Function) {
+            model["init"].call(model);
+        }
+    }
+
+    //Defines bining metod used to watch properties changes
     Object.defineProperty(trivia.models.ObservableModel.prototype, "watchProperty", {
 
         enumerable: false,
@@ -135,7 +157,6 @@ trivia.models.ObservableModel = function (model) {
         writable: false,
 
         value: function (property, handlerHost, handler) {
-
             if (!property) {
                 throw new Error("Define the watchable property");
             }
@@ -162,7 +183,6 @@ trivia.models.ObservableModel = function (model) {
                 propertyValue = newPropertyValue;
                 var currentPropertyHandlersList = this.observablePropertiesHandlers[property];
                 for (var handlerIndex = 0; handlerIndex < currentPropertyHandlersList.length; handlerIndex++) {
-
                     var currentHandler = currentPropertyHandlersList[handlerIndex];
                     var currentHandlerHost = currentHandler["handlerHost"];
                     var currentHandlerFunction = currentHandler["handler"];
@@ -173,7 +193,6 @@ trivia.models.ObservableModel = function (model) {
             };
 
             var callHandler = function (handlerHost, handlerFunction, propertyValue) {
-
                 handlerFunction.call(handlerHost, propertyValue);
             };
 
@@ -204,10 +223,9 @@ trivia.models.ObservableModel = function (model) {
             callHandler(handlerHost, handler, propertyValue);
         }
     });
-
-    if (self["init"] && self["init"] instanceof Function) {
-        self["init"].call(self);
-    }
+    
+    copyMembers(model, self);
+    initializeModel(self);
 
     return self;
 }
@@ -215,11 +233,8 @@ trivia.models.ObservableModel = function (model) {
 
 //#region trivia.viewModels namespace
 trivia.viewModels = trivia.viewModels || {};
-
 //Definition of ViewModel class managing binding
-
 trivia.viewModels.ViewModel = function (modelToObserve) {
-
     // private members
     var self = this,
     bindedElementsList = [],
@@ -247,7 +262,6 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
 
     //private methods
     var parseElementBindings = function (domElement) {
-
         var bindingStringFull = $(domElement).data("trivia-bind") || "";
         var bindingStringsList = bindingStringFull.split(";");
         var result = [];
@@ -263,7 +277,6 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
     }
 
     var bindSingleElement = function (domElement, bindingList) {
-
         for (bindingProperty in bindingList) {
             var modelPropertyName = bindingList[bindingProperty];
             bindProperty(domElement, bindingProperty, modelPropertyName)
@@ -287,7 +300,6 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
 
         //A model function is bind to an event
         if (jqMethodType === "action") {
-
             if (!isModelPropertyFunction) {
                 throw new Error(domAttribute + " can only be bind to action (" + model[propertyName] + ")");
             }

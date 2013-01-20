@@ -1,8 +1,11 @@
 ﻿(function ($) {
     $(document).ready(function () {
+        //Define new namaspace for all game objects
+        var triviaGame = triviaGame || {};
 
-        //#region User account model
-        var userAccount = new trivia.models.ObservableModel({
+        //#region User account managers
+        triviaGame.userAccountManager = triviaGame.userAccountManager || {};
+        triviaGame.userAccountManager.userAccount = new trivia.models.ObservableModel({
             username: "",
             nickname: "",
             authCode: "",
@@ -24,7 +27,6 @@
                 this.isLoggedIn = true;
 
                 this.storeUserDataToStorage(username, nickname, authCode, true);
-
             },
 
             logout: function (username, nickname, authCode) {
@@ -48,7 +50,6 @@
                     else {
                         this.isLoggedIn = false;
                     }
-
                 }
             },
 
@@ -73,22 +74,26 @@
         //#endregion
 
         //#region Rest communicator
-        var restComunicator = new trivia.restComunicator.Comunicator("http://trivia-game.apphb.com/api/trivia");
-        restComunicator.addServiceUrl("login-user", "/login-user");
-        restComunicator.addServiceUrl("register-user", "/register-user");
-        restComunicator.addServiceUrl("user-info", "/user-score");
-        restComunicator.addServiceUrl("all-users", "/users-all");
-        restComunicator.addServiceUrl("all-categories", "/categories");
-        restComunicator.addServiceUrl("add-category", "/add-category");
-        restComunicator.addServiceUrl("start-game", "/start-game/5");
-        restComunicator.addServiceUrl("post-answers", "/post-answers/123");
-        restComunicator.addServiceUrl("add-question/5", "/add-question/5");
-        restComunicator.setTimeout(500000);
+        triviaGame.restComunicator = new trivia.restComunicator.Comunicator("http://trivia-game.apphb.com/api/trivia");
+        triviaGame.restComunicator.addServiceUrl("login-user", "/login-user");
+        triviaGame.restComunicator.addServiceUrl("register-user", "/register-user");
+        triviaGame.restComunicator.addServiceUrl("user-info", "/user-score");
+        triviaGame.restComunicator.addServiceUrl("all-users", "/users-all");
+        triviaGame.restComunicator.addServiceUrl("all-categories", "/categories");
+        triviaGame.restComunicator.addServiceUrl("add-category", "/add-category");
+        triviaGame.restComunicator.addServiceUrl("start-game", "/start-game/5");
+        triviaGame.restComunicator.addServiceUrl("post-answers", "/post-answers/123");
+        triviaGame.restComunicator.addServiceUrl("add-question/5", "/add-question/5");
+        triviaGame.restComunicator.setTimeout(500000);
         //#endregion
+
+        //namespace for all the controllers
+        triviaGame.controllers = triviaGame.controllers || {};
+        triviaGame.viewModelBinders = triviaGame.viewModelBinders || {};
 
         //#region User account controller
         //Busuness layer controler staying between user accout model and the user account view
-        var userAccountController = new trivia.models.ObservableModel({
+        triviaGame.controllers.userAccountController = new trivia.models.ObservableModel({
             loginVisibility: "block",
             logoutVisibility: "none",
 
@@ -109,8 +114,8 @@
             registrationFormAnchor: $("#registration-form"),
 
             init: function () {
-                userAccount.watchProperty("isLoggedIn", this, this.updateControlerState);
-                userAccount.watchProperty("nickname", this, this.updateControlerState);
+                triviaGame.userAccountManager.userAccount.watchProperty("isLoggedIn", this, this.updateControlerState);
+                triviaGame.userAccountManager.userAccount.watchProperty("nickname", this, this.updateControlerState);
 
                 //Initialise login form
                 if (!this.loginFormAnchor.data("kendoWindow")) {
@@ -134,8 +139,7 @@
             },
 
             updateControlerState: function () {
-
-                if (userAccount.isLoggedIn == true) {
+                if (triviaGame.userAccountManager.userAccount.isLoggedIn == true) {
                     this.loginVisibility = "none";
                     this.logoutVisibility = "block";
                 }
@@ -144,7 +148,7 @@
                     this.logoutVisibility = "none";
                 }
 
-                this.userDisplayName = userAccount.username;
+                this.userDisplayName = triviaGame.userAccountManager.userAccount.username;
             },
 
             clearInfo: function () {
@@ -161,7 +165,7 @@
             },
 
             login: function () {
-                if (!userAccount.isLoggedIn) {
+                if (!triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     this.openLoginForm();
                 }
             },
@@ -174,8 +178,7 @@
 
             sendLoginRequest: function () {
                 if (this.verifyLoginRequest()) {
-
-                    this.authCode = userAccount.getHashCode(this.username, this.password);
+                    this.authCode = triviaGame.userAccountManager.userAccount.getHashCode(this.username, this.password);
 
                     var registrationRequest = {
                         "username": this.username,
@@ -185,13 +188,13 @@
                     var self = this;
                     this.postLoginStatusMessage("Waiting response ... ");
 
-                    restComunicator.sendPostRequest("login-user", registrationRequest,
-                                                    function (data) {
-                                                        self.onSuccessfullLogin(data)
-                                                    },
-                                                    function (data) {
-                                                        self.onErrorLogin(data)
-                                                    });
+                    triviaGame.restComunicator.sendPostRequest("login-user", registrationRequest,
+                                                               function (data) {
+                                                                   self.onSuccessfullLogin(data)
+                                                               },
+                                                               function (data) {
+                                                                   self.onErrorLogin(data)
+                                                               });
                 }
             },
 
@@ -205,13 +208,13 @@
             },
 
             onSuccessfullLogin: function () {
-                userAccount.login(this.username, this.nickname, this.authCode);
+                triviaGame.userAccountManager.userAccount.login(this.username, this.nickname, this.authCode);
                 this.clearInfo();
                 this.closeLoginForm();
             },
 
             onErrorLogin: function (data) {
-                var message = restComunicator.parseResponseMessage(data);
+                var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.postLoginStatusMessage(message);
             },
 
@@ -222,7 +225,7 @@
 
             logout: function () {
                 this.clearInfo();
-                userAccount.logout();
+                triviaGame.userAccountManager.userAccount.logout();
             },
 
             postLoginStatusMessage: function (message) {
@@ -231,15 +234,14 @@
             },
 
             register: function () {
-                if (!userAccount.isLoggedIn) {
+                if (!triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     this.openRegistrationForm();
                 }
             },
 
             sendRegistrationRequest: function () {
                 if (this.verifyRegistrationRequest()) {
-
-                    this.authCode = userAccount.getHashCode(this.username, this.password);
+                    this.authCode = triviaGame.userAccountManager.userAccount.getHashCode(this.username, this.password);
 
                     var registrationRequest = {
                         "username": this.username,
@@ -250,20 +252,19 @@
                     var self = this;
                     this.postRegistrationStatusMessage("Waiting response ... ");
 
-                    restComunicator.sendPostRequest("register-user", registrationRequest,
-                                                    function (data) {
-                                                        self.onSuccessfullRegistration(data)
-                                                    },
-                                                    function (data) {
-                                                        self.onErrorRegistration(data)
-                                                    });
+                    triviaGame.restComunicator.sendPostRequest("register-user", registrationRequest,
+                                                               function (data) {
+                                                                   self.onSuccessfullRegistration(data)
+                                                               },
+                                                               function (data) {
+                                                                   self.onErrorRegistration(data)
+                                                               });
                 }
             },
 
             verifyRegistrationRequest: function () {
                 if (this.username == "" || this.nickname == "" ||
                     this.password == "" || this.passwordVerification == "") {
-
                     this.registrationFromStatusBarVisibility = "block";
                     this.registrationFromStatusBarMessage = "All fields are required";
                     return false;
@@ -278,15 +279,14 @@
             },
 
             onSuccessfullRegistration: function (data) {
-                userAccount.login(this.username, this.nickname, this.authCode);
+                triviaGame.userAccountManager.userAccount.login(this.username, this.nickname, this.authCode);
                 this.clearInfo();
                 this.closeRegistrationForm();
             },
 
             onErrorRegistration: function (data) {
-                var message = restComunicator.parseResponseMessage(data);
+                var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.postRegistrationStatusMessage(message);
-
             },
 
             openRegistrationForm: function () {
@@ -307,18 +307,18 @@
 
         })
 
-        var userAccountViewBinder = new trivia.viewModels.ViewModel(userAccountController);
-        userAccountViewBinder.bind($("#site-header-user-account-wrap"));
-        userAccountViewBinder.bind($("#login-form"));
-        userAccountViewBinder.bind($("#registration-form"));
+        triviaGame.viewModelBinders.userAccountViewBinder = new trivia.viewModels.ViewModel(triviaGame.controllers.userAccountController);
+        triviaGame.viewModelBinders.userAccountViewBinder.bind($("#site-header-user-account-wrap"));
+        triviaGame.viewModelBinders.userAccountViewBinder.bind($("#login-form"));
+        triviaGame.viewModelBinders.userAccountViewBinder.bind($("#registration-form"));
         //#endregion
 
-        $("#site-main-nav").kendoMenu();
-
-        //#region Pages models
+        //#region Pages 
+        triviaGame.controllers.pages = triviaGame.controllers.pages || {};
+        triviaGame.viewModelBinders.pages = triviaGame.viewModelBinders.pages || {};
 
         //#region Page: All categories
-        var pageAllCategoriesController = new trivia.models.ObservableModel({
+        triviaGame.controllers.pages.pageAllCategoriesController = new trivia.models.ObservableModel({
 
             needLogin: false,
             isActivePage: false,
@@ -335,7 +335,7 @@
                 this.viewDisplay = "none";
 
                 if (this.needLogin) {
-                    userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
+                    triviaGame.userAccountManager.userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
                 }
             },
 
@@ -349,21 +349,20 @@
                 var self = this;
                 this.pageDisplay = "block";
 
-                if (!this.needLogin || userAccount.isLoggedIn) {
-
+                if (!this.needLogin || triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     this.renderMessage("Loading ...");
 
-                    restComunicator.sendGetRequest(self.serviceName, {},
-                                                   function (data) {
-                                                       self.onLoadSuccess(data)
-                                                   },
-                                                   function (data) {
-                                                       self.onLoadError(data)
-                                                   });
+                    triviaGame.restComunicator.sendGetRequest(self.serviceName, {},
+                                                              function (data) {
+                                                                  self.onLoadSuccess(data)
+                                                              },
+                                                              function (data) {
+                                                                  self.onLoadError(data)
+                                                              });
                 }
                 else {
                     this.renderMessage("Please, login to see this page!")
-                    userAccountController.login();
+                    triviaGame.controllers.userAccountController.login();
                 }
             },
 
@@ -377,7 +376,7 @@
             },
 
             onLoadError: function (data) {
-                var message = restComunicator.parseResponseMessage(data);
+                var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.renderMessage(message);
             },
 
@@ -437,12 +436,12 @@
             },
         });
 
-        var pageAllCategoriesViewBinder = new trivia.viewModels.ViewModel(pageAllCategoriesController);
-        pageAllCategoriesViewBinder.bind(pageAllCategoriesController.pageContainer);
+        triviaGame.viewModelBinders.pages.pageAllCategoriesViewBinder = new trivia.viewModels.ViewModel(triviaGame.controllers.pages.pageAllCategoriesController);
+        triviaGame.viewModelBinders.pages.pageAllCategoriesViewBinder.bind(triviaGame.controllers.pages.pageAllCategoriesController.pageContainer);
         //#endregion
 
         //#region Page: All users
-        var pageAllUsersController = new trivia.models.ObservableModel({
+        triviaGame.controllers.pages.pageAllUsersController = new trivia.models.ObservableModel({
 
             needLogin: false,
             isActivePage: false,
@@ -459,7 +458,7 @@
                 this.viewDisplay = "none";
 
                 if (this.needLogin) {
-                    userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
+                    triviaGame.userAccountManager.userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
                 }
             },
 
@@ -473,21 +472,20 @@
                 var self = this;
                 this.pageDisplay = "block";
 
-                if (!this.needLogin || userAccount.isLoggedIn) {
-
+                if (!this.needLogin || triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     this.renderMessage("Loading ...");
 
-                    restComunicator.sendGetRequest(self.serviceName, {},
-                                                   function (data) {
-                                                       self.onLoadSuccess(data)
-                                                   },
-                                                   function (data) {
-                                                       self.onLoadError(data)
-                                                   });
+                    triviaGame.restComunicator.sendGetRequest(self.serviceName, {},
+                                                              function (data) {
+                                                                  self.onLoadSuccess(data)
+                                                              },
+                                                              function (data) {
+                                                                  self.onLoadError(data)
+                                                              });
                 }
                 else {
                     this.renderMessage("Please, login to see this page!")
-                    userAccountController.login();
+                    triviaGame.controllers.userAccountController.login();
                 }
             },
 
@@ -501,7 +499,7 @@
             },
 
             onLoadError: function (data) {
-                var message = restComunicator.parseResponseMessage(data);
+                var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.renderMessage(message);
             },
 
@@ -561,10 +559,10 @@
                             attributes: {
                                 style: "text-align: center"
                             }
-                        }, {                         	
-                            command: {                         		
+                        }, {
+                            command: {
                                 text: "Details",
-                                click: function (data) { 
+                                click: function (data) {
                                     var dataItem = this.dataItem($(data.currentTarget).closest("tr"));
                                     navigationController.changeActivePage("page-user-info", dataItem)
                                 }
@@ -572,7 +570,7 @@
 
                             title: " ",
                             width: 15
-                        }                        
+                        }
                     ]
                 })
             },
@@ -584,12 +582,12 @@
             },
         });
 
-        var pageAllUserViewBilder = new trivia.viewModels.ViewModel(pageAllUsersController);
-        pageAllUserViewBilder.bind(pageAllUsersController.pageContainer);
+        triviaGame.viewModelBinders.pages.pageAllUserViewBilder = new trivia.viewModels.ViewModel(triviaGame.controllers.pages.pageAllUsersController);
+        triviaGame.viewModelBinders.pages.pageAllUserViewBilder.bind(triviaGame.controllers.pages.pageAllUsersController.pageContainer);
         //#endregion
 
         //#region Page: User info
-        var pageUserInfoController = new trivia.models.ObservableModel({
+        triviaGame.controllers.pages.pageUserInfoController = new trivia.models.ObservableModel({
 
             needLogin: false,
             isActivePage: false,
@@ -611,7 +609,7 @@
                 this.viewDisplay = "none";
 
                 if (this.needLogin) {
-                    userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
+                    triviaGame.userAccountManager.userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
                 }
             },
 
@@ -629,8 +627,7 @@
                     this.nickname = requestParameters["nickname"];
                 }
 
-                if (!this.needLogin || userAccount.isLoggedIn) {
-
+                if (!this.needLogin || triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     if (this.allUsers.length == 0) {
                         this.loadUsersList();
                     }
@@ -644,18 +641,18 @@
                             nickname: this.nickname,
                         };
 
-                        restComunicator.sendGetRequest(self.serviceName, requestParameters,
-                                                       function (data) {
-                                                           self.onLoadSuccess(data)
-                                                       },
-                                                       function (data) {
-                                                           self.onLoadError(data)
-                                                       });
+                        triviaGame.restComunicator.sendGetRequest(self.serviceName, requestParameters,
+                                                                  function (data) {
+                                                                      self.onLoadSuccess(data)
+                                                                  },
+                                                                  function (data) {
+                                                                      self.onLoadError(data)
+                                                                  });
                     }
                 }
                 else {
                     this.renderMessage("Please, login to see this page!")
-                    userAccountController.login();
+                    triviaGame.controllers.userAccountController.login();
                 }
             },
 
@@ -673,42 +670,106 @@
             },
 
             onLoadError: function (data) {
-                var message = restComunicator.parseResponseMessage(data);
+                var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.renderMessage(message);
             },
 
             loadUsersList: function () {
-
-                this.pageContainer.find("#page-user-info-nickname").kendoAutoComplete({
-                    placeholder: "Enter nickname ..."
-                });
-
                 var self = this;
 
-                restComunicator.sendGetRequest("all-users", {},
-                                               function (data) {
-                                                   self.onLoadUsersListSuccess(data)
-                                               },
-                                               function (data) {
-                                               });
+                this.pageContainer.find("#page-user-info-nickname").kendoComboBox({
+                    placeholder: "select nickname",
+                    dataTextField: "nickname",
+                    dataValueField: "nickname",
+                    filter: "contains",
+                    dataSource: {
+                        type: "odata",
+                        transport: {
+                            read: triviaGame.restComunicator.getHostUrl() + triviaGame.restComunicator.getServiceUrl("all-users"),
+                            //create: function (options) {
+                            //    // make AJAX request to the remote service
+                            //    $.ajax({
+                            //        url: "http://odata.netflix.com/Catalog/Titles",
+                            //        data: options.data, // the "data" field contains paging, sorting, filtering and grouping data
+                            //        success: function (result) {
+                            //            alert("finish")
+                            //            // notify the DataSource that the operation is complete
+                            //            options.success(result);
+                            //        }
+                            //    });
+                            //    //    triviaGame.restComunicator.sendGetRequest("all-users",
+                            //    //                                   options.data,
+                            //    //                                   function (data) {
+                            //    //                                       self.allUsers = data;
+                            //    //                                       options.success(data);
+                            //    //                                   },
+                            //    //                                   function (data) {
+                            //    //                                   });
+                            //    //}
+                            //}
+                        }
+                    }
+                });
+                //var dataSource = new kendo.data.DataSource({
+                //    transport: {
+                //        create: function (options) {
+                //            // make AJAX request to the remote service
+                //            triviaGame.restComunicator.sendGetRequest("all-users",
+                //                                           options.data,
+                //                                           function (data) {
+                //                                               self.allUsers = data;
+                //                                               options.success(data);
+                //                                           },
+                //                                           function (data) {
+                //                                           });
+                //        }
+                //    }
+                //});
+                //this.pageContainer.find("#page-user-info-nickname").kendoAutoComplete({
+                //    //dataSource: {
+                //    //    type: "odata",
+                //    //    transport: triviaGame.restComunicator.getHostUrl() + triviaGame.restComunicator.getServiceUrl("all-users"),
+                //    //    //{
+                //    //    //    create: function (options) {
+                //    //    //        triviaGame.restComunicator.sendGetRequest("all-users",
+                //    //    //                                       options.data,
+                //    //    //                                       function (data) {
+                //    //    //                                           self.allUsers = data;
+                //    //    //                                           options.success(data);
+                //    //    //                                       },
+                //    //    //                                       function (data) {
+                //    //    //                                       });
+                //    //    //        //$.ajax({
+                //    //    //        //    url: "/orders/create",
+                //    //    //        //    data: options.data, // the "data" field contains paging, sorting, filtering and grouping data
+                //    //    //        //    success: function(result) {
+                //    //    //        //        // notify the DataSource that the operation is complete
+                //    //    //        //        options.success(result);
+                //    //    //        //    }
+                //    //    //        //});
+                //    //    //    }
+                //    //    //}
+                //    //},
+                //    dataSource: {
+                //        type: "odata",
+                //        transport: {
+                //            read: triviaGame.restComunicator.getHostUrl() + triviaGame.restComunicator.getServiceUrl("all-users"),
+                //        }
+                //    },
+                //    dataTextField: "nickname",
+                //    filter: "startswith",
+                //    placeholder: "enter nickname ...",
+                //    change: function () {
+                //        self.load()
+                //    },
+                //});                
             },
 
             onLoadUsersListSuccess: function (data) {
-                var self = this;
-                this.allUsers = data;
-                var autocomplete = this.pageContainer.find("#page-user-info-nickname").data("kendoAutoComplete");
-
-                this.pageContainer.find("#page-user-info-nickname").kendoAutoComplete({
-                    dataSource: this.allUsers,
-                    dataTextField: "nickname",
-                    filter: "startswith",
-                    placeholder: "Enter nickname ...",
-                    change: function() {
-                        self.load()
-                    },
-                });
-
-                autocomplete.refresh();
+                //var self = this;
+                //this.allUsers = data;
+                //var autocomplete = this.pageContainer.find("#page-user-info-nickname").data("kendoAutoComplete");
+                //autocomplete.refresh();
             },
 
             renderContent: function (responseData) {
@@ -782,15 +843,19 @@
             },
         });
 
-        var pageUserInfoViewBilder = new trivia.viewModels.ViewModel(pageUserInfoController);
-        pageUserInfoViewBilder.bind(pageUserInfoController.pageContainer);
+        triviaGame.viewModelBinders.pages.pageUserInfoViewBilder = new trivia.viewModels.ViewModel(triviaGame.controllers.pages.pageUserInfoController);
+        triviaGame.viewModelBinders.pages.pageUserInfoViewBilder.bind(triviaGame.controllers.pages.pageUserInfoController.pageContainer);
         //#endregion
 
         //#region Page controller
-        var navigationController = new trivia.models.ObservableModel({
+        triviaGame.controllers.navigationController = new trivia.models.ObservableModel({
 
             pageControllersMap: [],
             activePage: null,
+
+            init: function () {
+                $("#site-main-nav").kendoMenu();
+            },
 
             addPage: function (pageName, pageController) {
                 this.pageControllersMap[pageName] = pageController;
@@ -815,13 +880,20 @@
             }
         });
 
-        navigationController.addPage(pageAllCategoriesController.pageName, pageAllCategoriesController);
-        navigationController.addPage(pageAllUsersController.pageName, pageAllUsersController);
-        navigationController.addPage(pageUserInfoController.pageName, pageUserInfoController);
+        triviaGame.controllers.navigationController.addPage(
+            triviaGame.controllers.pages.pageAllCategoriesController.pageName,
+            triviaGame.controllers.pages.pageAllCategoriesController);
 
-        var navigationViewBinder = new trivia.viewModels.ViewModel(navigationController);
-        navigationViewBinder.bind($("#site-main-nav"));
+        triviaGame.controllers.navigationController.addPage(
+            triviaGame.controllers.pages.pageAllUsersController.pageName,
+            triviaGame.controllers.pages.pageAllUsersController);
+
+        triviaGame.controllers.navigationController.addPage(
+            triviaGame.controllers.pages.pageUserInfoController.pageName,
+            triviaGame.controllers.pages.pageUserInfoController);
+
+        triviaGame.viewModelBinders.navigationViewBinder = new trivia.viewModels.ViewModel(navigationController);
+        triviaGame.viewModelBinders.navigationViewBinder.bind($("#site-main-nav"));
         //#endregion      
-
     })
 })(jQuery)
