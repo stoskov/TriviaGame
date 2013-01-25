@@ -1,10 +1,6 @@
-﻿//#region trivia namespace
-var trivia = trivia || {};
+﻿var trivia = trivia || {};
 
-//#region trivia.classManager namespace
-trivia.classManager = trivia.classManager || {};
-
-trivia.classManager.createClass = function (baseClass, currentClassConstructor) {
+trivia.createClass = function (baseClass, currentClassConstructor) {
     var SubClass = function () {
     };
 
@@ -26,12 +22,9 @@ trivia.classManager.createClass = function (baseClass, currentClassConstructor) 
 
     return CurrentClass;
 }
-//#endregion
 
-//#region trivia.restComunicator namespace
-trivia.restComunicator = trivia.restComunicator || {};
 //Defines class for communication betwewn the application and the rest server
-trivia.restComunicator.Comunicator = function (hostUrl) {
+trivia.RestComunicator = function (hostUrl) {
     var self = this,
     host = hostUrl,
     serviceMap = {},
@@ -68,6 +61,8 @@ trivia.restComunicator.Comunicator = function (hostUrl) {
             type: "GET",
             timeout: timeOut,
             dataType: "json",
+            //contentType: "application/json; charset=utf-8",
+            //data: JSON.stringify(data),
             data: data,
             cache: true,
             success: onSuccess,
@@ -84,6 +79,8 @@ trivia.restComunicator.Comunicator = function (hostUrl) {
             type: "POST",
             timeout: timeOut,
             dataType: "json",
+            //contentType: "application/json; charset=utf-8",
+            //data: JSON.stringify(data),
             data: data,
             success: onSuccess,
             error: onError
@@ -93,13 +90,13 @@ trivia.restComunicator.Comunicator = function (hostUrl) {
     self.parseResponseMessage = function (data) {
         var message = "";
 
-        if (data.statusText) {
+        if (data && data.statusText) {
             message = data.statusText;
         }
 
-        if (data.responseText) {
+        if (data && data.responseText) {
             var errorResponse = JSON.parse(data.responseText);
-            message = message + "\n" + errorResponse["Message"];           
+            message = message + "\n" + errorResponse["Message"];
         }
 
         message = message.replace("\n", "<br/>");
@@ -108,22 +105,19 @@ trivia.restComunicator.Comunicator = function (hostUrl) {
 
     //Private members
     var verifyServiceUrl = function (serviceName) {
-        if (serviceMap[serviceName] == undefined || serviceMap[serviceName] == null) {
+        if (!serviceMap || !serviceMap[serviceName]) {
             throw new Error("Url for service " + serviceName + " is not defined");
         }
     }
 }
-//#endregion
 
-//#region trivia.models namespace
-trivia.models = trivia.models || {};
 //Definition of observalbe class using event handler to watch for a property changes
-trivia.models.ObservableModel = function (model) {
+trivia.ObservableObject = function (model) {
     var self = this;
 
     //Makes extension of and existing model and returnes a new object
-    self.getExtendedModel = function(extension) {
-        var newModel = new trivia.models.ObservableModel(self);
+    self.getExtendedModel = function (extension) {
+        var newModel = new trivia.ObservableObject(self);
         copyMembers(extension, newModel);
         initializeModel(newModel);
         return newModel;
@@ -152,7 +146,7 @@ trivia.models.ObservableModel = function (model) {
     }
 
     //Defines bining metod used to watch properties changes
-    Object.defineProperty(trivia.models.ObservableModel.prototype, "watchProperty", {
+    Object.defineProperty(trivia.ObservableObject.prototype, "watchProperty", {
 
         enumerable: false,
         configurable: true,
@@ -214,29 +208,26 @@ trivia.models.ObservableModel = function (model) {
                 "handlerHost": handlerHost
             }
 
-            //Check if the property laready has observes
+            //Check if the property already has observers
             this["observablePropertiesHandlers"] = this["observablePropertiesHandlers"] || [];
             this["observablePropertiesHandlers"][property] = this["observablePropertiesHandlers"][property] || [];
 
-            //Att the listener
+            //Add the listener
             this.observablePropertiesHandlers[property].push(handlerObject);
 
             //Call the handler to init the value
             callHandler(handlerHost, handler, propertyValue);
         }
     });
-    
+
     copyMembers(model, self);
     initializeModel(self);
 
     return self;
 }
-//#endregion
 
-//#region trivia.viewModels namespace
-trivia.viewModels = trivia.viewModels || {};
 //Definition of ViewModel class managing binding
-trivia.viewModels.ViewModel = function (modelToObserve) {
+trivia.ViewModelBinder = function (modelToObserve) {
     // private members
     var self = this,
     bindedElementsList = [],
@@ -401,14 +392,12 @@ trivia.viewModels.ViewModel = function (modelToObserve) {
     }
 
     //Class initialisation
-    if (modelToObserve instanceof trivia.models.ObservableModel) {
+    if (modelToObserve instanceof trivia.ObservableObject) {
         model = modelToObserve;
     }
     else {
-        model = new trivia.models.ObservableModel(modelToObserve);
+        model = new trivia.ObservableObject(modelToObserve);
     }
 
     return self;
 }
-//#endregion
-//#endregion
