@@ -52,9 +52,9 @@ trivia.RestComunicator = function (hostUrl) {
         timeOut = timeoutInMs;
     };
 
-    self.sendGetRequest = function (serviceName, data, onSuccess, onError) {
+    self.sendGetRequest = function (serviceName, urlParameter, data, onSuccess, onError) {
         var serviceUrl = this.getServiceUrl(serviceName);
-        var requestUrl = host + serviceUrl;
+        var requestUrl = host + serviceUrl + urlParameter;
         $.support.cors = true;
         $.ajax({
             url: requestUrl,
@@ -70,18 +70,18 @@ trivia.RestComunicator = function (hostUrl) {
         });
     }
 
-    self.sendPostRequest = function (serviceName, data, onSuccess, onError) {
+    self.sendPostRequest = function (serviceName, urlParameter, data, onSuccess, onError) {
         var serviceUrl = this.getServiceUrl(serviceName);
-        var requestUrl = host + serviceUrl;
+        var requestUrl = host + serviceUrl + urlParameter;
         $.support.cors = true;
         $.ajax({
             url: requestUrl,
             type: "POST",
             timeout: timeOut,
             dataType: "json",
-            //contentType: "application/json; charset=utf-8",
-            //data: JSON.stringify(data),
-            data: data,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(data),
+            //data: data,
             success: onSuccess,
             error: onError
         });
@@ -345,6 +345,7 @@ trivia.ViewModelBinder = function (modelToObserve) {
         atributeMethodsMap["css"] = $().css;
         atributeMethodsMap["attr"] = $().attr;
         atributeMethodsMap["event"] = $().on;
+        atributeMethodsMap["data"] = $().data;
 
         var jqDelegate = null,
         jqDelegateArguments = [],
@@ -401,3 +402,38 @@ trivia.ViewModelBinder = function (modelToObserve) {
 
     return self;
 }
+
+trivia.sessionManager = new trivia.ObservableObject({
+
+    store: function (alias, jsonObject) {
+        var stringObject;
+
+        if (typeof (Storage) !== "undefined") {
+            stringObject = JSON.stringify(jsonObject);
+            sessionStorage.setItem(alias, stringObject);
+        }
+    },
+
+    retreive: function (alias) {
+        var stringObject,
+        result = {};
+
+        if (typeof (Storage) !== "undefined" && sessionStorage.getItem(alias) !== null) {
+            stringObject = sessionStorage.getItem(alias);
+            result = JSON.parse(stringObject);
+        }
+               
+        return result;
+    },
+
+    initObject: function(alias, objectToInit) {
+        var storedOjbect = this.retreive(alias);
+        for (property in storedOjbect) {
+            //Hack!. The property stores the list with watched properties and their handles. 
+            //When pass through stringify it looses its value
+            if (property != "observablePropertiesHandlers") {
+                objectToInit[property] = storedOjbect[property];
+            }
+        }
+    },
+});
