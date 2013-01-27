@@ -1,7 +1,7 @@
 ﻿(function ($) {
     $(document).ready(function () {
         var constComunicatorTimeOut = 500000;
-        var constDataLoadTimeOut = 500000000;
+        var constDataLoadTimeOut = 500000000000;
 
         //Define new namaspace for all game objects
         triviaGame = window.triviaGame || {};
@@ -85,7 +85,7 @@
                 nowTimeMs = new Date().getTime(),
                 elapsedTime = nowTimeMs - this.loadTimeMs;
 
-                if (this.data == [] || elapsedTime > this.cacheTimeMs || force) {
+                if (this.data.length < 1 || elapsedTime > this.cacheTimeMs || force) {
                     triviaGame.restComunicator.sendGetRequest("all-categories", "", {},
                                                               function (data) {
                                                                   self.onLoadSuccess(data, onSuccess)
@@ -124,7 +124,7 @@
                 nowTimeMs = new Date().getTime(),
                 elapsedTime = nowTimeMs - this.loadTimeMs;
 
-                if (this.data == [] || elapsedTime > this.cacheTimeMs || force) {
+                if (this.data.length < 1 || elapsedTime > this.cacheTimeMs || force) {
                     triviaGame.restComunicator.sendGetRequest("all-users", "", {},
                                                               function (data) {
                                                                   self.onLoadSuccess(data, onSuccess)
@@ -481,16 +481,9 @@
             initSpecific: function() {
             },
 
-            loadPageData: function (parameters) {
-                this.renderContent();
-            },
-
-            unload: function () {
-                this.pageDisplay = "none";
-            },
-
             load: function (parameters) {
                 this.pageDisplay = "block";
+                this.isActivePage = true;
 
                 if (!this.needLogin || triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     this.renderMessage("Loading ...");
@@ -500,6 +493,21 @@
                     this.renderMessage("Please, login to see this page!")
                     triviaGame.controllers.userAccountController.login();
                 }
+                this.storePage();
+            },
+
+            loadPageData: function (parameters) {
+                this.renderContent();
+            },
+
+            unload: function () {
+                this.pageDisplay = "none";
+                this.isActivePage = false;
+                this.unloadSpecific();
+                this.storePage();
+            },
+
+            unloadSpecific: function () {
             },
 
             renderContent: function (responseData) {
@@ -572,9 +580,8 @@
                     });
             },
 
-            unload: function () {
+            unloadSpecific: function () {
                 this.getPageContentDOM().find("#page-all-categories-grid").html("");
-                this.pageDisplay = "none";
             },
 
             renderContent: function (responseData) {
@@ -654,13 +661,12 @@
             pageName: "page-add-category",
             pageContainer: "#page-add-category",
             categoryName: "",
+            questionsCollection: [],
+            questionNextId: 1,
+
 
             questionText: "",
-            correctAnswersCollection: [],
-            wrongAnswersCollection: [],
-            answerNextId: 1,
-            correctAnswersCount: 0,
-            wrongAnswersCount: 0,
+            
             minCorrectAnswersRqiuired: 1,
             minWrongAnswersRqiuired: 3,
 
@@ -670,24 +676,96 @@
                 this.watchProperty("categoryName", self, function () {
                     self.storePage()
                 });
+
+                this.questionsCollection = [];
             },
 
             renderContent: function (responseData) {
                 this.displayContentBox();
-                //this.getPageContentDOM().find("#page-add-question-category-id").kendoDropDownList({
-                //    dataTextField: "name",
-                //    dataValueField: "id",
-                //    dataSource: responseData,
-                //    height: 400,
-                //});
-
-                //this.getPageContentDOM().find("#page-add-question-answers-wrap").kendoPanelBar({});
-
+                this.buildBanelBar();
                 //if (this.isReload) {
                 //    this.restoreAnswers();
                 //}
             },
 
+            buildBanelBar: function() {
+                this.getPageContentDOM().find("#page-add-category-questions-wrap").kendoPanelBar({});
+            },
+
+            requestAddQuestionElement: function() {
+                var questionModel = this.addQuestion();
+                this.addQuestionElement(questionModel);
+                this.buildBanelBar();
+            },
+
+            addQuestion: function () {
+                var questionModel,
+                self = this;
+
+                questionModel = new trivia.ObservableObject({
+                    text: "",
+                    id: this.questionNextId,
+                    correctAnswers: [],
+                    wrongAnswers: [],
+                    answerNextId: 1,
+                    correctAnswersCount: 0,
+                    wrongAnswersCount: 0,
+
+                    requestDeleteQuestionElement: function (parameters, DOM) {
+                        self.requestDeleteQuestionElement(parameters, DOM);
+                    },
+                });
+
+                questionModel.watchProperty("text", self, function () {
+                    self.storePage()
+                });
+
+                this.questionNextId++;
+                this.questionsCollection.push(questionModel);
+                this.storePage();
+                return questionModel;
+            },
+
+            addQuestionElement: function (questionModel) {
+                var questionWrapSection = $($("#add-question-section-template").html()),
+                questionTextSection = $($("#add-question-text-template").html()),
+                questionAnswersSection = $($("#add-question-answers-section-template").html());
+
+                questionAnswersSection.find(".add-question-answers-wrap").kendoPanelBar({});
+                questionWrapSection.find(".add-question-section").append(questionTextSection);
+
+                questionViewModelBilder = new trivia.ViewModelBinder(questionModel);
+                questionViewModelBilder.bind(questionWrapSection);
+                
+                questionWrapSection.find(".add-question-section").append(questionAnswersSection);
+                this.getPageContentDOM().find("#page-add-category-questions-wrap").append(questionWrapSection);
+            },
+
+            requestDeleteQuestionElement: function (parameters, DOM) {
+                var id = $(DOM).data("id");
+                this.deleteQuestion(id);
+                this.deleteQuestionElement(DOM);
+            },
+
+            deleteQuestion: function (id) {
+                var index = 0;
+
+                while (index < this.questionsCollection.length) {
+                    if (this.questionsCollection[index].id == id) {
+                        this.questionsCollection.splice(index, 1)
+                    }
+                    else {
+                        index++
+                    }
+                }
+
+                this.storePage();
+            },
+
+            deleteQuestionElement: function(DOM) {
+                $(DOM).parents(".add-question-section-wrap").remove();
+            },
+            
             requestAddAnswerElement: function (parameters) {
                 var section,
                 answerModel;
@@ -914,7 +992,7 @@
 
         //#region Page: Add question
         triviaGame.controllers.pages.pageAddQuestionController = triviaGame.controllers.pages.mainPageModel.getExtendedModel({
-            needLogin: true,
+            needLogin: false,
             serviceName: "add-question",
             pageName: "page-add-question",
             pageContainer: "#page-add-question",
@@ -954,10 +1032,6 @@
                     function (data) {
                         self.onLoadError(data)
                     });
-            },
-
-            unload: function () {                
-                this.pageDisplay = "none";
             },
 
             renderContent: function (responseData) {
@@ -1018,7 +1092,7 @@
             },
 
             addAnswerElement: function (section, answerModel) {
-                var element = $($("#page-add-question-answer-template").html()),
+                var element = $($("#add-question-answer-wrap-template").html()),
                 appendToElement;
 
                 if (section == "correntAnswers") {
@@ -1218,9 +1292,8 @@
                     });
             },
 
-            unload: function () {
+            unloadSpecific: function () {
                 this.getPageContentDOM().find("#page-all-users-grid").html("");
-                this.pageDisplay = "none";
             },
 
             renderContent: function (responseData) {
@@ -1239,7 +1312,6 @@
                                     games: { type: "number" },
                                 }
                             }
-
                         },
                     },
                     groupable: false,
@@ -1267,6 +1339,7 @@
                             field: "score",
                             // width: 30,
                             title: "Average score",
+                            format: "{0:0.00}",
                             headerAttributes: {
                                 style: "text-align: center"
                             },
@@ -1325,6 +1398,7 @@
                             field: "score",
                             width: 25,
                             title: "Average score",
+                            format: "{0:0.00}",
                             headerAttributes: {
                                 style: "text-align: center"
                             },
@@ -1360,9 +1434,47 @@
 
             pageControllersMap: [],
             activePage: null,
+            startPageName: "page-add-category",
 
             init: function () {
+                var page, 
+                hasActivePage;
+
                 $("#site-main-nav").kendoMenu();
+
+                this.addPage(
+                    triviaGame.controllers.pages.pageAllCategoriesController.pageName,
+                    triviaGame.controllers.pages.pageAllCategoriesController);
+
+                this.addPage(
+                    triviaGame.controllers.pages.pageAllUsersController.pageName,
+                    triviaGame.controllers.pages.pageAllUsersController);
+
+                this.addPage(
+                    triviaGame.controllers.pages.pageAddCategoryController.pageName,
+                    triviaGame.controllers.pages.pageAddCategoryController);
+
+                this.addPage(
+                    triviaGame.controllers.pages.pageAddQuestionController.pageName,
+                    triviaGame.controllers.pages.pageAddQuestionController);
+
+                triviaGame.viewModelBinders.navigationViewBinder = new trivia.ViewModelBinder(this);
+
+                triviaGame.viewModelBinders.navigationViewBinder.bind($("#site-main-nav"));
+
+                for (page in this.pageControllersMap) {
+                    if (this.pageControllersMap[page].isActivePage) {
+                        hasActivePage = true;
+                        break
+                    }
+                }
+
+                if (hasActivePage) {
+                    this.changeActivePage(this.pageControllersMap[page].pageName, {});
+                }
+                else {
+                    this.changeActivePage(this.startPageName, {});
+                }
             },
 
             addPage: function (pageName, pageController) {
@@ -1378,14 +1490,12 @@
             },
 
             changeActivePage: function (pageName, data) {
-                if (this.activePage != null && this.activePage != undefined) {
-                    this.activePage.isActivePage = false;
+                if (this.activePage != null && this.activePage != undefined) {                    
                     this.activePage.unload(data);
                 }
 
                 if (pageName != undefined && pageName != null) {
                     this.activePage = this.pageControllersMap[pageName];
-                    this.activePage.isActivePage = true;
                     this.activePage.load(data);
                 }
             },
@@ -1407,26 +1517,6 @@
             },
 
         });
-
-        triviaGame.controllers.navigationController.addPage(
-            triviaGame.controllers.pages.pageAllCategoriesController.pageName,
-            triviaGame.controllers.pages.pageAllCategoriesController);
-
-        triviaGame.controllers.navigationController.addPage(
-            triviaGame.controllers.pages.pageAllUsersController.pageName,
-            triviaGame.controllers.pages.pageAllUsersController);
-
-        triviaGame.controllers.navigationController.addPage(
-            triviaGame.controllers.pages.pageAddCategoryController.pageName,
-            triviaGame.controllers.pages.pageAddCategoryController);
-
-        triviaGame.controllers.navigationController.addPage(
-            triviaGame.controllers.pages.pageAddQuestionController.pageName,
-            triviaGame.controllers.pages.pageAddQuestionController);
-
-        triviaGame.viewModelBinders.navigationViewBinder = new trivia.ViewModelBinder(triviaGame.controllers.navigationController);
-        triviaGame.viewModelBinders.navigationViewBinder.bind($("#site-main-nav"));
-        triviaGame.controllers.navigationController.changeActivePage("page-add-category", {});
         //#endregion      
     })
 })(jQuery)
