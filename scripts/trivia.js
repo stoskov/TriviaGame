@@ -656,17 +656,14 @@
         //#region Page: Add category
         triviaGame.controllers.pages.pageAddCategoryController = triviaGame.controllers.pages.mainPageModel.getExtendedModel({
      
-            needLogin: false,
+            needLogin: true,
             serviceName: "add-category",
             pageName: "page-add-category",
             pageContainer: "#page-add-category",
             categoryName: "",
             questionsCollection: [],
-            questionNextId: 1,
-
-
-            questionText: "",
-            
+            questionNextId: 1,            
+            minQuestionsRqiuired: 10,
             minCorrectAnswersRqiuired: 1,
             minWrongAnswersRqiuired: 3,
 
@@ -676,16 +673,14 @@
                 this.watchProperty("categoryName", self, function () {
                     self.storePage()
                 });
-
-                this.questionsCollection = [];
             },
 
             renderContent: function (responseData) {
                 this.displayContentBox();
                 this.buildBanelBar();
-                //if (this.isReload) {
-                //    this.restoreAnswers();
-                //}
+                if (this.isReload) {
+                    this.restoreQuestions();
+                }
             },
 
             buildBanelBar: function() {
@@ -711,8 +706,17 @@
                     correctAnswersCount: 0,
                     wrongAnswersCount: 0,
 
+                    requestAddAnswerElement: function (parameters, DOM) {
+                        self.requestAddAnswerElement(this, parameters, DOM);
+                    },
+
                     requestDeleteQuestionElement: function (parameters, DOM) {
-                        self.requestDeleteQuestionElement(parameters, DOM);
+                        self.requestDeleteQuestionElement(this, parameters, DOM);
+                    },
+
+                    updateCounters: function () {
+                        this.correctAnswersCount = this.correctAnswers.length;
+                        this.wrongAnswersCount = this.wrongAnswers.length;
                     },
                 });
 
@@ -733,16 +737,16 @@
 
                 questionAnswersSection.find(".add-question-answers-wrap").kendoPanelBar({});
                 questionWrapSection.find(".add-question-section").append(questionTextSection);
+                questionWrapSection.find(".add-question-section").append(questionAnswersSection);
 
                 questionViewModelBilder = new trivia.ViewModelBinder(questionModel);
-                questionViewModelBilder.bind(questionWrapSection);
-                
-                questionWrapSection.find(".add-question-section").append(questionAnswersSection);
+                questionViewModelBilder.bind(questionWrapSection);                
+               
                 this.getPageContentDOM().find("#page-add-category-questions-wrap").append(questionWrapSection);
             },
 
-            requestDeleteQuestionElement: function (parameters, DOM) {
-                var id = $(DOM).data("id");
+            requestDeleteQuestionElement: function (questionModel, parameters, DOM) {
+                var id = questionModel.id;
                 this.deleteQuestion(id);
                 this.deleteQuestionElement(DOM);
             },
@@ -765,27 +769,43 @@
             deleteQuestionElement: function(DOM) {
                 $(DOM).parents(".add-question-section-wrap").remove();
             },
+
+            getParentDOMByQuestionId: function (id) {
+                var parentDOM, dataId;
+
+                $(".add-question-section-wrap").each(function () {
+                    dataId = $(this).data("id")
+                    if (dataId == id) {
+                        parentDOM = $(this);
+                    }
+                })
+
+                return parentDOM;
+            },
             
-            requestAddAnswerElement: function (parameters) {
+            requestAddAnswerElement: function (questionModel, parameters, DOM) {
                 var section,
-                answerModel;
+                answerModel,
+                parentDOM;
 
                 if (parameters && parameters["section"]) {
                     section = parameters["section"];
-                    answerModel = this.addAnswer(section);
-                    this.addAnswerElement(section, answerModel);
+                    answerModel = this.addAnswer(questionModel, section);
+                    parentDOM = $(DOM).parents(".add-question-section-wrap");
+                    this.addAnswerElement(answerModel, section, parentDOM);
                 }
             },
 
-            addAnswer: function (section) {
+            addAnswer: function (questionModel, section) {
                 var answerModel,
                 self = this;
 
                 answerModel = new trivia.ObservableObject({
                     text: "",
-                    id: this.answerNextId,
+                    id: questionModel.answerNextId,
+
                     requestDeleteAnswerElement: function (parameters, DOM) {
-                        self.requestDeleteAnswerElement(parameters, DOM);
+                        self.requestDeleteAnswerElement(questionModel, this, parameters, DOM);
                     },
                 });
 
@@ -793,29 +813,29 @@
                     self.storePage()
                 });
 
-                this.answerNextId++;
+                questionModel.answerNextId++;
 
                 if (section == "correntAnswers") {
-                    this.correctAnswersCollection.push(answerModel);
+                    questionModel.correctAnswers.push(answerModel);
                 }
                 else if (section == "wrongAnswers") {
-                    this.wrongAnswersCollection.push(answerModel);
+                    questionModel.wrongAnswers.push(answerModel);
                 }
 
-                this.updateCounters();
+                questionModel.updateCounters();
                 this.storePage();
                 return answerModel;
             },
 
-            addAnswerElement: function (section, answerModel) {
-                var element = $($("#page-add-question-answer-template").html()),
-                appendToElement;
+            addAnswerElement: function (answerModel, section, parentDOM) {
+                var appendToElement,
+                element = $($("#add-question-answer-wrap-template").html());
 
                 if (section == "correntAnswers") {
-                    appendToElement = this.getPageContentDOM().find("#page-add-question-correct-answers-list");
+                    appendToElement = parentDOM.find(".add-question-correct-answers-list");
                 }
                 else if (section == "wrongAnswers") {
-                    appendToElement = this.getPageContentDOM().find("#page-add-question-wrong-answers-list");
+                    appendToElement = parentDOM.find(".add-question-wrong-answers-list");
                 }
 
                 answerViewModelBilder = new trivia.ViewModelBinder(answerModel);
@@ -823,18 +843,18 @@
                 element.appendTo(appendToElement);
             },
 
-            requestDeleteAnswerElement: function (parameters, DOM) {
-                var id = $(DOM).data("id");
-                this.deleteAnswer(id);
+            requestDeleteAnswerElement: function (questionModel, anwerModel, parameters, DOM) {
+                var id = anwerModel.id;
+                this.deleteAnswer(questionModel, id);
                 $(DOM).parent().remove();
             },
 
-            deleteAnswer: function (id) {
+            deleteAnswer: function (questionModel, id) {
                 var index = 0;
 
-                while (index < this.correctAnswersCollection.length) {
-                    if (this.correctAnswersCollection[index].id == id) {
-                        this.correctAnswersCollection.splice(index, 1)
+                while (index < questionModel.correctAnswers.length) {
+                    if (questionModel.correctAnswers[index].id == id) {
+                        questionModel.correctAnswers.splice(index, 1)
                     }
                     else {
                         index++
@@ -843,9 +863,9 @@
 
                 index = 0;
 
-                while (index < this.wrongAnswersCollection.length) {
-                    if (this.wrongAnswersCollection[index].id == id) {
-                        this.wrongAnswersCollection.splice(index, 1)
+                while (index < questionModel.wrongAnswers.length) {
+                    if (questionModel.wrongAnswers[index].id == id) {
+                        questionModel.wrongAnswers.splice(index, 1)
                     }
                     else {
                         index++
@@ -853,36 +873,47 @@
                 }
 
                 this.storePage();
-                this.updateCounters();
+                questionModel.updateCounters();
             },
 
-            updateCounters: function () {
-                this.correctAnswersCount = this.correctAnswersCollection.length;
-                this.wrongAnswersCount = this.wrongAnswersCollection.length;
-            },
+            restoreQuestions: function () {
+                var oldQuestionsCollection = this.questionsCollection,
+                questionModel, 
+                i, 
+                j, 
+                parrentDOM;
 
-            restoreAnswers: function () {
-                var oldCorrectAnswersCollection = this.correctAnswersCollection,
-                oldWrongAnswersCollection = this.wrongAnswersCollection,
-                answerModel,
-                i;
+                this.questionsCollection = [];
 
-                this.correctAnswersCollection = [];
-                this.wrongAnswersCollection = [];
+                for (i = 0; i < oldQuestionsCollection.length; i++) {
+                    questionModel = this.addQuestion();
+                    questionModel.id = oldQuestionsCollection[i].id;
+                    questionModel.text = oldQuestionsCollection[i].text;
+                    questionModel.answerNextId = oldQuestionsCollection[i].answerNextId;
 
-                for (i = 0; i < oldCorrectAnswersCollection.length; i++) {
-                    answerModel = this.addAnswer("correntAnswers");
-                    answerModel.id = oldCorrectAnswersCollection[i].id;
-                    answerModel.text = oldCorrectAnswersCollection[i].text;
-                    this.addAnswerElement("correntAnswers", answerModel);
-                }
+                    this.addQuestionElement(questionModel);
+                    this.buildBanelBar();
 
-                for (i = 0; i < oldWrongAnswersCollection.length; i++) {
-                    answerModel = this.addAnswer("wrongAnswers");
-                    answerModel.id = oldWrongAnswersCollection[i].id;
-                    answerModel.text = oldWrongAnswersCollection[i].text;
-                    this.addAnswerElement("wrongAnswers", answerModel);
-                }
+                    for (j = 0; j < oldQuestionsCollection[i].correctAnswers.length; j++) {
+                        answerModel = this.addAnswer(questionModel, "correntAnswers");
+                        answerModel.id = oldQuestionsCollection[i].correctAnswers[j].id;
+                        answerModel.text = oldQuestionsCollection[i].correctAnswers[j].text;
+
+                        parrentDOM = this.getParentDOMByQuestionId(questionModel.id);
+                        this.addAnswerElement(answerModel, "correntAnswers", parrentDOM);
+                    }
+                    
+                    for (j = 0; j < oldQuestionsCollection[i].wrongAnswers.length; j++) {
+                        answerModel = this.addAnswer(questionModel, "wrongAnswers");
+                        answerModel.id = oldQuestionsCollection[i].wrongAnswers[j].id;
+                        answerModel.text = oldQuestionsCollection[i].wrongAnswers[j].text;
+
+                        parrentDOM = this.getParentDOMByQuestionId(questionModel.id);
+                        this.addAnswerElement(answerModel, "wrongAnswers", parrentDOM);
+                    }
+
+                    questionModel.updateCounters();
+                }                
             },
 
             requestSubmit: function () {
@@ -892,30 +923,23 @@
             },
 
             submit: function () {
-                var wrongAnswersList,
-                correntAnswersList,
-                authorisationInfo,
+                var authorisationInfo,
                 requestParamters,
                 categoryParameter,
                 self = this;
-
-                wrongAnswersList = this.extractNonEmptyAnswers(this.wrongAnswersCollection);
-                correntAnswersList = this.extractNonEmptyAnswers(this.correctAnswersCollection);
 
                 authorisationInfo = triviaGame.userAccountManager.userAccount.getAuthorisationInfo();
 
                 requestParamters = {
                     "user": authorisationInfo,
-                    "question": {
-                        "text": this.questionText,
-                        "correctAnswers": correntAnswersList,
-                        "wrongAnswers": wrongAnswersList
+                    "category": {
+                        "name": this.categoryName,
+                        "questions": this.questionsCollection,
                     }
                 };
 
-                categoryParameter = "/" + this.categoryId;
                 this.renderPageStatus("waiting response ...");
-                triviaGame.restComunicator.sendPostRequest(this.serviceName, categoryParameter, requestParamters,
+                triviaGame.restComunicator.sendPostRequest(this.serviceName, "", requestParamters,
                                                            function (data) {
                                                                self.onSubmitSuccess(data)
                                                            },
@@ -927,24 +951,61 @@
             verifySubmit: function () {
                 var wrongAnswersList,
                 correntAnswersList,
-                message = "";
+                message = "To submit the request: <br/>", 
+                isValid = true,
+                hasEmptyQuestion = false,
+                currentQuestionText = "";
 
                 this.clearPageStatus();
 
-                wrongAnswersList = this.extractNonEmptyAnswers(this.wrongAnswersCollection);
-                correntAnswersList = this.extractNonEmptyAnswers(this.correctAnswersCollection);
-
-                if (wrongAnswersList.length < this.minWrongAnswersRqiuired || correntAnswersList.length < this.minCorrectAnswersRqiuired) {
-                    message = "To submit the request minimum " + this.minCorrectAnswersRqiuired + " (" + correntAnswersList.length + ") correnct answers ";
-                    message += "and minimum " + this.minWrongAnswersRqiuired + " (" + wrongAnswersList.length + ") wrong answers are required";
-                    message += "<br/>"
+                if (this.categoryName == "") {
+                    message += "- Category must have name!"
+                    message += "<br/>";
                 }
 
-                if (this.questionText == "") {
-                    message += "the questsion text cannot be empty"
+                if (this.questionsCollection.length < this.minQuestionsRqiuired) {
+                    message += "- Minumum " + this.minQuestionsRqiuired + " (" + this.questionsCollection.length + ") questions are required!"
+                    message += "<br/>";
+                    isValid = false;
                 }
 
-                if (message != "") {
+                for (var i = 0; i < this.questionsCollection.length; i++) {
+                    if (this.questionsCollection[i].text == "") {
+                        hasEmptyQuestion = true;
+                        currentQuestionText = "empty";
+                    }
+                    else {
+                        currentQuestionText = this.questionsCollection[i].text;
+                    }
+
+                    wrongAnswersList = this.extractNonEmptyAnswers(this.questionsCollection[i].wrongAnswers);
+                    correntAnswersList = this.extractNonEmptyAnswers(this.questionsCollection[i].correctAnswers);
+
+                    if (this.questionsCollection[i].wrongAnswers.length < this.minWrongAnswersRqiuired ||
+                        this.questionsCollection[i].correctAnswers.length < this.minCorrectAnswersRqiuired) {
+                        message += "- (q: \"" + currentQuestionText + "\") Minimum " +
+                                   this.minCorrectAnswersRqiuired + " (" + this.questionsCollection[i].correctAnswers.length + ") correnct answers ";
+                        message += "and minimum " +
+                                   this.minWrongAnswersRqiuired + " (" + this.questionsCollection[i].wrongAnswers.length + ") wrong answers are required!";
+                        message += "<br/>";
+                        isValid = false;
+                    }
+
+                    if (wrongAnswersList.length < this.questionsCollection[i].wrongAnswers.length ||
+                        correntAnswersList.length < this.questionsCollection[i].correctAnswers.length) {
+                        message += "- (q: \"" + currentQuestionText + "\") all answers must have text!";
+                        message += "<br/>";
+                        isValid = false;
+                    }
+                }
+
+                if (hasEmptyQuestion) {
+                    message += "- All questions must have text!";
+                    message += "<br/>";
+                    isValid = false;
+                }
+
+                if (!isValid) {
                     this.renderPageStatus(message);
                     return false;
                 }
@@ -976,15 +1037,11 @@
             },
 
             clearPage: function () {
-                this.correctAnswersCollection = [];
-                this.wrongAnswersCollection = [];
-                this.questionText = "";
-                this.wrongAnswersCount = 0;
-                this.correctAnswersCount = 0;
-                this.answerNextId = 1;
+                this.questionsCollection = [];
+                this.categoryName = "";
+                this.questionNextId = 1;
                 this.storePage();
-                this.getPageContentDOM().find("#page-add-question-correct-answers-list").html("");
-                this.getPageContentDOM().find("#page-add-question-wrong-answers-list").html("");
+                this.getPageContentDOM().find("#page-add-category-questions-wrap").html("");
             }
          
         });
@@ -992,7 +1049,7 @@
 
         //#region Page: Add question
         triviaGame.controllers.pages.pageAddQuestionController = triviaGame.controllers.pages.mainPageModel.getExtendedModel({
-            needLogin: false,
+            needLogin: true,
             serviceName: "add-question",
             pageName: "page-add-question",
             pageContainer: "#page-add-question",
@@ -1069,7 +1126,7 @@
                     text: "",
                     id: this.answerNextId,
                     requestDeleteAnswerElement: function (parameters, DOM) {
-                        self.requestDeleteAnswerElement(parameters, DOM);
+                        self.requestDeleteAnswerElement(this, parameters, DOM);
                     },
                 });
 
@@ -1096,10 +1153,10 @@
                 appendToElement;
 
                 if (section == "correntAnswers") {
-                    appendToElement = this.getPageContentDOM().find("#page-add-question-correct-answers-list");
+                    appendToElement = this.getPageContentDOM().find(".add-question-correct-answers-list");
                 }
                 else if (section == "wrongAnswers") {
-                    appendToElement = this.getPageContentDOM().find("#page-add-question-wrong-answers-list");
+                    appendToElement = this.getPageContentDOM().find(".add-question-wrong-answers-list");
                 }
 
                 answerViewModelBilder = new trivia.ViewModelBinder(answerModel);
@@ -1107,8 +1164,8 @@
                 element.appendTo(appendToElement);
             },
 
-            requestDeleteAnswerElement: function (parameters, DOM) {
-                var id = $(DOM).data("id");
+            requestDeleteAnswerElement: function (answerModel, parameters, DOM) {
+                var id = answerModel.id;
                 this.deleteAnswer(id);
                 $(DOM).parent().remove();
             },
@@ -1267,8 +1324,8 @@
                 this.correctAnswersCount = 0;
                 this.answerNextId = 1;
                 this.storePage();
-                this.getPageContentDOM().find("#page-add-question-correct-answers-list").html("");
-                this.getPageContentDOM().find("#page-add-question-wrong-answers-list").html("");
+                this.getPageContentDOM().find(".add-question-correct-answers-list").html("");
+                this.getPageContentDOM().find(".add-question-wrong-answers-list").html("");
             }
 
         });
@@ -1434,7 +1491,7 @@
 
             pageControllersMap: [],
             activePage: null,
-            startPageName: "page-add-category",
+            startPageName: "page-all-categories",
 
             init: function () {
                 var page, 

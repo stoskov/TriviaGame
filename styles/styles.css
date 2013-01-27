@@ -223,8 +223,8 @@ html {
   min-width: 9.6em;
   height: 2.4em;
 }
-#site-content #page-add-question-correct-answers-list,
-#site-content #page-add-question-wrong-answers-list,
+#site-content .add-question-correct-answers-list,
+#site-content .add-question-wrong-answers-list,
 #site-content .add-question-section {
   margin: 10px;
 }
@@ -238,6 +238,10 @@ html {
 #site-content .add-question-text {
   margin-right: 5px;
   width: 889px;
+}
+#site-content #page-add-category-questions-wrap .add-question-answer-text {
+  margin-right: 5px;
+  width: 767px;
 }
 #site-content .add-question-answer-button,
 #site-content .add-question-text-button {

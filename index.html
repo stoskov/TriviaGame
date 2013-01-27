@@ -251,7 +251,7 @@
 
 						<section class="page-content-sub-section clear">
 							<div class="float-right clear">
-								<input type="submit" id="Submit3" value="submit"
+								<input type="submit" id="page-add-category-submit" value="submit"
 									class="k-button page-content-button" 
 									data-trivia-bind="event-click: requestSubmit" />
 							</div>
@@ -301,7 +301,7 @@
 								<li id="page-add-question-correct-answers-wrap">
 									Correct answers
 									(<span data-trivia-bind="text: correctAnswersCount"></span>)
-									<div id="page-add-question-correct-answers-list">
+									<div class="add-question-correct-answers-list">
 
 									</div>
 
@@ -309,7 +309,7 @@
 								<li id="page-add-question-wrong-answers-wrap">
 									Wrong answers
 									(<span data-trivia-bind="text: wrongAnswersCount"></span>)
-									<div id="page-add-question-wrong-answers-list">
+									<div class="add-question-wrong-answers-list">
 
 									</div>
 								</li>
@@ -365,7 +365,7 @@
 
             <!-- Template for adding of new question section in the panel bar -->
             <script type="text/trivia-template" id="add-question-section-template">
-				<li class="add-question-section-wrap">
+				<li class="add-question-section-wrap" data-trivia-bind="data-id: id">
 					question: <span data-trivia-bind="text: text"></span>
 					<div class="add-question-section">
 

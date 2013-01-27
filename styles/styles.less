@@ -107,7 +107,6 @@ html {
 	color: @color-error;
 }
 
-
 /*Site header */
 #site-header {
 	margin-bottom: 10px;
@@ -289,8 +288,8 @@ html {
 		height: @page-content-button-height;
 	}
 
-	#page-add-question-correct-answers-list,
-	#page-add-question-wrong-answers-list,
+	.add-question-correct-answers-list,
+	.add-question-wrong-answers-list,
 	.add-question-section {
 		margin: 10px;
 	}
@@ -307,6 +306,13 @@ html {
 	.add-question-text {
 		margin-right: 5px;
 		width: 889px;
+	}
+
+	#page-add-category-questions-wrap {
+		.add-question-answer-text {
+			margin-right: 5px;
+			width: 767px;
+		}
 	}
 
 	.add-question-answer-button,
