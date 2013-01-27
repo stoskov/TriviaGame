@@ -118,7 +118,10 @@ trivia.ObservableObject = function (model) {
     //Makes extension of and existing model and returnes a new object
     self.getExtendedModel = function (extension) {
         var newModel = new trivia.ObservableObject(self);
-        copyMembers(extension, newModel);
+        if (extension && typeof extension == "object" && extension != null) {
+            copyMembers(extension, newModel);
+            
+        }
         initializeModel(newModel);
         return newModel;
     }

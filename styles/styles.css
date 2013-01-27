@@ -178,6 +178,16 @@ html {
 #site-content .single-page-widget-group-67 .single-page-widget-label {
   width: 15%;
 }
+#site-content .single-page-widget-group-100 {
+  display: block;
+  margin: 15px 0;
+}
+#site-content .single-page-widget-group-100 .single-page-widget-input {
+  width: 88.9%;
+}
+#site-content .single-page-widget-group-100 .single-page-widget-label {
+  width: 10%;
+}
 #site-content .single-page-widget-label {
   display: block;
   float: left;

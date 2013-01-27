@@ -221,9 +221,69 @@
 
 				<div id="page-add-category" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">Add category</header>
+
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+
+						<div class="page-content-sub-section clear">
+							<div class="single-page-widget-group-100">
+								<label class="single-page-widget-label">Category:</label>
+								<input type="text" id="page-add-category-name" class="k-textbox single-page-widget-input"
+									data-trivia-bind="attr-value: categoryName"/>
+							</div>
+						</div>
+						<section class="page-content-sub-section clear">
+							<input type="submit" id="Submit1" value="Add question"
+								class="k-button page-content-button" 
+								data-trivia-bind="event-click: requestAddAnswerElement" />
+							
+						</section>
+						<section class="page-content-sub-section clear">
+							<ul id="Ul1">
+								<li id="Li1">
+									Correct answers
+									(<span data-trivia-bind="text: correctAnswersCount"></span>)
+									<div id="Div1">
+
+									</div>
+
+								</li>
+								<li id="Li2">
+									Wrong answers
+									(<span data-trivia-bind="text: wrongAnswersCount"></span>)
+									<div id="Div2">
+
+									</div>
+								</li>
+							</ul>
+						</section>
+						<section class="page-content-sub-section clear">
+							<div class="float-right clear">
+								<input type="submit" id="Submit3" value="submit"
+									class="k-button page-content-button" 
+									data-trivia-bind="event-click: requestSubmit" />
+							</div>
+						</section>
+
 					</section>
-					<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+					<section class="page-message-box page-content-sub-section color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+					<section class="page-status-box page-content-sub-section" data-trivia-bind="css-display: statusBoxDisplay; html: statusBoxMessage"></section>
+
+					<script type="text/trivia-template" id="page-add-category-question-template">
+						<div class="page-add-question-answer-wrap clear">
+						<input type="text" class="k-textbox page-add-question-answer-text" data-trivia-bind="attr-value: text"/>
+						<input type="submit" class="k-button page-add-question-answer-button" value='X' 
+						data-trivia-bind="data-id: id; event-click: requestDeleteAnswerElement" />
+						</div>
+					</script>
+
+					<script type="text/trivia-template" id="page-add-category-answer-template">
+						<div class="page-add-question-answer-wrap clear">
+						<input type="text" class="k-textbox page-add-question-answer-text" data-trivia-bind="attr-value: text"/>
+						<input type="submit" class="k-button page-add-question-answer-button" value='X' 
+						data-trivia-bind="data-id: id; event-click: requestDeleteAnswerElement" />
+						</div>
+					</script>
+
 				</div>
 
 				<div id="page-add-question" data-trivia-bind="css-display: pageDisplay">
@@ -257,15 +317,15 @@
 							<ul id="page-add-question-answers-wrap">
 								<li id="page-add-question-corrext-answers">
 									Correct answers
-                                    (<span data-trivia-bind="text: correctAnswersCount"></span>)
+									(<span data-trivia-bind="text: correctAnswersCount"></span>)
 									<div id="page-add-question-correct-answers-list">
 
 									</div>
 
 								</li>
 								<li id="page-add-question-wrong-answers">
-									Wrong answers 
-                                    (<span data-trivia-bind="text: wrongAnswersCount"></span>)
+									Wrong answers
+									(<span data-trivia-bind="text: wrongAnswersCount"></span>)
 									<div id="page-add-question-wrong-answers-list">
 
 									</div>
@@ -284,11 +344,11 @@
 					<section class="page-message-box page-content-sub-section color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 					<section class="page-status-box page-content-sub-section" data-trivia-bind="css-display: statusBoxDisplay; html: statusBoxMessage"></section>
 
-					<script type="text/x-kendo-tmpl" id="page-add-question-answer-template">
+					<script type="text/trivia-template" id="page-add-question-answer-template">
 						<div class="page-add-question-answer-wrap clear">
-							<input type="text" class="k-textbox page-add-question-answer-text" data-trivia-bind="attr-value: text"/>
-							<input type="submit" class="k-button page-add-question-answer-button" value='X' 
-								data-trivia-bind="data-id: id; event-click: requestDeleteAnswerElement" />
+						<input type="text" class="k-textbox page-add-question-answer-text" data-trivia-bind="attr-value: text"/>
+						<input type="submit" class="k-button page-add-question-answer-button" value='X' 
+						data-trivia-bind="data-id: id; event-click: requestDeleteAnswerElement" />
 						</div>
 					</script>
 				</div>
