@@ -203,14 +203,48 @@
 				<section class="page-content" data-trivia-bind="css-display: contentDisplay">
 				</section>
 				<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
-				</div>
-
-				<div id="page-new-game" data-trivia-bind="css-display: pageDisplay">
-				<header class="single-page-header">New game</header>
-				<section class="page-content" data-trivia-bind="css-display: contentDisplay">
-				</section>
-				<section class="page-message-box color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 				</div>-->
+
+				<!-- Page new game -->
+				<div id="page-new-game" data-trivia-bind="css-display: pageDisplay">
+					<header class="single-page-header">New game</header>
+					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
+
+						<section class="page-content-sub-section clear">
+
+							<div class="single-page-widget-group-75">
+								<label class="single-page-widget-label">Category:</label>
+								<input type="text" id="page-new-game-category-id" class="single-page-widget-input"
+									data-trivia-bind="attr-value: categoryId"/>
+							</div>
+
+							<div class="single-page-widget-group-25">
+								<div class="float-right">
+									<input type="submit" id="page-new-game-start-game" value="start game"
+										class="k-button page-content-button" 
+										data-trivia-bind="event-click: requestStartNewGame" />
+								</div>
+							</div>
+
+						</section>
+
+						<section class="page-content-sub-section clear">
+							<ul id="page-new-game-questions-wrap">
+
+							</ul>
+						</section>
+						<section class="page-content-sub-section clear">
+							<div class="float-right clear">
+								<input type="submit" id="Submit1" value="submit"
+									class="k-button page-content-button" 
+									data-trivia-bind="event-click: requestSubmit" />
+							</div>
+						</section>
+
+					</section>
+					<section class="page-message-box page-content-sub-section color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
+					<section class="page-status-box page-content-sub-section" data-trivia-bind="css-display: statusBoxDisplay; html: statusBoxMessage"></section>
+				</div>
 
 				<!-- Page all categories -->
 				<div id="page-all-categories" data-trivia-bind="css-display: pageDisplay">
@@ -352,71 +386,95 @@
 
 		<!-- Templates -->
 		<div>
-			
-            <!-- Template for adding of new question answer -->
+
+			<!-- Template for adding of new question answer -->
 			<script type="text/trivia-template" id="add-question-answer-wrap-template">
 				<div class="add-question-answer-wrap clear">
-				    <input type="text" class="k-textbox add-question-answer-text" data-trivia-bind="attr-value: text"/>
-				    <a class="k-button add-question-answer-button" data-trivia-bind="data-id: id; event-click: requestDeleteAnswerElement">
-					    <span class="k-icon k-i-close"></span>
-				    </a>
-			    </div>
+				<input type="text" class="k-textbox add-question-answer-text" data-trivia-bind="attr-value: text"/>
+				<a class="k-button add-question-answer-button" data-trivia-bind="data-id: id; event-click: requestDeleteAnswerElement">
+				<span class="k-icon k-i-close"></span>
+				</a>
+				</div>
 			</script>
 
-            <!-- Template for adding of new question section in the panel bar -->
-            <script type="text/trivia-template" id="add-question-section-template">
+			<!-- Template for adding of new question section in the panel bar -->
+			<script type="text/trivia-template" id="add-question-section-template">
 				<li class="add-question-section-wrap" data-trivia-bind="data-id: id">
-					question: <span data-trivia-bind="text: text"></span>
-					<div class="add-question-section">
+				question: <span data-trivia-bind="text: text"></span>
+				<div class="add-question-section">
 
-					</div>
+				</div>
 				</li>
 			</script>
 
-            <!-- Template for adding of new question text widgets -->
-            <script type="text/trivia-template" id="add-question-text-template">
+			<!-- Template for adding of new question text widgets -->
+			<script type="text/trivia-template" id="add-question-text-template">
 				<div class="add-question-text-wrap page-content-sub-section clear">
-				    <input type="text" class="k-textbox add-question-text" data-trivia-bind="attr-value: text"/>
-				    <a class="k-button add-question-text-button" data-trivia-bind="data-id: id; event-click: requestDeleteQuestionElement">
-					    <span class="k-icon k-i-close"></span>
-				    </a>
-			    </div>
+				<input type="text" class="k-textbox add-question-text" data-trivia-bind="attr-value: text"/>
+				<a class="k-button add-question-text-button" data-trivia-bind="data-id: id; event-click: requestDeleteQuestionElement">
+				<span class="k-icon k-i-close"></span>
+				</a>
+				</div>
 			</script>
-			
-            <!-- Template for adding of question aswers section in case of adding of new question -->
+
+			<!-- Template for adding of question aswers section in case of adding of new question -->
 			<script type="text/trivia-template" id="add-question-answers-section-template">
 				<div class="add-question-answers-section clear">
-				    <section class="page-content-sub-section clear">
-					    <div class="float-right">
-						    <input type="submit" value="Add correct answer"
-							    class="k-button page-content-button" 
-							    data-trivia-bind="event-click: requestAddAnswerElement" 
-							    data-trivia-parameters="section: correntAnswers" />
-						    <input type="submit" value="Add wrong answer"
-							    class="k-button page-content-button" 
-							    data-trivia-bind="event-click: requestAddAnswerElement" 
-							    data-trivia-parameters="section: wrongAnswers" />
-					    </div>
-				    </section>
-				    <section class="page-content-sub-section clear">
-					    <ul class="add-question-answers-wrap">
-						    <li class="add-question-correct-answers-wrap"">
-							    Correct answers
-							    (<span data-trivia-bind="text: correctAnswersCount"></span>)
-							    <div class="add-question-correct-answers-list">
-							    </div>
+				<section class="page-content-sub-section clear">
+				<div class="float-right">
+				<input type="submit" value="Add correct answer"
+				class="k-button page-content-button" 
+				data-trivia-bind="event-click: requestAddAnswerElement" 
+				data-trivia-parameters="section: correntAnswers" />
+				<input type="submit" value="Add wrong answer"
+				class="k-button page-content-button" 
+				data-trivia-bind="event-click: requestAddAnswerElement" 
+				data-trivia-parameters="section: wrongAnswers" />
+				</div>
+				</section>
+				<section class="page-content-sub-section clear">
+				<ul class="add-question-answers-wrap">
+				<li class="add-question-correct-answers-wrap"">
+				Correct answers
+				(<span data-trivia-bind="text: correctAnswersCount"></span>)
+				<div class="add-question-correct-answers-list">
+				</div>
 
-						    </li>
-						    <li class="add-question-wrong-answers-wrap">
-							    Wrong answers
-							    (<span data-trivia-bind="text: wrongAnswersCount"></span>)
-							    <div class="add-question-wrong-answers-list">
-							    </div>
-						    </li>
-					    </ul>
-				    </section>
-			    </div>
+				</li>
+				<li class="add-question-wrong-answers-wrap">
+				Wrong answers
+				(<span data-trivia-bind="text: wrongAnswersCount"></span>)
+				<div class="add-question-wrong-answers-list">
+				</div>
+				</li>
+				</ul>
+				</section>
+				</div>
 			</script>
+
+			<!-- Template for questions and answers in new game -->
+			<script type="text/trivia-template" id="game-question-template">
+				<li class="game-question-section-wrap" data-trivia-bind="data-id: questionId">
+				question: <span data-trivia-bind="text: questionText"></span>
+				<div class="game-question-section">
+				<div class="game-question-text" data-trivia-bind="text: questionText"></div>
+				<div class="game-question-asnwers-wrap">
+				
+				</div>
+				</div>
+				</li>
+			</script>
+
+			<!-- Template for questions and answers in new game -->
+			<script type="text/trivia-template" id="game-question-answer-template">
+				<div class="game-question-answer-section">
+				<input type="radio"  
+				data-trivia-bind="data-id: answerId; attr-name: answerGroup; attr-checked: selected; attr-id: answerId" />
+				<label data-trivia-bind="text: answerText; attr-for: answerId">
+				</div>
+                
+			</script>
+
 		</div>
 
 	</body>

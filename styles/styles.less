@@ -207,17 +207,32 @@ html {
 		color: @color-secondary;
 	}
 
+	.single-page-widget-group-25 {
+		display: block;
+		float: left;
+		margin: 15px 0;
+		width: (100% / 4);
+
+		.single-page-widget-input {
+			width: 70%;
+		}
+
+		.single-page-widget-label {
+			width: 25%;
+		}
+	}
+
 	.single-page-widget-group-33 {
 		display: block;
 		float: left;
 		margin: 15px 0;
 		width: (100% / 3);
 
-		& .single-page-widget-input {
+		.single-page-widget-input {
 			width: 70%;
 		}
 
-		& .single-page-widget-label {
+		.single-page-widget-label {
 			width: 25%;
 		}
 	}
@@ -228,11 +243,11 @@ html {
 		margin: 15px 0;
 		width: (100% / 2);
 
-		& .single-page-widget-input {
+		.single-page-widget-input {
 			width: 65%;
 		}
 
-		& .single-page-widget-label {
+		.single-page-widget-label {
 			width: 35%;
 		}
 	}
@@ -245,6 +260,21 @@ html {
 
 		.single-page-widget-input {
 			width: 75%;
+		}
+
+		.single-page-widget-label {
+			width: 15%;
+		}
+	}
+
+	.single-page-widget-group-75 {
+		display: block;
+		float: left;
+		margin: 15px 0;
+		width: (100% / 4 * 3);
+
+		.single-page-widget-input {
+			width: 83%;
 		}
 
 		.single-page-widget-label {
@@ -285,12 +315,13 @@ html {
 
 	.page-content-button {
 		min-width: (@page-content-button-height * 4);
-		height: @page-content-button-height;
+		//height: @page-content-button-height;
 	}
 
 	.add-question-correct-answers-list,
 	.add-question-wrong-answers-list,
-	.add-question-section {
+	.add-question-section,
+	.game-question-section {
 		margin: 10px;
 	}
 
@@ -320,6 +351,17 @@ html {
 		width: 40px;
 		height: 34px;
 	}
+
+	.game-question-asnwers-wrap {
+		margin: 10px;
+		padding: 10px;
+		border: 1px solid #dadada;
+	}
+
+	.game-question-text {
+		padding: 10px;
+	}
+
 }
 
 /* Site footer */

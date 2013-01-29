@@ -157,6 +157,18 @@ html {
   border: 1px solid #dadada;
   color: #787878;
 }
+#site-content .single-page-widget-group-25 {
+  display: block;
+  float: left;
+  margin: 15px 0;
+  width: 25%;
+}
+#site-content .single-page-widget-group-25 .single-page-widget-input {
+  width: 70%;
+}
+#site-content .single-page-widget-group-25 .single-page-widget-label {
+  width: 25%;
+}
 #site-content .single-page-widget-group-33 {
   display: block;
   float: left;
@@ -193,6 +205,18 @@ html {
 #site-content .single-page-widget-group-67 .single-page-widget-label {
   width: 15%;
 }
+#site-content .single-page-widget-group-75 {
+  display: block;
+  float: left;
+  margin: 15px 0;
+  width: 75%;
+}
+#site-content .single-page-widget-group-75 .single-page-widget-input {
+  width: 83%;
+}
+#site-content .single-page-widget-group-75 .single-page-widget-label {
+  width: 15%;
+}
 #site-content .single-page-widget-group-100 {
   display: block;
   margin: 15px 0;
@@ -221,11 +245,11 @@ html {
 }
 #site-content .page-content-button {
   min-width: 9.6em;
-  height: 2.4em;
 }
 #site-content .add-question-correct-answers-list,
 #site-content .add-question-wrong-answers-list,
-#site-content .add-question-section {
+#site-content .add-question-section,
+#site-content .game-question-section {
   margin: 10px;
 }
 #site-content .add-question-answer-wrap {
@@ -247,6 +271,14 @@ html {
 #site-content .add-question-text-button {
   width: 40px;
   height: 34px;
+}
+#site-content .game-question-asnwers-wrap {
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #dadada;
+}
+#site-content .game-question-text {
+  padding: 10px;
 }
 /* Site footer */
 #site-footer {

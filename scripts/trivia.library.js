@@ -53,10 +53,11 @@ trivia.RestComunicator = function (hostUrl) {
     };
 
     self.sendGetRequest = function (serviceName, urlParameter, data, onSuccess, onError) {
-        var serviceUrl = this.getServiceUrl(serviceName);
-        var requestUrl = host + serviceUrl + urlParameter;
+        var requestHandler = null,
+        serviceUrl = this.getServiceUrl(serviceName),
+        requestUrl = host + serviceUrl + urlParameter;
         $.support.cors = true;
-        $.ajax({
+        requestHandler = $.ajax({
             url: requestUrl,
             type: "GET",
             timeout: timeOut,
@@ -68,13 +69,16 @@ trivia.RestComunicator = function (hostUrl) {
             success: onSuccess,
             error: onError
         });
+
+        return requestHandler;
     }
 
     self.sendPostRequest = function (serviceName, urlParameter, data, onSuccess, onError) {
-        var serviceUrl = this.getServiceUrl(serviceName);
-        var requestUrl = host + serviceUrl + urlParameter;
+        var requestHandler = null,
+        serviceUrl = this.getServiceUrl(serviceName),
+        requestUrl = host + serviceUrl + urlParameter;
         $.support.cors = true;
-        $.ajax({
+        requestHandler = $.ajax({
             url: requestUrl,
             type: "POST",
             timeout: timeOut,
@@ -85,6 +89,8 @@ trivia.RestComunicator = function (hostUrl) {
             success: onSuccess,
             error: onError
         });
+
+        return requestHandler;
     }
 
     self.parseResponseMessage = function (data) {
@@ -120,7 +126,6 @@ trivia.ObservableObject = function (model) {
         var newModel = new trivia.ObservableObject(self);
         if (extension && typeof extension == "object" && extension != null) {
             copyMembers(extension, newModel);
-            
         }
         initializeModel(newModel);
         return newModel;
