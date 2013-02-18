@@ -4,21 +4,15 @@ trivia.createClass = function (baseClass, currentClassConstructor) {
     var SubClass = function () {
     };
 
-    var baseClassObject = null;
-
     // Inherit the properties of the base class
     if (baseClass !== null) {
         SubClass.prototype = baseClass.prototype;
-        baseClassObject = new baseClass();
     }
 
     var CurrentClass = currentClassConstructor;
 
     CurrentClass.prototype = new SubClass();
     CurrentClass.prototype.constructor = currentClassConstructor;
-
-    //Linck the base class object to allow base methods access
-    CurrentClass.prototype.baseClassObject = baseClassObject;
 
     return CurrentClass;
 }
@@ -196,8 +190,8 @@ trivia.ObservableObject = function (model) {
                 return newPropertyValue;
             };
 
-            var callHandler = function (handlerHost, handlerFunction, propertyValue) {
-                handlerFunction.call(handlerHost, propertyValue);
+            var callHandler = function (handlerHost, handlerFunction, newPropertyValue) {
+                handlerFunction.call(handlerHost, newPropertyValue, self);
             };
 
             //Wrap the property only once
@@ -430,11 +424,11 @@ trivia.sessionManager = new trivia.ObservableObject({
             stringObject = sessionStorage.getItem(alias);
             result = JSON.parse(stringObject);
         }
-               
+
         return result;
     },
 
-    initObject: function(alias, objectToInit) {
+    initObject: function (alias, objectToInit) {
         var storedOjbect = this.retreive(alias);
         for (property in storedOjbect) {
             //Hack!. The property stores the list with watched properties and their handles. 
@@ -445,3 +439,99 @@ trivia.sessionManager = new trivia.ObservableObject({
         }
     },
 });
+
+trivia.Timer = function (time, interval, onTick, onTimeOver) {
+    var self = this
+    totalTime = time,
+    remainingTime = time,
+    tickInterval = interval,
+    timerHandler = null,
+    onTickHandler = onTick,
+    onTimeOverHandler = onTimeOver;
+
+    if (!time) {
+        throw new Error("The \"time\" parameter is required");
+    }
+
+    if (!interval) {
+        throw new Error("The \"interval\" parameter is required");
+    }
+
+    self.getRemainingTime = function () {
+        return remainingTime;
+    };
+
+    self.getRemainingTimeString = function () {
+        return remainingTime;
+    };
+
+    self.toHHMMSS = function () {
+        var hours = Math.floor(remainingTime / 3600);
+        var minutes = Math.floor((remainingTime - (hours * 3600)) / 60);
+        var seconds = remainingTime - (hours * 3600) - (minutes * 60);
+
+        if (hours < 10) {
+            hours = "0" + hours;
+        }
+        if (minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        if (seconds < 10) {
+            seconds = "0" + seconds;
+        }
+        var time = hours + ':' + minutes + ':' + seconds;
+        return time;
+    }
+
+    self.setOnTickHandler = function (onTick) {
+        onTickHandler = onTimeOver;
+    };
+
+    self.getOnTickHandler = function () {
+        return onTickHandler;
+    };
+
+    self.setOnTimeOverHandler = function (onTimeOver) {
+        onTimeOverHandler = onTimeOver;
+    };
+
+    self.getOnTimeOverHandler = function () {
+        return onTimeOverHandler;
+    };
+
+    self.clear = function () {
+        clearInterval(timerHandler);
+        totalTime = 0;
+        remainingTime = 0;
+    };
+
+    self.pause = function () {
+        clearInterval(timerHandler);
+        totalTime = 0;
+        remainingTime = 0;
+    };
+
+    self.pause = function () {
+        clearInterval(timerHandler);
+        totalTime = 0;
+        remainingTime = 0;
+    };
+
+    self.start = function () {
+        timerHandler = setInterval(timerTick, tickInterval * 1000);
+    };
+
+    var timerTick = function () {
+        remainingTime -= tickInterval;
+        if (onTickHandler instanceof Function && remainingTime > 0) {
+            onTickHandler.apply(self);
+        }
+
+        if (onTimeOverHandler instanceof Function && remainingTime <= 0) {
+            self.clear();
+            onTimeOverHandler.apply(self);
+        }
+    };
+
+    return self;
+};

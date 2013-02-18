@@ -66,6 +66,18 @@ html {
 .k-button {
   text-transform: lowercase;
 }
+.k-button[disabled="disabled"] {
+  color: #dadada;
+}
+.k-button[disabled="disabled"]:hover {
+  color: #dadada;
+  background-color: transparent;
+  border-color: #dadada;
+  cursor: default;
+}
+.k-button[disabled="disabled"]:hover span {
+  background-position: -48px;
+}
 .page-message-box {
   margin-top: 20%;
   text-align: center;
@@ -279,6 +291,12 @@ html {
 }
 #site-content .game-question-text {
   padding: 10px;
+}
+#site-content #page-new-game-timer-wrap {
+  position: fixed;
+  top: 10%;
+  right: 10%;
+  display: none;
 }
 /* Site footer */
 #site-footer {

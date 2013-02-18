@@ -233,9 +233,10 @@
 
 							</ul>
 						</section>
+
 						<section class="page-content-sub-section clear">
 							<div class="float-right clear">
-								<input type="submit" id="Submit1" value="submit"
+								<input type="submit" id="page-new-game-submit-game" value="submit"
 									class="k-button page-content-button" 
 									data-trivia-bind="event-click: requestSubmit" />
 							</div>
@@ -244,6 +245,11 @@
 					</section>
 					<section class="page-message-box page-content-sub-section color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 					<section class="page-status-box page-content-sub-section" data-trivia-bind="css-display: statusBoxDisplay; html: statusBoxMessage"></section>
+					<div id="page-new-game-timer-wrap">
+						<div id="page-new-game-timer">
+							<span  data-trivia-bind="text: remainingTime"></span>
+						</div>
+					</div>
 				</div>
 
 				<!-- Page all categories -->
@@ -391,9 +397,9 @@
 			<script type="text/trivia-template" id="add-question-answer-wrap-template">
 				<div class="add-question-answer-wrap clear">
 				<input type="text" class="k-textbox add-question-answer-text" data-trivia-bind="attr-value: text"/>
-				<a class="k-button add-question-answer-button" data-trivia-bind="data-id: id; event-click: requestDeleteAnswerElement">
+				<button class="k-button add-question-answer-button" data-trivia-bind="data-id: id; event-click: requestDeleteAnswerElement">
 				<span class="k-icon k-i-close"></span>
-				</a>
+				</button>
 				</div>
 			</script>
 
@@ -411,9 +417,9 @@
 			<script type="text/trivia-template" id="add-question-text-template">
 				<div class="add-question-text-wrap page-content-sub-section clear">
 				<input type="text" class="k-textbox add-question-text" data-trivia-bind="attr-value: text"/>
-				<a class="k-button add-question-text-button" data-trivia-bind="data-id: id; event-click: requestDeleteQuestionElement">
+				<button class="k-button add-question-text-button" data-trivia-bind="data-id: id; event-click: requestDeleteQuestionElement">
 				<span class="k-icon k-i-close"></span>
-				</a>
+				</button>
 				</div>
 			</script>
 
@@ -469,7 +475,8 @@
 			<script type="text/trivia-template" id="game-question-answer-template">
 				<div class="game-question-answer-section">
 				<input type="radio"  
-				data-trivia-bind="data-id: answerId; attr-name: answerGroup; attr-checked: selected; attr-id: answerId" />
+				data-trivia-bind="data-questionId: questionId; data-answerId: answerId;
+				attr-checked: checked; attr-name: answerGroup; attr-id: answerId" />
 				<label data-trivia-bind="text: answerText; attr-for: answerId">
 				</div>
                 

@@ -96,6 +96,22 @@ html {
 
 .k-button {
 	text-transform: lowercase;
+
+	&[disabled="disabled"] {
+
+		color: @color-borders;
+
+		&:hover {
+			color: @color-borders;
+			background-color: transparent;
+			border-color: @color-borders;
+			cursor: default;
+
+			& span {
+				background-position: -32px - 16px;
+			}
+		}
+	}
 }
 
 .page-message-box {
@@ -362,6 +378,12 @@ html {
 		padding: 10px;
 	}
 
+	#page-new-game-timer-wrap {
+		position: fixed;
+		top: 10%;
+		right: 10%;
+		display: none;
+	}
 }
 
 /* Site footer */
