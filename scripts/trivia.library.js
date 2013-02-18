@@ -499,6 +499,10 @@ trivia.Timer = function (time, interval, onTick, onTimeOver) {
         return onTimeOverHandler;
     };
 
+    self.getRemainngTime = function(){
+        return remainingTime;
+    }
+
     self.clear = function () {
         clearInterval(timerHandler);
         totalTime = 0;

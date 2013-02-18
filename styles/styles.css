@@ -292,11 +292,19 @@ html {
 #site-content .game-question-text {
   padding: 10px;
 }
-#site-content #page-new-game-timer-wrap {
+#site-content #page-new-game-timer {
   position: fixed;
-  top: 10%;
-  right: 10%;
-  display: none;
+  top: 3%;
+  left: 50%;
+  margin-left: -50px;
+  padding: 5px;
+  width: 100px;
+  background-color: #ffffff;
+  -moz-box-shadow: 1px 1px 1px #dadada;
+  -webkit-box-shadow: 1px 1px 1px #dadada;
+  box-shadow: 1px 1px 1px #dadada;
+  border: 1px solid #dadada;
+  text-align: center;
 }
 /* Site footer */
 #site-footer {

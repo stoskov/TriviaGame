@@ -98,7 +98,6 @@ html {
 	text-transform: lowercase;
 
 	&[disabled="disabled"] {
-
 		color: @color-borders;
 
 		&:hover {
@@ -331,7 +330,6 @@ html {
 
 	.page-content-button {
 		min-width: (@page-content-button-height * 4);
-		//height: @page-content-button-height;
 	}
 
 	.add-question-correct-answers-list,
@@ -371,18 +369,26 @@ html {
 	.game-question-asnwers-wrap {
 		margin: 10px;
 		padding: 10px;
-		border: 1px solid #dadada;
+		border: 1px solid @color-borders;
 	}
 
 	.game-question-text {
 		padding: 10px;
 	}
 
-	#page-new-game-timer-wrap {
+	#page-new-game-timer {
 		position: fixed;
-		top: 10%;
-		right: 10%;
-		display: none;
+		top: 3%;
+		left: 50%;
+		margin-left: -50px;
+		padding: 5px;
+		width: 100px;
+		background-color: #ffffff;
+		-moz-box-shadow: 1px 1px 1px @color-borders;
+		-webkit-box-shadow: 1px 1px 1px @color-borders;
+		box-shadow: 1px 1px 1px @color-borders;
+		border: 1px solid @color-borders;
+		text-align: center;
 	}
 }
 

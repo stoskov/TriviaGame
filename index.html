@@ -23,11 +23,15 @@
 		<!--<script type="text/javascript" src="scripts/kendo.core.js"></script>-->
 		<script type="text/javascript" src="scripts/kendo.web.js"></script>
 
+		
 		<script type="text/javascript" src="scripts/trivia.library.js"></script>
 		<script type="text/javascript" src="scripts/trivia.js"></script>
 
 	</head>
 	<body>
+		<div id="pubnub"></div>
+        <script src="http://cdn.pubnub.com/pubnub-3.4.min.js"></script>
+
 		<div id="site-wrap">
 
 			<!-- Site header -->
@@ -67,10 +71,9 @@
 						<a id="site-header-user-account-login" 
 							class="site-header-user-account-widget site-header-user-account-widget-link"
 							data-trivia-bind="event-click: login">Login</a>
-
 					</div>
 
-					<!-- Login and Register forms -->
+					<!-- Login and Registration forms -->
 					<div id="login-register-forms-wrap">
 						<div id="login-form">
 							<!-- Login username -->
@@ -171,12 +174,12 @@
 			<nav id="site-main-nav-wrap" class="clear">
 				<ul id="site-main-nav">
 
-					<li class="site-main-nav-item"
-						data-trivia-bind="event-click: requestPageChange" 
-						data-trivia-parameters="pageName: page-new-game">New game</li>
-					<li class="site-main-nav-item"
+                    <li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
 						data-trivia-parameters="pageName: page-all-categories">All categories </li>
+					<li class="site-main-nav-item"
+						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-parameters="pageName: page-new-game">New game</li>					
 					<li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
 						data-trivia-parameters="pageName: page-add-category">Add category </li>
@@ -186,9 +189,6 @@
 					<li class="site-main-nav-item"
 						data-trivia-bind="event-click: requestPageChange" 
 						data-trivia-parameters="pageName: page-all-users">All users </li>
-					<!--<li class="site-main-nav-item"
-					data-trivia-bind="event-click: requestPageChange" 
-					data-trivia-parameters="pageName: page-user-info">User info </li>-->
 					<li class="site-main-nav-item" 
 						data-trivia-bind="event-click: requestPageChange" 
 						data-trivia-parameters="pageName: page-home">About</li>
@@ -245,10 +245,7 @@
 					</section>
 					<section class="page-message-box page-content-sub-section color-main" data-trivia-bind="css-display: messageBoxDisplay"></section>
 					<section class="page-status-box page-content-sub-section" data-trivia-bind="css-display: statusBoxDisplay; html: statusBoxMessage"></section>
-					<div id="page-new-game-timer-wrap">
-						<div id="page-new-game-timer">
-							<span  data-trivia-bind="text: remainingTime"></span>
-						</div>
+					<div id="page-new-game-timer" data-trivia-bind="text: remainingTimeString; css-display: timerVisibility">
 					</div>
 				</div>
 
@@ -382,10 +379,11 @@
 
 			<!-- Site footer -->
 			<footer id="site-footer" class="clear">
-				<p class="float-right">
+				<p class="float-left" id="event-logger">					
+				</p>
+                <p class="float-right">
 					developed by <span class="color-main">stoskov</span>
 				</p>
-
 			</footer>
 
 		</div>
