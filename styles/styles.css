@@ -78,6 +78,10 @@ html {
 .k-button[disabled="disabled"]:hover span {
   background-position: -48px;
 }
+.k-header {
+  -ms-word-wrap: break-word;
+  word-wrap: break-word;
+}
 .page-message-box {
   margin-top: 20%;
   text-align: center;

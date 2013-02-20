@@ -75,7 +75,7 @@
 
 					<!-- Login and Registration forms -->
 					<div id="login-register-forms-wrap">
-						<div id="login-form">
+						<div id="login-form" data-trivia-bind="event-keydown: handleKeyPressLogin">
 							<!-- Login username -->
 							<div class="user-account-form-widget-group clear">
 								<label id="login-form-username-label" class="user-account-form-widget user-account-form-label"
@@ -110,13 +110,13 @@
 								data-trivia-bind="css-display: loginFromStatusBarVisibility; html: loginFromStatusBarMessage"></span>
 
 						</div>
-						<div id="registration-form">
+						<div id="registration-form" data-trivia-bind="event-keydown: handleKeyPressRegister">
 
 							<!-- Registration username -->
 							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-username-label" class="user-account-form-widget user-account-form-label"
 									for="registration-form-username">Username</label>
-								<input type="text" id="registration-form-username" name="registration-form-username" 
+								<input type="text" id="registration-form-username" name="registration-form-username"
 									class="k-textbox user-account-form-widget user-account-form-field" 
 									data-trivia-bind="attr-value: username"/>
 							</div>

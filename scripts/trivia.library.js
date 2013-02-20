@@ -56,12 +56,11 @@ trivia.RestComunicator = function (hostUrl) {
             type: "GET",
             timeout: timeOut,
             dataType: "json",
-            //contentType: "application/json; charset=utf-8",
-            //data: JSON.stringify(data),
-            data: data,
-            cache: true,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(data),
             success: onSuccess,
             error: onError
+           
         });
 
         return requestHandler;
@@ -79,7 +78,6 @@ trivia.RestComunicator = function (hostUrl) {
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(data),
-            //data: data,
             success: onSuccess,
             error: onError
         });
@@ -148,80 +146,73 @@ trivia.ObservableObject = function (model) {
     }
 
     //Defines bining metod used to watch properties changes
-    Object.defineProperty(trivia.ObservableObject.prototype, "watchProperty", {
-
-        enumerable: false,
-        configurable: true,
-        writable: false,
-
-        value: function (property, handlerHost, handler) {
-            if (!property) {
-                throw new Error("Define the watchable property");
-            }
-
-            if (!handlerHost) {
-                throw new Error("Define the handler host");
-            }
-
-            if (!handler) {
-                throw new Error("Define the handler");
-            }
-
-            if ((this[property]) == undefined || this[property] == null) {
-                throw new Error("The object does not contain property " + property);
-            }
-
-            var propertyValue = this[property];
-
-            var getter = function () {
-                return propertyValue;
-            };
-
-            var setter = function (newPropertyValue) {
-                propertyValue = newPropertyValue;
-                var currentPropertyHandlersList = this.observablePropertiesHandlers[property];
-                for (var handlerIndex = 0; handlerIndex < currentPropertyHandlersList.length; handlerIndex++) {
-                    var currentHandler = currentPropertyHandlersList[handlerIndex];
-                    var currentHandlerHost = currentHandler["handlerHost"];
-                    var currentHandlerFunction = currentHandler["handler"];
-
-                    callHandler(currentHandlerHost, currentHandlerFunction, newPropertyValue);
-                }
-                return newPropertyValue;
-            };
-
-            var callHandler = function (handlerHost, handlerFunction, newPropertyValue) {
-                handlerFunction.call(handlerHost, newPropertyValue, self);
-            };
-
-            //Wrap the property only once
-            if (!this["observablePropertiesHandlers"] || !this["observablePropertiesHandlers"][property]) {
-                Object.defineProperty(this, property, {
-                    get: getter,
-                    set: setter
-                });
-            }
-
-            handlerHost = handlerHost || this;
-
-            //Add the new handler and the handler host for later executioin
-            var handlerObject = {
-                "handler": handler,
-                "handlerHost": handlerHost
-            }
-
-            //Check if the property already has observers
-            this["observablePropertiesHandlers"] = this["observablePropertiesHandlers"] || [];
-            this["observablePropertiesHandlers"][property] = this["observablePropertiesHandlers"][property] || [];
-
-            //Add the listener
-            this.observablePropertiesHandlers[property].push(handlerObject);
-
-            //Call the handler to init the value
-            callHandler(handlerHost, handler, propertyValue);
+    self.watchProperty = function (property, handlerHost, handler) {
+        if (!property) {
+            throw new Error("Define the watchable property");
         }
-    });
 
+        if (!handlerHost) {
+            throw new Error("Define the handler host");
+        }
+
+        if (!handler) {
+            throw new Error("Define the handler");
+        }
+
+        if ((this[property]) == undefined || this[property] == null) {
+            throw new Error("The object does not contain property " + property);
+        }
+
+        var propertyValue = this[property];
+
+        var getter = function () {
+            return propertyValue;
+        };
+
+        var setter = function (newPropertyValue) {
+            propertyValue = newPropertyValue;
+            var currentPropertyHandlersList = this.observablePropertiesHandlers[property];
+            for (var handlerIndex = 0; handlerIndex < currentPropertyHandlersList.length; handlerIndex++) {
+                var currentHandler = currentPropertyHandlersList[handlerIndex];
+                var currentHandlerHost = currentHandler["handlerHost"];
+                var currentHandlerFunction = currentHandler["handler"];
+
+                callHandler(currentHandlerHost, currentHandlerFunction, newPropertyValue);
+            }
+            return newPropertyValue;
+        };
+
+        var callHandler = function (handlerHost, handlerFunction, newPropertyValue) {
+            handlerFunction.call(handlerHost, newPropertyValue, self);
+        };
+
+        //Wrap the property only once
+        if (!this["observablePropertiesHandlers"] || !this["observablePropertiesHandlers"][property]) {
+            Object.defineProperty(this, property, {
+                get: getter,
+                set: setter
+            });
+        }
+
+        handlerHost = handlerHost || this;
+
+        //Add the new handler and the handler host for later executioin
+        var handlerObject = {
+            "handler": handler,
+            "handlerHost": handlerHost
+        }
+
+        //Check if the property already has observers
+        this["observablePropertiesHandlers"] = this["observablePropertiesHandlers"] || [];
+        this["observablePropertiesHandlers"][property] = this["observablePropertiesHandlers"][property] || [];
+
+        //Add the listener
+        this.observablePropertiesHandlers[property].push(handlerObject);
+
+        //Call the handler to init the value
+        callHandler(handlerHost, handler, propertyValue);
+    }
+    
     copyMembers(model, self);
     initializeModel(self);
 
@@ -306,8 +297,10 @@ trivia.ViewModelBinder = function (modelToObserve) {
             var event = jqDelegateArguments[0];
 
             $(domElement).on(event, function (e) {
-                e.preventDefault();
-                model[propertyName].call(model, bindedParameters, domElement);
+                if (event != "keypress" && event != "keyup" && event != "keydown") {
+                    e.preventDefault();
+                }
+                model[propertyName].call(model, bindedParameters, domElement, e);
             });
         }
         //A model value is bind to a DOM property
@@ -315,7 +308,6 @@ trivia.ViewModelBinder = function (modelToObserve) {
             //Bind from DOM to Model
             $(domElement).on("change input propertyChange", function (e) {
                 e.preventDefault();
-                // e.stopPropagation();
                 model[propertyName] = jqDelegate.apply($(domElement), jqDelegateArguments);
             });
             //Bind from Model to DOM
@@ -330,7 +322,6 @@ trivia.ViewModelBinder = function (modelToObserve) {
         else {
             //Bind from DOM to Model
             $(domElement).on("refresh", function (e) {
-                //e.stopPropagation();
                 var modelValue = model[propertyName].call(model, bindedParameters, domElement);
                 jqDelegateArguments.push(modelValue);
                 jqDelegate.apply($(domElement), jqDelegateArguments);
@@ -431,7 +422,7 @@ trivia.sessionManager = new trivia.ObservableObject({
     initObject: function (alias, objectToInit) {
         var storedOjbect = this.retreive(alias);
         for (property in storedOjbect) {
-            //Hack!. The property stores the list with watched properties and their handles. 
+            //Hack! The property stores the list with watched properties and their handles. 
             //When pass through stringify it looses its value
             if (property != "observablePropertiesHandlers") {
                 objectToInit[property] = storedOjbect[property];
@@ -499,7 +490,7 @@ trivia.Timer = function (time, interval, onTick, onTimeOver) {
         return onTimeOverHandler;
     };
 
-    self.getRemainngTime = function(){
+    self.getRemainngTime = function() {
         return remainingTime;
     }
 

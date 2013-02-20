@@ -253,11 +253,20 @@
                 this.loginFromStatusBarMessage = "";
             },
 
+            handleKeyPressLogin: function (parameters, DOM, event) {
+                if (event.keyCode == 13) {
+                    this.sendLoginRequest();
+                }
+                else if (event.keyCode == 27) {
+                    this.closeLoginForm();
+                }                
+            },
+
             login: function () {
                 if (!triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     this.openLoginForm();
                 }
-            },
+            },           
 
             openLoginForm: function () {
                 this.clearInfo();
@@ -323,6 +332,15 @@
             postLoginStatusMessage: function (message) {
                 this.loginFromStatusBarVisibility = "block";
                 this.loginFromStatusBarMessage = message;
+            },
+
+            handleKeyPressRegister: function (parameters, DOM, event) {
+                if (event.keyCode == 13) {
+                    this.sendRegistrationRequest();
+                }
+                else if (event.keyCode == 27) {
+                    this.closeRegistrationForm();
+                }
             },
 
             register: function () {
