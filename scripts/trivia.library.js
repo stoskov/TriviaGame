@@ -56,8 +56,7 @@ trivia.RestComunicator = function (hostUrl) {
             type: "GET",
             timeout: timeOut,
             dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(data),
+            data: data,
             success: onSuccess,
             error: onError
            

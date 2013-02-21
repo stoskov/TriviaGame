@@ -512,7 +512,7 @@
                 if (!this.needLogin || triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     this.renderPageMessage("Loading ...");
                     this.loadPageData(parameters);
-                    this.lastEvent = "load page: " + this.pageName;
+                    this.lastEvent = "load-page: " + this.pageName;
                 }
                 else {
                     this.renderPageMessage("Please, login to see this page!")
@@ -574,7 +574,7 @@
             },
 
             onSubmitSuccess: function () {
-                this.lastEvent = "submit page: " + this.pageName;
+                this.lastEvent = "submit-page: " + this.pageName;
                 var elementsList = this.getDOMElementsToDisable();
                 this.enableDOMElements(elementsList);
                 this.clearPage();
@@ -670,7 +670,6 @@
             },
 
             renderPageContent: function (responseData) {
-                var self = this;
 
                 this.getPageContentDOM().find("#page-all-categories-grid").kendoGrid({
                     dataSource: {
@@ -707,29 +706,11 @@
                             }
                         }, {
                             field: "name",
-                            width: 55,
+                            width: 80,
                             title: "Category name",
                             headerAttributes: {
                                 style: "text-align: center"
                             },
-                        }, {
-                            command: [
-                                {
-                                    text: "Start Game",
-                                    click: function (data) {
-                                        var dataItem = this.dataItem($(data.currentTarget).closest("tr"));
-                                    }
-                                }, {
-                                    text: "Add Question",
-                                    click: function (data) {
-                                        var dataItem = this.dataItem($(data.currentTarget).closest("tr"));
-                                        self.pageResponseData = { "categoryId": dataItem.id };
-                                        self.pageResponse = "redirect: page-add-question";
-                                    }
-                                }
-                            ],
-                            title: " ",
-                            width: 25
                         },
                     ]
                 })
@@ -1165,6 +1146,8 @@
                     dataSource: responseData,
                     height: 400,
                 });
+
+                this.categoryId = responseData[0].id;
 
                 this.getPageContentDOM().find("#page-add-question-answers-wrap").kendoPanelBar();
                 
@@ -1630,18 +1613,16 @@
 
                 triviaGame.restComunicator.sendPostRequest(this.serviceNameStartGame, urlParameter, requestParameters,
                                                            function (data) {
-                                                               //this.enableDOMElements(this.getDOMElementsToDisable());
                                                                self.startNewGame(data);
                                                            },
                                                            function (data) {
-                                                               //this.enableDOMElements(this.getDOMElementsToDisable());
                                                                self.onRequestError(data);
                                                            })
             },
 
             startNewGame: function (data) {
                 this.clearPage();
-                this.lastEvent = "start page: " + this.pageName;
+                this.lastEvent = "start-game: " + this.pageName;
                 this.isGameActive = true;
                 this.gameId = data.id;
                 this.questionsCollection = data.questions;
