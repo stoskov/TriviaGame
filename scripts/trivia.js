@@ -56,7 +56,7 @@
 
                 trivia.sessionManager.store("triviaGame.userAccount", this);
             },
-            
+
             getAuthorisationInfo: function () {
                 var authorisationInfo = {
                     "username": this.username,
@@ -76,17 +76,19 @@
             expiryType: constDataExpiryType,
             cacheTimeMs: constDataLoadTimeOut,
             data: [],
+            forceNextLoad: false,
 
             init: function () {
                 trivia.sessionManager.initObject("triviaGame.data.categories", this);
             },
 
-            loadData: function (onSuccess, onError, force) {
+            loadData: function (onSuccess, onError, forceLoad) {
                 var self = this,
                 nowTimeMs = new Date().getTime(),
                 elapsedTime = nowTimeMs - this.loadTimeMs;
 
-                if (this.data.length < 1 || (this.expiryType == "time" && elapsedTime > this.cacheTimeMs) || force) {
+                if (this.data.length < 1 || (this.expiryType == "time" && elapsedTime > this.cacheTimeMs) || this.forceNextLoad || forceLoad) {
+                    this.forceNextLoad = false;
                     triviaGame.restComunicator.sendGetRequest("all-categories", "", {},
                                                               function (data) {
                                                                   self.onLoadDataSuccess(data, onSuccess)
@@ -116,17 +118,19 @@
             cacheTimeMs: constDataLoadTimeOut,
             data: [],
             details: {},
+            forceNextLoad: false,
 
             init: function () {
-                trivia.sessionManager.initObject("triviaGame.data.users", this);              
+                trivia.sessionManager.initObject("triviaGame.data.users", this);
             },
 
-            loadData: function (onSuccess, onError, force) {
+            loadData: function (onSuccess, onError, forceLoad) {
                 var self = this,
                 nowTimeMs = new Date().getTime(),
                 elapsedTime = nowTimeMs - this.loadTimeMs;
 
-                if (this.data.length < 1 || (this.expiryType == "time" && elapsedTime > this.cacheTimeMs) || force) {
+                if (this.data.length < 1 || (this.expiryType == "time" && elapsedTime > this.cacheTimeMs) || this.forceNextLoad || forceLoad) {
+                    this.forceNextLoad = false;
                     triviaGame.restComunicator.sendGetRequest("all-users", "", {},
                                                               function (data) {
                                                                   self.onLoadDataSuccess(data, onSuccess)
@@ -236,7 +240,7 @@
                 }
             },
 
-            cancelAjaxRequest: function() {
+            cancelAjaxRequest: function () {
                 if (this.currentAjaxRequest) {
                     this.currentAjaxRequest.abort();
                     this.currentAjaxRequest = "";
@@ -277,14 +281,14 @@
                 }
                 else if (event.keyCode == 27) {
                     this.closeLoginForm();
-                }                
+                }
             },
 
             login: function () {
                 if (!triviaGame.userAccountManager.userAccount.isLoggedIn) {
                     this.openLoginForm();
                 }
-            },           
+            },
 
             openLoginForm: function () {
                 this.clearInfo();
@@ -302,7 +306,7 @@
                         "username": this.username,
                         "authCode": this.authCode,
                     };
-                                        
+
                     this.postLoginStatusMessage("Waiting response ... ");
 
                     this.currentAjaxRequest = triviaGame.restComunicator.sendPostRequest("login-user", "", registrationRequest,
@@ -338,7 +342,7 @@
 
             closeLoginForm: function () {
                 this.cancelAjaxRequest();
-                this.clearInfo();                
+                this.clearInfo();
                 this.loginFormAnchor.data("kendoWindow").close();
             },
 
@@ -428,7 +432,7 @@
 
             closeRegistrationForm: function () {
                 this.cancelAjaxRequest();
-                this.clearInfo();                
+                this.clearInfo();
                 this.registrationFormAnchor.data("kendoWindow").close();
             },
 
@@ -458,6 +462,8 @@
             isActivePage: false,
             //Defines whather the page is being reloaded or it is first init
             isReload: true,
+            //Defines if the bages is being submitted. Needed in case while waiting responce F5 is pressed
+            isWaitingSubmitResponce: false,
             //Service to call
             serviceName: "",
             //Page name
@@ -504,7 +510,7 @@
             getPageStatusBoxContainerDOM: function () {
                 return this.getPageContainerDOM().find(this.pageStatusBoxContainer);
             },
-            
+
             init: function () {
                 this.viewDisplay = "none";
 
@@ -524,7 +530,7 @@
                 this.initSpecific();
             },
 
-            initSpecific: function() {
+            initSpecific: function () {
             },
 
             load: function (parameters) {
@@ -554,13 +560,13 @@
                 this.storePage();
             },
 
-            clearPage: function() {                
+            clearPage: function () {
             },
 
             unloadSpecific: function () {
             },
 
-            cancelPendingAjaxRequest: function() {
+            cancelPendingAjaxRequest: function () {
                 if (this.currentAjaxRequest) {
                     this.currentAjaxRequest.abort();
                     this.currentAjaxRequest = "";
@@ -578,7 +584,7 @@
                 }
             },
 
-            onUserLoginLogoutSpecific: function () {               
+            onUserLoginLogoutSpecific: function () {
             },
 
             onLoadDataSuccess: function (responseData) {
@@ -594,6 +600,7 @@
             renderPage: function (responseData) {
                 this.displayContentBox();
                 this.renderPageContent(responseData);
+                this.updateButtonsStatusOnRefresh();
                 this.isReload = false;
             },
 
@@ -604,6 +611,7 @@
                 var elementsList;
 
                 if (this.verifySubmit()) {
+                    this.isWaitingSubmitResponce = true;
                     elementsList = this.getDOMElementsToDisable();
                     this.disableDOMElements(elementsList);
                     this.submit();
@@ -616,6 +624,7 @@
 
             onSubmitSuccess: function () {
                 this.lastEvent = "submit-page: " + this.pageName;
+                this.isWaitingSubmitResponce = false;
                 var elementsList = this.getDOMElementsToDisable();
                 this.enableDOMElements(elementsList);
                 this.clearPage();
@@ -623,6 +632,7 @@
             },
 
             onSubmitError: function (data) {
+                this.isWaitingSubmitResponce = false;
                 var elementsList = this.getDOMElementsToDisable();
                 this.enableDOMElements(elementsList);
                 var message = triviaGame.restComunicator.parseResponseMessage(data);
@@ -634,12 +644,12 @@
                 this.getPageMessageBoxContainerDOM().html(message);
             },
 
-            renderPageStatus: function(message) {
+            renderPageStatus: function (message) {
                 this.statusBoxDisplay = "block";
                 this.statusBoxMessage = message;
             },
 
-            clearPageStatus: function(message) {
+            clearPageStatus: function (message) {
                 this.statusBoxDisplay = "none";
                 this.statusBoxMessage = "";
             },
@@ -654,23 +664,23 @@
                 this.messageBoxDisplay = "none";
             },
 
-            storePage: function() {
+            storePage: function () {
                 trivia.sessionManager.store("trivia.pages." + this.pageName, this);
             },
 
-            restorePage: function() {
+            restorePage: function () {
                 trivia.sessionManager.initObject("trivia.pages." + this.pageName, this);
             },
 
             getDOMElementsToDisable: function () {
-                var elements = this.getPageContentDOM().find("input[type='submit'], .k-button");               
+                var elements = this.getPageContentDOM().find("input[type='submit'], .k-button");
                 return elements;
             },
 
             disableDOMElements: function (elementsList) {
                 var i,
                 element;
-                
+
                 for (i = 0; i < elementsList.length; i++) {
                     element = $(elementsList[i]);
                     element.attr("disabled", "disabled");
@@ -685,6 +695,22 @@
                     element = $(elementsList[i]);
                     element.removeAttr("disabled");
                 }
+            },
+
+            updateButtonsStatusOnRefresh: function() {
+                if (this.isWaitingSubmitResponce) {
+                    elementsList = this.getDOMElementsToDisable();
+                    this.disableDOMElements(elementsList);
+                }
+                else {
+                    var elementsList = this.getDOMElementsToDisable();
+                    this.enableDOMElements(elementsList);
+                }
+
+                this.updateButtonsStatusOnRefreshSpecific();
+            },
+            
+            updateButtonsStatusOnRefreshSpecific: function () {
             },
         });
         //#endregion
@@ -759,14 +785,14 @@
         //#endregion
 
         //#region Page: Add category
-        triviaGame.controllers.pages.pageAddCategoryController = triviaGame.controllers.pages.mainPageModel.getExtendedModel({     
+        triviaGame.controllers.pages.pageAddCategoryController = triviaGame.controllers.pages.mainPageModel.getExtendedModel({
             needLogin: true,
             serviceName: "add-category",
             pageName: "page-add-category",
             pageContainer: "#page-add-category",
             categoryName: "",
             questionsCollection: [],
-            questionNextId: 1,            
+            questionNextId: 1,
             minQuestionsRqiuired: 10,
             minCorrectAnswersRqiuired: 1,
             minWrongAnswersRqiuired: 3,
@@ -786,11 +812,11 @@
                 }
             },
 
-            buildBanelBar: function() {
+            buildBanelBar: function () {
                 this.getPageContentDOM().find("#page-add-category-questions-wrap").kendoPanelBar();
             },
 
-            requestAddQuestionElement: function() {
+            requestAddQuestionElement: function () {
                 var questionModel = this.addQuestion();
                 this.addQuestionElement(questionModel);
                 this.buildBanelBar();
@@ -843,8 +869,8 @@
                 questionWrapSection.find(".add-question-section").append(questionAnswersSection);
 
                 questionViewModelBilder = new trivia.ViewModelBinder(questionModel);
-                questionViewModelBilder.bind(questionWrapSection);                
-               
+                questionViewModelBilder.bind(questionWrapSection);
+
                 this.getPageContentDOM().find("#page-add-category-questions-wrap").append(questionWrapSection);
             },
 
@@ -869,7 +895,7 @@
                 this.storePage();
             },
 
-            deleteQuestionElement: function(DOM) {
+            deleteQuestionElement: function (DOM) {
                 $(DOM).parents(".add-question-section-wrap").remove();
             },
 
@@ -886,7 +912,7 @@
 
                 return parentDOM;
             },
-            
+
             requestAddAnswerElement: function (questionModel, parameters, DOM) {
                 var section,
                 answerModel,
@@ -982,9 +1008,9 @@
 
             restoreQuestions: function () {
                 var oldQuestionsCollection = this.questionsCollection,
-                questionModel, 
-                i, 
-                j, 
+                questionModel,
+                i,
+                j,
                 parrentDOM;
 
                 this.questionsCollection = [];
@@ -1006,7 +1032,7 @@
                         parrentDOM = this.getParentDOMByQuestionId(questionModel.id);
                         this.addAnswerElement(answerModel, "correntAnswers", parrentDOM);
                     }
-                    
+
                     for (j = 0; j < oldQuestionsCollection[i].wrongAnswers.length; j++) {
                         answerModel = this.addAnswer(questionModel, "wrongAnswers");
                         answerModel.id = oldQuestionsCollection[i].wrongAnswers[j].id;
@@ -1017,7 +1043,7 @@
                     }
 
                     questionModel.updateCounters();
-                }                
+                }
             },
 
             submit: function () {
@@ -1048,7 +1074,7 @@
             verifySubmit: function () {
                 var wrongAnswersList,
                 correntAnswersList,
-                message = "To submit the request: <br/>", 
+                message = "To submit the request: <br/>",
                 isValid = true,
                 hasEmptyQuestion = false,
                 currentQuestionText = "";
@@ -1131,7 +1157,7 @@
                 this.storePage();
                 this.getPageContentDOM().find("#page-add-category-questions-wrap").html("");
             }
-         
+
         });
         //#endregion
 
@@ -1162,7 +1188,7 @@
                     self.storePage()
                 });
             },
-            
+
             loadPageData: function (parameters) {
                 var self = this;
 
@@ -1190,14 +1216,14 @@
                 this.categoryId = this.getPageContentDOM().find("#page-add-question-category-id").val();
 
                 this.getPageContentDOM().find("#page-add-question-answers-wrap").kendoPanelBar();
-                
+
                 if (this.isReload) {
                     this.restoreAnswers();
                 }
             },
 
             requestAddAnswerElement: function (parameters) {
-                var section, 
+                var section,
                 answerModel;
 
                 if (parameters && parameters["section"]) {
@@ -1223,7 +1249,7 @@
                     self.storePage()
                 });
 
-                this.answerNextId ++;
+                this.answerNextId++;
 
                 if (section == "correntAnswers") {
                     this.correctAnswersCollection.push(answerModel);
@@ -1286,7 +1312,7 @@
                 this.updateCounters();
             },
 
-            updateCounters: function() {
+            updateCounters: function () {
                 this.correctAnswersCount = this.correctAnswersCollection.length;
                 this.wrongAnswersCount = this.wrongAnswersCollection.length;
             },
@@ -1322,7 +1348,7 @@
                 requestParamters,
                 categoryParameter,
                 self = this;
-                
+
                 wrongAnswersList = this.extractNonEmptyAnswers(this.wrongAnswersCollection);
                 correntAnswersList = this.extractNonEmptyAnswers(this.correctAnswersCollection);
 
@@ -1377,7 +1403,7 @@
                 }
             },
 
-            extractNonEmptyAnswers: function(collection) {
+            extractNonEmptyAnswers: function (collection) {
                 var result = [];
 
                 for (answer in collection) {
@@ -1389,7 +1415,7 @@
                 return result;
             },
 
-            clearPage: function() {
+            clearPage: function () {
                 this.correctAnswersCollection = [];
                 this.wrongAnswersCollection = [];
                 this.questionText = "";
@@ -1398,7 +1424,7 @@
                 this.answerNextId = 1;
                 this.clearPageStatus();
                 this.storePage();
-                this.getPageContentDOM().find(".add-question-correct-answers-list").find(".add-question-answer-wrap").each(function() {
+                this.getPageContentDOM().find(".add-question-correct-answers-list").find(".add-question-answer-wrap").each(function () {
                     $(this).remove();
                 });
                 this.getPageContentDOM().find(".add-question-wrong-answers-list").find(".add-question-answer-wrap").each(function () {
@@ -1571,19 +1597,18 @@
             remainingTimeString: "00:00:00",
             isGameActive: false,
             timer: null,
-            gameId: "",            
+            gameId: "",
             questionsCollection: [],
             answersCollection: {},
 
             initSpecific: function () {
-                var self = this;               
+                var self = this;
 
                 this.watchProperty("categoryId", self, function () {
                     self.storePage()
                 });
 
-                this.disableSubmitGameButton();
-                this.enableNewGameButton();
+                this.updateInavtiveGameButtonsStatus();
             },
 
             disableNewGameButton: function () {
@@ -1604,6 +1629,25 @@
             enableSubmitGameButton: function () {
                 var button = this.getPageContentDOM().find("#page-new-game-submit-game");
                 this.enableDOMElements(button);
+            },
+
+            updateAvtiveGameButtonsStatus: function() {
+                this.enableSubmitGameButton();
+                this.disableNewGameButton();
+            },
+
+            updateInavtiveGameButtonsStatus: function () {
+                this.disableSubmitGameButton();
+                this.enableNewGameButton();
+            },
+
+            updateButtonsStatusOnRefreshSpecific: function () {
+                if (this.isGameActive) {
+                    this.updateAvtiveGameButtonsStatus();
+                }
+                else {
+                    this.updateInavtiveGameButtonsStatus();
+                }
             },
 
             loadPageData: function (parameters) {
@@ -1640,7 +1684,7 @@
 
                 if (this.isGameActive && this.isReload) {
                     this.startTimer();
-                }
+                }               
             },
 
             requestStartNewGame: function () {
@@ -1674,8 +1718,7 @@
                 this.gameId = data.id;
                 this.questionsCollection = data.questions;
                 this.renderQuestions(this.questionsCollection);
-                this.enableSubmitGameButton();
-                this.disableNewGameButton();
+                this.updateAvtiveGameButtonsStatus();
                 this.startTimer();
                 this.storePage();
             },
@@ -1701,13 +1744,13 @@
                 this.getPageContentDOM().find("#page-new-game-questions-wrap").kendoPanelBar();
             },
 
-            addQuestion: function(questionData) {
+            addQuestion: function (questionData) {
                 var questionModel;
 
                 questionModel = new trivia.ObservableObject({
                     questionText: questionData.text,
                     questionId: questionData.id,
-                    answersList: [],                    
+                    answersList: [],
                 });
 
                 return questionModel;
@@ -1723,7 +1766,7 @@
 
                 return questionWrapSection;
             },
-            
+
             addAnswer: function (questionModel, answerData) {
                 var self = this,
                 checked = false;
@@ -1777,13 +1820,13 @@
             restoreQuestions: function () {
                 this.renderQuestions(this.questionsCollection);
             },
-            
+
             submit: function () {
                 var answersList,
                 authorisationInfo,
                 requestParamters,
                 self = this;
-                
+
                 answersList = this.getAnwersList();
                 authorisationInfo = triviaGame.userAccountManager.userAccount.getAuthorisationInfo();
 
@@ -1801,7 +1844,7 @@
                                                                                          self.onSubmitError(data)
                                                                                      });
             },
-            
+
             getAnwersList: function () {
                 var answersList = [];
 
@@ -1821,18 +1864,18 @@
                 this.timer = new trivia.Timer(this.remainingTime, 1,
                                               function () {
                                                   self.onTimerTick();
-                                              }, 
+                                              },
                                               function () {
                                                   self.onTimerOver();
                                               }
                 );
 
                 this.remainingTimeString = this.timer.toHHMMSS();
-                this.timer.start();                           
+                this.timer.start();
                 this.showTimer();
-            },                
+            },
 
-            stopTimer: function() {
+            stopTimer: function () {
                 if (this.timer != null) {
                     this.hideTimer();
                     this.timer.clear();
@@ -1847,19 +1890,18 @@
 
             onTimerOver: function () {
                 this.remainingTimeString = "Time over!";
-                this.disableSubmitGameButton();
-                this.enableNewGameButton();
+                this.updateInavtiveGameButtonsStatus();
                 this.isGameActive = false;
                 this.stopTimer();
                 this.storePage();
             },
 
-            showTimer: function() {
-                this.timerVisibility = "block";  
+            showTimer: function () {
+                this.timerVisibility = "block";
             },
-            
-            hideTimer: function() {
-                this.timerVisibility = "none";  
+
+            hideTimer: function () {
+                this.timerVisibility = "none";
             },
 
             clearPage: function () {
@@ -1871,8 +1913,7 @@
                 this.remainingTime = this.totalTime;
                 this.remainingTimeString = "00:00:00";
                 this.clearPageStatus();
-                this.disableSubmitGameButton();
-                this.enableNewGameButton();                
+                this.updateInavtiveGameButtonsStatus();
                 this.stopTimer();
                 this.storePage();
                 this.getPageContentDOM().find("#page-new-game-questions-wrap").html("");
@@ -1890,7 +1931,7 @@
             startPageName: "page-all-categories",
 
             init: function () {
-                var page, 
+                var page,
                 hasActivePage;
 
                 $("#site-main-nav").kendoMenu();
@@ -1947,7 +1988,7 @@
             },
 
             changeActivePage: function (pageName, data) {
-                if (this.activePage != null && this.activePage != undefined) {                    
+                if (this.activePage != null && this.activePage != undefined) {
                     this.activePage.unload(data);
                 }
 
@@ -1977,8 +2018,8 @@
 
         //#region Notificator
         triviaGame.notificator = new trivia.ObservableObject({
-            eventsList: [],
-            pubnubAnchor:null,
+            eventHandlers: [],
+            pubnubAnchor: null,
 
             init: function () {
                 var self = this;
@@ -1991,13 +2032,37 @@
                 this.pubnubAnchor.subscribe({
                     channel: "trivia-game",
                     message: function (event) {
-                        self.receiveEvent(event)
-                    },                    
+                        self.treatEvent(event)
+                    },
                 })
 
-                setInterval(function() {
-                    self.displayEvents();
-                }, 1000);
+                this.eventHandlers["login"] = function (user, details) {
+                    self.logMessage("User " + user + " just logged in");
+                };
+
+                this.eventHandlers["logout"] = function (user, details) {
+                    self.logMessage("User " + user + " just logged out");
+                };
+
+                this.eventHandlers["register"] = function (user, details) {
+                    self.logMessage("User " + user + " just registered");
+                    triviaGame.data.users.forceNextLoad = true;
+                };
+
+                this.eventHandlers["start-game"] = function (user, details) {
+                    self.logMessage("User " + user + " just started new game");
+                };
+
+                this.eventHandlers["submit-page"] = function (user, details) {
+                    if (details.indexOf("page-add-category") >= 0) {
+                        self.logMessage("User " + user + " just started a new game");
+                        triviaGame.data.categories.forceNextLoad = true;
+                    }
+                    else if (details.indexOf("page-new-game") >= 0) {
+                        self.logMessage("User " + user + " just completed a game");
+                        triviaGame.data.users.forceNextLoad = true;
+                    }
+                };
 
                 this.follow(triviaGame.controllers.userAccountController);
                 this.follow(triviaGame.controllers.pages.pageAllCategoriesController);
@@ -2029,25 +2094,24 @@
                     time: time
                 })
 
-                this.pubnubAnchor.publish({                     
+                this.pubnubAnchor.publish({
                     channel: "trivia-game",
                     message: eventObj
                 })
             },
 
-            receiveEvent:  function (event) {
-                var eventObj = JSON.parse(event);
-                this.eventsList.push(eventObj["user"] + " | " + eventObj["time"] + " | " + eventObj["event"])
+            treatEvent: function (event) {
+                var eventObj = JSON.parse(event)
+                eventDetails = eventObj["event"].split(":");
+                if (this.eventHandlers[eventDetails[0]]) {
+                    this.eventHandlers[eventDetails[0]].call(this, eventObj["user"], eventDetails[1]);
+                }
             },
 
-            displayEvents: function () {
-                var event;
+            logMessage: function (message) {
+                $("#event-logger").text(message);
+            },
 
-                if (this.eventsList.length > 0) {
-                    event = this.eventsList.shift();
-                    $("#event-logger").text(event);
-                }
-            }
         });
         //#endregion
     })

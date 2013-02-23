@@ -37,7 +37,7 @@ ul {
   color: #8ebc00;
 }
 .color-secondary {
-  color: #8ebc00;
+  color: #787878;
 }
 .float-left {
   float: left;
@@ -312,9 +312,10 @@ html {
   padding-top: 5px;
   height: 20px;
   border-top: 1px solid #8ebc00;
-}
-#site-footer p {
   font-size: 75%;
+}
+#site-footer #event-logger-wrap {
+  width: 70%;
 }
 /*Login and Register forms*/
 #login-register-forms-wrap {
