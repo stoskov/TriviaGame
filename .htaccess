@@ -15,3 +15,24 @@ AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
 <files *.html>
 SetOutputFilter DEFLATE
 </files>
+
+# 1 YEAR
+<FilesMatch "\.(ico|pdf|flv|ttf|eot)$">
+Header set Cache-Control "max-age=29030400, public"
+Header unset Last-Modified
+</FilesMatch>
+
+# 1 WEEK
+<FilesMatch "\.(jpg|jpeg|png|gif|swf)$">
+Header set Cache-Control "max-age=604800, public"
+</FilesMatch>
+
+# 1 DAY
+<FilesMatch "\.(xml|txt|css|js)$">
+Header set Cache-Control "max-age=86400, proxy-revalidate"
+</FilesMatch>
+
+# 30 MIN
+<FilesMatch "\.(html|htm|php)$">
+Header set Cache-Control "max-age=1800, private, proxy-revalidate"
+</FilesMatch>
