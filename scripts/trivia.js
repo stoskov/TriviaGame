@@ -1,7 +1,8 @@
 ﻿(function ($) {
     $(document).ready(function () {
-        var constComunicatorTimeOut = 50000;
-        var constDataLoadTimeOut = 5000000000000;
+        var constComunicatorTimeOut = 500000;
+        var constDataLoadTimeOut = 5000000;
+        var constDataExpiryType = "never";
 
         //Define new namaspace for all game objects
         triviaGame = window.triviaGame || {};
@@ -72,6 +73,7 @@
         //#region All categories collection
         triviaGame.data.categories = new trivia.ObservableObject({
             loadTimeMs: 0,
+            expiryType: constDataExpiryType,
             cacheTimeMs: constDataLoadTimeOut,
             data: [],
 
@@ -84,7 +86,7 @@
                 nowTimeMs = new Date().getTime(),
                 elapsedTime = nowTimeMs - this.loadTimeMs;
 
-                if (this.data.length < 1 || elapsedTime > this.cacheTimeMs || force) {
+                if (this.data.length < 1 || (this.expiryType == "time" && elapsedTime > this.cacheTimeMs) || force) {
                     triviaGame.restComunicator.sendGetRequest("all-categories", "", {},
                                                               function (data) {
                                                                   self.onLoadDataSuccess(data, onSuccess)
@@ -110,6 +112,7 @@
         //#region All users collection
         triviaGame.data.users = new trivia.ObservableObject({
             loadTimeMs: 0,
+            expiryType: constDataExpiryType,
             cacheTimeMs: constDataLoadTimeOut,
             data: [],
             details: {},
@@ -123,7 +126,7 @@
                 nowTimeMs = new Date().getTime(),
                 elapsedTime = nowTimeMs - this.loadTimeMs;
 
-                if (this.data.length < 1 || elapsedTime > this.cacheTimeMs || force) {
+                if (this.data.length < 1 || (this.expiryType == "time" && elapsedTime > this.cacheTimeMs) || force) {
                     triviaGame.restComunicator.sendGetRequest("all-users", "", {},
                                                               function (data) {
                                                                   self.onLoadDataSuccess(data, onSuccess)
@@ -184,14 +187,12 @@
         triviaGame.controllers.userAccountController = new trivia.ObservableObject({
             loginVisibility: "block",
             logoutVisibility: "none",
-
             loginFromStatusBarVisibility: "none",
             loginFromStatusBarMessage: "",
-
             registrationFromStatusBarVisibility: "none",
             registrationFromStatusBarMessage: "",
             lastEvent: "",
-
+            currentAjaxRequest: "",
             username: "",
             nickname: "",
             password: "",
@@ -203,6 +204,8 @@
             registrationFormAnchor: $("#registration-form"),
 
             init: function () {
+                var self = this;
+
                 triviaGame.userAccountManager.userAccount.watchProperty("isLoggedIn", this, this.updateControlerState);
                 triviaGame.userAccountManager.userAccount.watchProperty("nickname", this, this.updateControlerState);
 
@@ -212,6 +215,9 @@
                         title: "Login",
                         modal: true,
                         resizable: false,
+                        close: function () {
+                            self.cancelAjaxRequest();
+                        }
                     });
                     this.loginFormAnchor.data("kendoWindow").close();
                 }
@@ -222,8 +228,18 @@
                         title: "Registration",
                         modal: true,
                         resizable: false,
+                        close: function () {
+                            self.cancelAjaxRequest();
+                        }
                     });
                     this.registrationFormAnchor.data("kendoWindow").close();
+                }
+            },
+
+            cancelAjaxRequest: function() {
+                if (this.currentAjaxRequest) {
+                    this.currentAjaxRequest.abort();
+                    this.currentAjaxRequest = "";
                 }
             },
 
@@ -251,6 +267,8 @@
 
                 this.registrationFromStatusBarVisibility = "none";
                 this.loginFromStatusBarMessage = "";
+
+                this.currentAjaxRequest = "";
             },
 
             handleKeyPressLogin: function (parameters, DOM, event) {
@@ -287,13 +305,13 @@
                                         
                     this.postLoginStatusMessage("Waiting response ... ");
 
-                    triviaGame.restComunicator.sendPostRequest("login-user", "", registrationRequest,
-                                                               function (data) {
-                                                                   self.onSuccessfullLogin(data)
-                                                               },
-                                                               function (data) {
-                                                                   self.onErrorLogin(data)
-                                                               });
+                    this.currentAjaxRequest = triviaGame.restComunicator.sendPostRequest("login-user", "", registrationRequest,
+                                                                                         function (data) {
+                                                                                             self.onSuccessfullLogin(data)
+                                                                                         },
+                                                                                         function (data) {
+                                                                                             self.onErrorLogin(data)
+                                                                                         });
                 }
             },
 
@@ -319,7 +337,8 @@
             },
 
             closeLoginForm: function () {
-                this.clearInfo();
+                this.cancelAjaxRequest();
+                this.clearInfo();                
                 this.loginFormAnchor.data("kendoWindow").close();
             },
 
@@ -363,13 +382,13 @@
 
                     this.postRegistrationStatusMessage("Waiting response ... ");
 
-                    triviaGame.restComunicator.sendPostRequest("register-user", "", registrationRequest,
-                                                               function (data) {
-                                                                   self.onSuccessfullRegistration(data)
-                                                               },
-                                                               function (data) {
-                                                                   self.onErrorRegistration(data)
-                                                               });
+                    this.currentAjaxRequest = triviaGame.restComunicator.sendPostRequest("register-user", "", registrationRequest,
+                                                                                         function (data) {
+                                                                                             self.onSuccessfullRegistration(data)
+                                                                                         },
+                                                                                         function (data) {
+                                                                                             self.onErrorRegistration(data)
+                                                                                         });
                 }
             },
 
@@ -408,7 +427,8 @@
             },
 
             closeRegistrationForm: function () {
-                this.clearInfo();
+                this.cancelAjaxRequest();
+                this.clearInfo();                
                 this.registrationFormAnchor.data("kendoWindow").close();
             },
 
@@ -466,6 +486,8 @@
             pageResponseData: {},
             //Store the last page event
             lastEvent: "",
+            //Holds the current not finished yet Ajax request. Used to cancel it
+            currentAjaxRequest: "",
 
             getPageContainerDOM: function () {
                 return $(this.pageContainer);
@@ -532,13 +554,31 @@
                 this.storePage();
             },
 
+            clearPage: function() {                
+            },
+
             unloadSpecific: function () {
+            },
+
+            cancelPendingAjaxRequest: function() {
+                if (this.currentAjaxRequest) {
+                    this.currentAjaxRequest.abort();
+                    this.currentAjaxRequest = "";
+                }
             },
 
             onUserLoginLogout: function () {
                 if (this.isActivePage) {
+                    if (this.needLogin && !triviaGame.userAccountManager.userAccount.isLoggedIn) {
+                        this.cancelPendingAjaxRequest();
+                        this.clearPage();
+                    }
+                    this.onUserLoginLogoutSpecific();
                     this.load()
                 }
+            },
+
+            onUserLoginLogoutSpecific: function () {               
             },
 
             onLoadDataSuccess: function (responseData) {
@@ -554,6 +594,7 @@
             renderPage: function (responseData) {
                 this.displayContentBox();
                 this.renderPageContent(responseData);
+                this.isReload = false;
             },
 
             renderPageContent: function (responseData) {
@@ -670,7 +711,6 @@
             },
 
             renderPageContent: function (responseData) {
-
                 this.getPageContentDOM().find("#page-all-categories-grid").kendoGrid({
                     dataSource: {
                         data: responseData,
@@ -690,7 +730,7 @@
                     filterable: true,
                     pageable: {
                         refresh: false,
-                        pageSize: 15,
+                        pageSize: 10,
                         pageSizes: [5, 10, 15, 30, 50, 100]
                     },
                     columns: [
@@ -996,13 +1036,13 @@
                 };
 
                 this.renderPageStatus("waiting response ...");
-                triviaGame.restComunicator.sendPostRequest(this.serviceName, "", requestParamters,
-                                                           function (data) {
-                                                               self.onSubmitSuccess(data)
-                                                           },
-                                                           function (data) {
-                                                               self.onSubmitError(data)
-                                                           });
+                this.currentAjaxRequest = triviaGame.restComunicator.sendPostRequest(this.serviceName, "", requestParamters,
+                                                                                     function (data) {
+                                                                                         self.onSubmitSuccess(data)
+                                                                                     },
+                                                                                     function (data) {
+                                                                                         self.onSubmitError(data)
+                                                                                     });
             },
 
             verifySubmit: function () {
@@ -1147,7 +1187,7 @@
                     height: 400,
                 });
 
-                this.categoryId = responseData[0].id;
+                this.categoryId = this.getPageContentDOM().find("#page-add-question-category-id").val();
 
                 this.getPageContentDOM().find("#page-add-question-answers-wrap").kendoPanelBar();
                 
@@ -1299,13 +1339,13 @@
 
                 categoryParameter = "/" + this.categoryId;
                 this.renderPageStatus("waiting response ...");
-                triviaGame.restComunicator.sendPostRequest(this.serviceName, categoryParameter, requestParamters,
-                                                           function (data) {
-                                                               self.onSubmitSuccess(data)
-                                                           },
-                                                           function (data) {
-                                                               self.onSubmitError(data)
-                                                           });
+                this.currentAjaxRequest = triviaGame.restComunicator.sendPostRequest(this.serviceName, categoryParameter, requestParamters,
+                                                                                     function (data) {
+                                                                                         self.onSubmitSuccess(data)
+                                                                                     },
+                                                                                     function (data) {
+                                                                                         self.onSubmitError(data)
+                                                                                     });
             },
 
             verifySubmit: function () {
@@ -1358,10 +1398,13 @@
                 this.answerNextId = 1;
                 this.clearPageStatus();
                 this.storePage();
-                this.getPageContentDOM().find(".add-question-correct-answers-list").html("");
-                this.getPageContentDOM().find(".add-question-wrong-answers-list").html("");
+                this.getPageContentDOM().find(".add-question-correct-answers-list").find(".add-question-answer-wrap").each(function() {
+                    $(this).remove();
+                });
+                this.getPageContentDOM().find(".add-question-wrong-answers-list").find(".add-question-answer-wrap").each(function () {
+                    $(this).remove();
+                });
             }
-
         });
         //#endregion
 
@@ -1410,7 +1453,7 @@
                     filterable: true,
                     pageable: {
                         refresh: false,
-                        pageSize: 15,
+                        pageSize: 10,
                         pageSizes: [5, 10, 15, 30, 50, 100]
                     },
                     detailInit: function (gridData) {
@@ -1602,6 +1645,7 @@
 
             requestStartNewGame: function () {
                 var urlParameter = "",
+                elementsList,
                 self = this,
                 requestParameters = triviaGame.userAccountManager.userAccount.getAuthorisationInfo();
 
@@ -1609,15 +1653,18 @@
                     urlParameter = "/" + this.categoryId;
                 }
 
+                elementsList = this.getDOMElementsToDisable();
+                this.disableDOMElements(elementsList);
+
                 this.renderPageStatus("waiting response ...");
 
-                triviaGame.restComunicator.sendPostRequest(this.serviceNameStartGame, urlParameter, requestParameters,
-                                                           function (data) {
-                                                               self.startNewGame(data);
-                                                           },
-                                                           function (data) {
-                                                               self.onRequestError(data);
-                                                           })
+                this.currentAjaxRequest = triviaGame.restComunicator.sendPostRequest(this.serviceNameStartGame, urlParameter, requestParameters,
+                                                                                     function (data) {
+                                                                                         self.startNewGame(data);
+                                                                                     },
+                                                                                     function (data) {
+                                                                                         self.onRequestError(data);
+                                                                                     })
             },
 
             startNewGame: function (data) {
@@ -1716,6 +1763,8 @@
             },
 
             onRequestError: function (data) {
+                var elementsList = this.getDOMElementsToDisable();
+                this.enableDOMElements(elementsList);
                 var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.renderPageStatus(message);
             },
@@ -1744,13 +1793,13 @@
                 };
 
                 this.renderPageStatus("waiting response ...");
-                triviaGame.restComunicator.sendPostRequest(this.serviceNameCompleteGame, "/" + this.gameId, requestParamters,
-                                                           function (data) {
-                                                               self.onSubmitSuccess(data)
-                                                           },
-                                                           function (data) {
-                                                               self.onSubmitError(data)
-                                                           });
+                this.currentAjaxRequest = triviaGame.restComunicator.sendPostRequest(this.serviceNameCompleteGame, "/" + this.gameId, requestParamters,
+                                                                                     function (data) {
+                                                                                         self.onSubmitSuccess(data)
+                                                                                     },
+                                                                                     function (data) {
+                                                                                         self.onSubmitError(data)
+                                                                                     });
             },
             
             getAnwersList: function () {
@@ -1960,7 +2009,7 @@
 
             follow: function (controller) {
                 var self = this;
-                if (controller.lastEvent) {
+                if (controller["lastEvent"] != undefined) {
                     controller.watchProperty("lastEvent", self, function (event, model) {
                         var user = "anonymous";
 

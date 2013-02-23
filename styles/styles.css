@@ -6,10 +6,6 @@
   font-family: 'SegoeUIRegular';
   src: url('../fonts/SEGOEUI.TTF'), url('../fonts/SEGOEUI.eot');/* IE9+ */
 }
-@font-face {
-  font-family: 'SegoeUISemiBold';
-  src: url('../fonts/SEGUISB.TTF'), url('../fonts/SEGUISB.eot');/* IE9+ */
-}
 /* Reseters */
 body,
 section,
@@ -157,7 +153,7 @@ html {
 #site-content {
   position: relative;
   padding: 10px 0;
-  min-height: 698px;
+  min-height: 500px;
 }
 #site-content .single-page-header {
   margin-bottom: 10px;
