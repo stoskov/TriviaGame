@@ -32,10 +32,14 @@
 }
 
 /* Reseters */
-body, section, nav, h1, span, nav, p {
+body, section, nav, h1, span, nav, p, h4, h6 {
 	margin: 0;
 	padding: 0;
 	font-family: inherit;
+}
+
+h4, h6 {
+	font-weight: normal;
 }
 
 ul {
@@ -216,16 +220,15 @@ html {
 	}
 
 	.page-content-sub-section-header {
-		margin-bottom: 10px;
-		height: @single-page-widget;
-		border: 1px solid @color-borders;
-		color: @color-secondary;
+		margin: 20px;
+		color: @color-main;
+		font-size: 150%;
 	}
 
 	.single-page-widget-group-25 {
 		display: block;
 		float: left;
-		margin: 15px 0;
+		margin-bottom: 15px;
 		width: (100% / 4);
 
 		.single-page-widget-input {
@@ -240,7 +243,7 @@ html {
 	.single-page-widget-group-33 {
 		display: block;
 		float: left;
-		margin: 15px 0;
+		margin-bottom: 15px;
 		width: (100% / 3);
 
 		.single-page-widget-input {
@@ -255,7 +258,7 @@ html {
 	.single-page-widget-group-50 {
 		display: block;
 		float: left;
-		margin: 15px 0;
+		margin-bottom: 15px;
 		width: (100% / 2);
 
 		.single-page-widget-input {
@@ -270,7 +273,7 @@ html {
 	.single-page-widget-group-67 {
 		display: block;
 		float: left;
-		margin: 15px 0;
+		margin-bottom: 15px;
 		width: (100% / 3 * 2);
 
 		.single-page-widget-input {
@@ -285,7 +288,7 @@ html {
 	.single-page-widget-group-75 {
 		display: block;
 		float: left;
-		margin: 15px 0;
+		margin-bottom: 15px;
 		width: (100% / 4 * 3);
 
 		.single-page-widget-input {
@@ -299,7 +302,7 @@ html {
 
 	.single-page-widget-group-100 {
 		display: block;
-		margin: 15px 0;
+		margin-bottom: 15px;
 
 		.single-page-widget-input {
 			width: 86.9%;
@@ -389,6 +392,11 @@ html {
 		box-shadow: 1px 1px 1px @color-borders;
 		border: 1px solid @color-borders;
 		text-align: center;
+	}
+
+	p {
+		color: @color-secondary;
+		text-align: justify;
 	}
 }
 

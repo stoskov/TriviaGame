@@ -13,10 +13,16 @@ nav,
 h1,
 span,
 nav,
-p {
+p,
+h4,
+h6 {
   margin: 0;
   padding: 0;
   font-family: inherit;
+}
+h4,
+h6 {
+  font-weight: normal;
 }
 ul {
   margin: 0;
@@ -164,15 +170,14 @@ html {
   margin-bottom: 10px;
 }
 #site-content .page-content-sub-section-header {
-  margin-bottom: 10px;
-  height: 32px;
-  border: 1px solid #dadada;
-  color: #787878;
+  margin: 20px;
+  color: #8ebc00;
+  font-size: 150%;
 }
 #site-content .single-page-widget-group-25 {
   display: block;
   float: left;
-  margin: 15px 0;
+  margin-bottom: 15px;
   width: 25%;
 }
 #site-content .single-page-widget-group-25 .single-page-widget-input {
@@ -184,7 +189,7 @@ html {
 #site-content .single-page-widget-group-33 {
   display: block;
   float: left;
-  margin: 15px 0;
+  margin-bottom: 15px;
   width: 33.333333333333336%;
 }
 #site-content .single-page-widget-group-33 .single-page-widget-input {
@@ -196,7 +201,7 @@ html {
 #site-content .single-page-widget-group-50 {
   display: block;
   float: left;
-  margin: 15px 0;
+  margin-bottom: 15px;
   width: 50%;
 }
 #site-content .single-page-widget-group-50 .single-page-widget-input {
@@ -208,7 +213,7 @@ html {
 #site-content .single-page-widget-group-67 {
   display: block;
   float: left;
-  margin: 15px 0;
+  margin-bottom: 15px;
   width: 66.66666666666667%;
 }
 #site-content .single-page-widget-group-67 .single-page-widget-input {
@@ -220,7 +225,7 @@ html {
 #site-content .single-page-widget-group-75 {
   display: block;
   float: left;
-  margin: 15px 0;
+  margin-bottom: 15px;
   width: 75%;
 }
 #site-content .single-page-widget-group-75 .single-page-widget-input {
@@ -231,7 +236,7 @@ html {
 }
 #site-content .single-page-widget-group-100 {
   display: block;
-  margin: 15px 0;
+  margin-bottom: 15px;
 }
 #site-content .single-page-widget-group-100 .single-page-widget-input {
   width: 86.9%;
@@ -305,6 +310,10 @@ html {
   box-shadow: 1px 1px 1px #dadada;
   border: 1px solid #dadada;
   text-align: center;
+}
+#site-content p {
+  color: #787878;
+  text-align: justify;
 }
 /* Site footer */
 #site-footer {

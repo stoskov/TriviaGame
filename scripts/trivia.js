@@ -1921,6 +1921,13 @@
         });
         //#endregion
 
+        //#region Page: All about
+        triviaGame.controllers.pages.pageAboutController = triviaGame.controllers.pages.mainPageModel.getExtendedModel({            
+            pageName: "page-about",
+            pageContainer: "#page-about",            
+        });
+        //#endregion
+
         //#endregion
 
         //#region Navigator controller
@@ -1955,6 +1962,10 @@
                 this.addPage(
                     triviaGame.controllers.pages.pageNewGameController.pageName,
                     triviaGame.controllers.pages.pageNewGameController);
+                
+                this.addPage(
+                    triviaGame.controllers.pages.pageAboutController.pageName,
+                    triviaGame.controllers.pages.pageAboutController);
 
                 triviaGame.viewModelBinders.navigationViewBinder = new trivia.ViewModelBinder(this);
 
@@ -2024,52 +2035,56 @@
             init: function () {
                 var self = this;
 
-                this.pubnubAnchor = PUBNUB.init({
-                    publish_key: "pub-c-a0fb260f-0775-4a00-b5fb-c5d35f82347f",
-                    subscribe_key: "sub-c-ae182494-7a0e-11e2-89a1-12313f022c90"
-                });
+                PUBNUB = window.PUBNUB || "";
 
-                this.pubnubAnchor.subscribe({
-                    channel: "trivia-game",
-                    message: function (event) {
-                        self.treatEvent(event)
-                    },
-                })
+                if (PUBNUB) {
+                    this.pubnubAnchor = PUBNUB.init({
+                        publish_key: "pub-c-a0fb260f-0775-4a00-b5fb-c5d35f82347f",
+                        subscribe_key: "sub-c-ae182494-7a0e-11e2-89a1-12313f022c90"
+                    });
 
-                this.eventHandlers["login"] = function (user, details) {
-                    self.logMessage("User " + user + " just logged in");
-                };
+                    this.pubnubAnchor.subscribe({
+                        channel: "trivia-game",
+                        message: function (event) {
+                            self.treatEvent(event)
+                        },
+                    })
 
-                this.eventHandlers["logout"] = function (user, details) {
-                    self.logMessage("User " + user + " just logged out");
-                };
+                    this.eventHandlers["login"] = function (user, details) {
+                        self.logMessage("User " + user + " just logged in");
+                    };
 
-                this.eventHandlers["register"] = function (user, details) {
-                    self.logMessage("User " + user + " just registered");
-                    triviaGame.data.users.forceNextLoad = true;
-                };
+                    this.eventHandlers["logout"] = function (user, details) {
+                        self.logMessage("User " + user + " just logged out");
+                    };
 
-                this.eventHandlers["start-game"] = function (user, details) {
-                    self.logMessage("User " + user + " just started new game");
-                };
-
-                this.eventHandlers["submit-page"] = function (user, details) {
-                    if (details.indexOf("page-add-category") >= 0) {
-                        self.logMessage("User " + user + " just started a new game");
-                        triviaGame.data.categories.forceNextLoad = true;
-                    }
-                    else if (details.indexOf("page-new-game") >= 0) {
-                        self.logMessage("User " + user + " just completed a game");
+                    this.eventHandlers["register"] = function (user, details) {
+                        self.logMessage("User " + user + " just registered");
                         triviaGame.data.users.forceNextLoad = true;
-                    }
-                };
+                    };
 
-                this.follow(triviaGame.controllers.userAccountController);
-                this.follow(triviaGame.controllers.pages.pageAllCategoriesController);
-                this.follow(triviaGame.controllers.pages.pageAllUsersController);
-                this.follow(triviaGame.controllers.pages.pageAddCategoryController);
-                this.follow(triviaGame.controllers.pages.pageAddQuestionController);
-                this.follow(triviaGame.controllers.pages.pageNewGameController);
+                    this.eventHandlers["start-game"] = function (user, details) {
+                        self.logMessage("User " + user + " just started new game");
+                    };
+
+                    this.eventHandlers["submit-page"] = function (user, details) {
+                        if (details.indexOf("page-add-category") >= 0) {
+                            self.logMessage("User " + user + " just started a new game");
+                            triviaGame.data.categories.forceNextLoad = true;
+                        }
+                        else if (details.indexOf("page-new-game") >= 0) {
+                            self.logMessage("User " + user + " just completed a game");
+                            triviaGame.data.users.forceNextLoad = true;
+                        }
+                    };
+
+                    this.follow(triviaGame.controllers.userAccountController);
+                    this.follow(triviaGame.controllers.pages.pageAllCategoriesController);
+                    this.follow(triviaGame.controllers.pages.pageAllUsersController);
+                    this.follow(triviaGame.controllers.pages.pageAddCategoryController);
+                    this.follow(triviaGame.controllers.pages.pageAddQuestionController);
+                    this.follow(triviaGame.controllers.pages.pageNewGameController);
+                }
             },
 
             follow: function (controller) {
