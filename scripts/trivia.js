@@ -210,6 +210,8 @@
             init: function () {
                 var self = this;
 
+                this.clearAjaxHandler();
+
                 triviaGame.userAccountManager.userAccount.watchProperty("isLoggedIn", this, this.updateControlerState);
                 triviaGame.userAccountManager.userAccount.watchProperty("nickname", this, this.updateControlerState);
 
@@ -247,6 +249,11 @@
                 }
             },
 
+            clearAjaxHandler: function () {
+                this.currentAjaxRequest = "";
+            },
+
+
             updateControlerState: function () {
                 if (triviaGame.userAccountManager.userAccount.isLoggedIn == true) {
                     this.loginVisibility = "none";
@@ -272,7 +279,7 @@
                 this.registrationFromStatusBarVisibility = "none";
                 this.loginFromStatusBarMessage = "";
 
-                this.currentAjaxRequest = "";
+                this.clearAjaxHandler();
             },
 
             handleKeyPressLogin: function (parameters, DOM, event) {
@@ -329,6 +336,7 @@
             },
 
             onSuccessfullLogin: function () {
+                this.clearAjaxHandler();
                 triviaGame.userAccountManager.userAccount.login(this.username, this.nickname, this.authCode);
                 this.lastEvent = "login";
                 this.clearInfo();
@@ -336,6 +344,7 @@
             },
 
             onErrorLogin: function (data) {
+                this.clearAjaxHandler();
                 var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.postLoginStatusMessage(message);
             },
@@ -413,6 +422,7 @@
             },
 
             onSuccessfullRegistration: function (data) {
+                this.clearAjaxHandler();
                 triviaGame.userAccountManager.userAccount.login(this.username, this.nickname, this.authCode);
                 this.lastEvent = "register";
                 this.clearInfo();
@@ -420,6 +430,7 @@
             },
 
             onErrorRegistration: function (data) {
+                this.clearAjaxHandler();
                 var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.postRegistrationStatusMessage(message);
             },
@@ -513,7 +524,7 @@
 
             init: function () {
                 this.viewDisplay = "none";
-
+                
                 if (this.needLogin) {
                     triviaGame.userAccountManager.userAccount.watchProperty("isLoggedIn", this, this.onUserLoginLogout);
                 }
@@ -524,6 +535,9 @@
                 if (this.pageName) {
                     this.restorePage();
                 }
+
+                this.isWaitingSubmitResponce = false;
+                this.clearAjaxHandler();
                 this.isReload = true;
                 this.statusBoxDisplay = "none";
 
@@ -569,17 +583,21 @@
             cancelPendingAjaxRequest: function () {
                 if (this.currentAjaxRequest) {
                     this.currentAjaxRequest.abort();
-                    this.currentAjaxRequest = "";
+                    this.clearAjaxHandler();
                 }
             },
 
+            clearAjaxHandler: function() {
+                this.currentAjaxRequest = "";
+            },
+
             onUserLoginLogout: function () {
+                if (this.needLogin && !triviaGame.userAccountManager.userAccount.isLoggedIn) {
+                    this.cancelPendingAjaxRequest();
+                    this.clearPage();
+                }
+                this.onUserLoginLogoutSpecific();
                 if (this.isActivePage) {
-                    if (this.needLogin && !triviaGame.userAccountManager.userAccount.isLoggedIn) {
-                        this.cancelPendingAjaxRequest();
-                        this.clearPage();
-                    }
-                    this.onUserLoginLogoutSpecific();
                     this.load()
                 }
             },
@@ -587,12 +605,12 @@
             onUserLoginLogoutSpecific: function () {
             },
 
-            onLoadDataSuccess: function (responseData) {
+            onLoadDataSuccess: function (responseData) {                
                 this.renderPage(responseData);
                 this.isReload = false;
             },
 
-            onLoadDataError: function (data) {
+            onLoadDataError: function (data) {                
                 var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.renderPageMessage(message);
             },
@@ -624,6 +642,7 @@
 
             onSubmitSuccess: function () {
                 this.lastEvent = "submit-page: " + this.pageName;
+                this.clearAjaxHandler();
                 this.isWaitingSubmitResponce = false;
                 var elementsList = this.getDOMElementsToDisable();
                 this.enableDOMElements(elementsList);
@@ -632,6 +651,7 @@
             },
 
             onSubmitError: function (data) {
+                this.clearAjaxHandler();
                 this.isWaitingSubmitResponce = false;
                 var elementsList = this.getDOMElementsToDisable();
                 this.enableDOMElements(elementsList);
@@ -1642,11 +1662,13 @@
             },
 
             updateButtonsStatusOnRefreshSpecific: function () {
-                if (this.isGameActive) {
-                    this.updateAvtiveGameButtonsStatus();
-                }
-                else {
-                    this.updateInavtiveGameButtonsStatus();
+                if (!this.isWaitingSubmitResponce) {
+                    if (this.isGameActive) {
+                        this.updateAvtiveGameButtonsStatus();
+                    }
+                    else {
+                        this.updateInavtiveGameButtonsStatus();
+                    }
                 }
             },
 
@@ -1684,7 +1706,10 @@
 
                 if (this.isGameActive && this.isReload) {
                     this.startTimer();
-                }               
+                }
+                else if (this.isReload) {
+                    this.timer = null;
+                }
             },
 
             requestStartNewGame: function () {
@@ -1701,6 +1726,7 @@
                 this.disableDOMElements(elementsList);
 
                 this.renderPageStatus("waiting response ...");
+                this.isWaitingSubmitResponce = true;
 
                 this.currentAjaxRequest = triviaGame.restComunicator.sendPostRequest(this.serviceNameStartGame, urlParameter, requestParameters,
                                                                                      function (data) {
@@ -1714,6 +1740,8 @@
             startNewGame: function (data) {
                 this.clearPage();
                 this.lastEvent = "start-game: " + this.pageName;
+                this.clearAjaxHandler();
+                this.isWaitingSubmitResponce = false;
                 this.isGameActive = true;
                 this.gameId = data.id;
                 this.questionsCollection = data.questions;
@@ -1806,8 +1834,9 @@
             },
 
             onRequestError: function (data) {
-                var elementsList = this.getDOMElementsToDisable();
-                this.enableDOMElements(elementsList);
+                this.clearAjaxHandler();
+                this.isWaitingSubmitResponce = false;                
+                this.updateButtonsStatusOnRefreshSpecific();
                 var message = triviaGame.restComunicator.parseResponseMessage(data);
                 this.renderPageStatus(message);
             },
