@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://stoskov.telerik-students.org/" />
+<title>start-new-game-and-complete</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">start-new-game-and-complete</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#menu-page-new-game &gt; span.k-link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=login-form-username</td>
+	<td>svt1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=login-form-password</td>
+	<td>svt1</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=login-form-login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td></td>
+	<td>waiting responce</td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td></td>
+	<td>Category:</td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td></td>
+	<td>New game</td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>page-new-game-start-game</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>page-new-game-submit-game</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>null</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=page-new-game-start-game</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td></td>
+	<td>waiting responce</td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>page-new-game-questions-wrap</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForAttribute</td>
+	<td>page-new-game-start-game</td>
+	<td>disabled</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=page-new-game-submit-game</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td></td>
+	<td>waiting response</td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td></td>
+	<td>submited successfully!</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

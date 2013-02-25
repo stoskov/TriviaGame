@@ -33,14 +33,14 @@
 					<!-- Widget for loged users -->
 					<div id="site-header-user-account-logedin" data-trivia-bind="css-display: logoutVisibility">
 
-						<a id="site-header-user-account-logout" 
+						<a id="site-header-user-account-logout"
 							class="site-header-user-account-widget site-header-user-account-widget-link"
 							data-trivia-bind="event-click: logout">Logout</a>
 
 						<span class="site-header-user-account-widget site-header-user-account-widget-separator"></span>
 
-						<span id="site-header-user-account-username" 
-							class="site-header-user-account-widget site-header-user-account-widget-static" 
+						<span id="site-header-user-account-username"
+							class="site-header-user-account-widget site-header-user-account-widget-static"
 							data-trivia-bind="text: userDisplayName"></span>
 
 					</div>
@@ -48,13 +48,13 @@
 					<!-- Widget for not loged users -->
 					<div id="site-header-user-account-logedout" class="clear" data-trivia-bind="css-display: loginVisibility">
 
-						<a id="site-header-user-account-register" 
+						<a id="site-header-user-account-register"
 							class="site-header-user-account-widget site-header-user-account-widget-link"
 							data-trivia-bind="event-click: register">Register</a>
 
 						<span class="site-header-user-account-widget site-header-user-account-widget-separator"></span>
 
-						<a id="site-header-user-account-login" 
+						<a id="site-header-user-account-login"
 							class="site-header-user-account-widget site-header-user-account-widget-link"
 							data-trivia-bind="event-click: login">Login</a>
 					</div>
@@ -65,30 +65,34 @@
 							<!-- Login username -->
 							<div class="user-account-form-widget-group clear">
 								<label id="login-form-username-label" class="user-account-form-widget user-account-form-label"
-									for="login-form-username">Username</label>
+									for="login-form-username">
+									Username
+								</label>
 								<input type="text" id="login-form-username" name="login-form-username" required="required"
-									class="k-textbox user-account-form-widget user-account-form-field" 
-									data-trivia-bind="attr-value: username"/>
+									class="k-textbox user-account-form-widget user-account-form-field"
+									data-trivia-bind="attr-value: username" />
 							</div>
 
 							<!-- Login password -->
 							<div class="user-account-form-widget-group clear">
 								<label id="Label1" class="user-account-form-widget user-account-form-label"
-									for="login-form-password">Password</label>
-								<input type="password" id="login-form-password" name="login-form-password" 
+									for="login-form-password">
+									Password
+								</label>
+								<input type="password" id="login-form-password" name="login-form-password"
 									class="k-textbox user-account-form-widget user-account-form-field"
-									data-trivia-bind="attr-value: password"/>
+									data-trivia-bind="attr-value: password" />
 							</div>
 
 							<!-- Login buttons -->
 							<div class="user-account-form-widget-group clear">
 								<input type="submit" id="login-form-close" value="Cancel"
 									class="k-button user-account-form-widget user-account-form-button"
-									data-trivia-bind="event-click: closeLoginForm"/>
+									data-trivia-bind="event-click: closeLoginForm" />
 
 								<input type="submit" id="login-form-login" value="Login"
 									class="k-button user-account-form-widget user-account-form-button"
-									data-trivia-bind="event-click: sendLoginRequest"/>
+									data-trivia-bind="event-click: sendLoginRequest" />
 							</div>
 
 							<!-- Login status bar -->
@@ -101,48 +105,56 @@
 							<!-- Registration username -->
 							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-username-label" class="user-account-form-widget user-account-form-label"
-									for="registration-form-username">Username</label>
+									for="registration-form-username">
+									Username
+								</label>
 								<input type="text" id="registration-form-username" name="registration-form-username"
-									class="k-textbox user-account-form-widget user-account-form-field" 
-									data-trivia-bind="attr-value: username"/>
+									class="k-textbox user-account-form-widget user-account-form-field"
+									data-trivia-bind="attr-value: username" />
 							</div>
 
 							<!-- Registration nickname -->
 							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-nickname-label" class="user-account-form-widget user-account-form-label"
-									for="registration-form-nickname">Nickname</label>
-								<input type="text" id="registration-form-nickname" name="registration-form-nickname" 
+									for="registration-form-nickname">
+									Nickname
+								</label>
+								<input type="text" id="registration-form-nickname" name="registration-form-nickname"
 									class="k-textbox user-account-form-widget user-account-form-field"
-									data-trivia-bind="attr-value: nickname"/>
+									data-trivia-bind="attr-value: nickname" />
 							</div>
 
 							<!-- Registration password -->
 							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-password-label" class="user-account-form-widget user-account-form-label"
-									for="registration-form-password">Password</label>
-								<input type="password" id="registration-form-password" name="registration-form-password" 
+									for="registration-form-password">
+									Password
+								</label>
+								<input type="password" id="registration-form-password" name="registration-form-password"
 									class="k-textbox user-account-form-widget user-account-form-field"
-									data-trivia-bind="attr-value: password"/>
+									data-trivia-bind="attr-value: password" />
 							</div>
 
 							<!-- Registration password verification -->
 							<div class="user-account-form-widget-group clear">
 								<label id="registration-form-password-verification-babel" class="user-account-form-widget user-account-form-label"
-									for="registration-form-password-verification">Re-type Password</label>
-								<input type="password" id="registration-form-password-verification" name="registration-form-password-verification" 
+									for="registration-form-password-verification">
+									Re-type Password
+								</label>
+								<input type="password" id="registration-form-password-verification" name="registration-form-password-verification"
 									class="k-textbox user-account-form-widget user-account-form-field"
-									data-trivia-bind="attr-value: passwordVerification"/>
+									data-trivia-bind="attr-value: passwordVerification" />
 							</div>
 
 							<!-- Registration bouttons -->
 							<div class="user-account-form-widget-group clear">
-								<input type="submit" id="registration-form-close"  value="Cancel"
+								<input type="submit" id="registration-form-close" value="Cancel"
 									class="k-button user-account-form-widget user-account-form-button"
-									data-trivia-bind="event-click: closeRegistrationForm"/>
+									data-trivia-bind="event-click: closeRegistrationForm" />
 
 								<input type="submit" id="registration-form-register" value="Register"
 									class="k-button user-account-form-widget user-account-form-button"
-									data-trivia-bind="event-click: sendRegistrationRequest"/>
+									data-trivia-bind="event-click: sendRegistrationRequest" />
 							</div>
 
 							<!-- Registration status bar -->
@@ -161,22 +173,22 @@
 				<ul id="site-main-nav">
 
 					<li class="site-main-nav-item" id="menu-page-all-categories"
-						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-bind="event-click: requestPageChange"
 						data-trivia-parameters="pageName: page-all-categories">All categories </li>
 					<li class="site-main-nav-item" id="menu-page-new-game"
-						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-bind="event-click: requestPageChange"
 						data-trivia-parameters="pageName: page-new-game">New game</li>
 					<li class="site-main-nav-item" id="menu-page-add-category"
-						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-bind="event-click: requestPageChange"
 						data-trivia-parameters="pageName: page-add-category">Add category </li>
 					<li class="site-main-nav-item" id="menu-page-add-question"
-						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-bind="event-click: requestPageChange"
 						data-trivia-parameters="pageName: page-add-question">Add question </li>
 					<li class="site-main-nav-item" id="menu-page-all-users"
-						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-bind="event-click: requestPageChange"
 						data-trivia-parameters="pageName: page-all-users">All users </li>
 					<li class="site-main-nav-item" id="menu-page-about"
-						data-trivia-bind="event-click: requestPageChange" 
+						data-trivia-bind="event-click: requestPageChange"
 						data-trivia-parameters="pageName: page-about">About</li>
 				</ul>
 			</nav>
@@ -187,9 +199,7 @@
 				<!-- Page new game -->
 				<div id="page-new-game" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">
-                        <h4>
-                            New game
-                        </h4>
+						<h4>New game </h4>
 					</header>
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
 
@@ -198,13 +208,13 @@
 							<div class="single-page-widget-group-75">
 								<label class="single-page-widget-label">Category:</label>
 								<input type="text" id="page-new-game-category-id" class="single-page-widget-input"
-									data-trivia-bind="attr-value: categoryId"/>
+									data-trivia-bind="attr-value: categoryId" />
 							</div>
 
 							<div class="single-page-widget-group-25">
 								<div class="float-right">
 									<input type="submit" id="page-new-game-start-game" value="start game"
-										class="k-button page-content-button" 
+										class="k-button page-content-button"
 										data-trivia-bind="event-click: requestStartNewGame" />
 								</div>
 							</div>
@@ -213,14 +223,13 @@
 
 						<section class="page-content-sub-section clear">
 							<ul id="page-new-game-questions-wrap">
-
 							</ul>
 						</section>
 
 						<section class="page-content-sub-section clear">
 							<div class="float-right clear">
 								<input type="submit" id="page-new-game-submit-game" value="submit"
-									class="k-button page-content-button" 
+									class="k-button page-content-button"
 									data-trivia-bind="event-click: requestSubmit" />
 							</div>
 						</section>
@@ -235,9 +244,7 @@
 				<!-- Page all categories -->
 				<div id="page-all-categories" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">
-                        <h4>
-                            All categories
-                        </h4>
+						<h4>All categories </h4>
 					</header>
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
 						<div id="page-all-categories-grid"></div>
@@ -248,9 +255,7 @@
 				<!-- Page add category -->
 				<div id="page-add-category" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">
-                        <h4>
-                            Add category
-                        </h4>
+						<h4>Add category </h4>
 					</header>
 
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
@@ -259,28 +264,27 @@
 							<div class="single-page-widget-group-100">
 								<label class="single-page-widget-label">Category name:</label>
 								<input type="text" id="page-add-category-name" class="k-textbox single-page-widget-input"
-									data-trivia-bind="attr-value: categoryName"/>
+									data-trivia-bind="attr-value: categoryName" />
 							</div>
 						</section>
 
 						<section class="page-content-sub-section clear">
 							<div class="float-right">
 								<input type="submit" id="page-add-category-add-question" value="Add question"
-									class="k-button page-content-button" 
+									class="k-button page-content-button"
 									data-trivia-bind="event-click: requestAddQuestionElement" />
 							</div>
 						</section>
 
 						<section class="page-content-sub-section clear">
 							<ul id="page-add-category-questions-wrap">
-
 							</ul>
 						</section>
 
 						<section class="page-content-sub-section clear">
 							<div class="float-right clear">
 								<input type="submit" id="page-add-category-submit" value="submit"
-									class="k-button page-content-button" 
+									class="k-button page-content-button"
 									data-trivia-bind="event-click: requestSubmit" />
 							</div>
 						</section>
@@ -295,9 +299,7 @@
 				<!-- Page add question -->
 				<div id="page-add-question" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">
-                        <h4>
-                            Add question
-                        </h4>
+						<h4>Add question </h4>
 					</header>
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
 
@@ -306,25 +308,25 @@
 							<div class="single-page-widget-group-67">
 								<label class="single-page-widget-label">Question:</label>
 								<input type="text" id="page-add-question-text" class="k-textbox single-page-widget-input"
-									data-trivia-bind="attr-value: questionText"/>
+									data-trivia-bind="attr-value: questionText" />
 							</div>
 
 							<div class="single-page-widget-group-33">
 								<label class="single-page-widget-label">Category:</label>
 								<input type="text" id="page-add-question-category-id" class="single-page-widget-input"
-									data-trivia-bind="attr-value: categoryId"/>
+									data-trivia-bind="attr-value: categoryId" />
 							</div>
 
 						</section>
 						<section class="page-content-sub-section clear">
 							<div class="float-right">
 								<input type="submit" id="page-add-question-add-correct-answer" value="Add correct answer"
-									class="k-button page-content-button" 
-									data-trivia-bind="event-click: requestAddAnswerElement" 
+									class="k-button page-content-button"
+									data-trivia-bind="event-click: requestAddAnswerElement"
 									data-trivia-parameters="section: correntAnswers" />
 								<input type="submit" id="page-add-question-add-wrong-answer" value="Add wrong answer"
-									class="k-button page-content-button" 
-									data-trivia-bind="event-click: requestAddAnswerElement" 
+									class="k-button page-content-button"
+									data-trivia-bind="event-click: requestAddAnswerElement"
 									data-trivia-parameters="section: wrongAnswers" />
 							</div>
 						</section>
@@ -334,7 +336,6 @@
 									Correct answers
 									(<span data-trivia-bind="text: correctAnswersCount"></span>)
 									<div class="add-question-correct-answers-list">
-
 									</div>
 
 								</li>
@@ -342,7 +343,6 @@
 									Wrong answers
 									(<span data-trivia-bind="text: wrongAnswersCount"></span>)
 									<div class="add-question-wrong-answers-list">
-
 									</div>
 								</li>
 							</ul>
@@ -350,7 +350,7 @@
 						<section class="page-content-sub-section clear">
 							<div class="float-right clear">
 								<input type="submit" id="page-add-question-submit" value="submit"
-									class="k-button page-content-button" 
+									class="k-button page-content-button"
 									data-trivia-bind="event-click: requestSubmit" />
 							</div>
 						</section>
@@ -364,9 +364,7 @@
 				<!-- Page all users -->
 				<div id="page-all-users" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">
-                        <h4>
-                            All users
-                        </h4>
+						<h4>All users </h4>
 					</header>
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
 						<div id="page-all-users-grid"></div>
@@ -377,9 +375,7 @@
 				<!-- Page about -->
 				<div id="page-about" data-trivia-bind="css-display: pageDisplay">
 					<header class="single-page-header">
-						<h4>
-                            About
-						</h4>
+						<h4>About </h4>
 					</header>
 					<section class="page-content" data-trivia-bind="css-display: contentDisplay">
 						<section class="page-content-sub-section clear">
@@ -387,21 +383,25 @@
 							<p>
 								Design and implement a Web client application working with questions.
 								It should support users registration, start a new game with questions, addition of questions and addition of categories.
-								Any registered user can start playing and to answer questions. 
-                                <br />
-                                <br />
-                                Through a central server system users "Trivia Game" can begin playing when they get 10 questions in a particular category. 
-                                Each user can view the results of each registered user.
-                                <br />
-                                <br />
-                                System "Trivia Game" should work in client-server mode. 
-                                Clients (web browsers) communicate with the server (not directly) by sending requests with REST JSON-serialized data.
+								Any registered user can start playing and to answer questions. <br />
+								<br />
+								Through a central server system users "Trivia Game" can begin playing when they get 10 questions in a particular category.
+								Each user can view the results of each registered user. <br />
+								<br />
+								System "Trivia Game" should work in client-server mode.
+								Clients (web browsers) communicate with the server (not directly) by sending requests with REST JSON-serialized data.
 							</p>
-                            <h6 class="page-content-sub-section-header">Author</h6>
+							<h6 class="page-content-sub-section-header">Author</h6>
 							<p>
-								Svetozar Toskov
-                                <br />
-                                email: s.toskov@gmail.com
+								Svetozar Toskov <br />
+								email:
+								<a class="link" href="mailto:s.toskov@gmail.com">s.toskov@gmail.com</a>
+							</p>
+							<h6 class="page-content-sub-section-header">Documents</h6>
+							<p>
+								<a class="link" href="documents/Documentation/modules.pdf">modules.pdf</a>
+								<br />
+								<a class="link" href="documents/Documentation/page lifecycle.pdf">page lifecycle.pdf</a>
 							</p>
 						</section>
 					</section>

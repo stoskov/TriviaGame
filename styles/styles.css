@@ -315,6 +315,13 @@ html {
   color: #787878;
   text-align: justify;
 }
+#site-content .link {
+  color: #787878;
+  text-decoration: none;
+}
+#site-content .link:hover {
+  color: #8ebc00;
+}
 /* Site footer */
 #site-footer {
   margin-top: 10px;
