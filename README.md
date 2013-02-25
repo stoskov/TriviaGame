@@ -12,5 +12,6 @@ Design and implement a web client application working with questions. It should 
 Author
 ------
 
-Svetozar Toskov 
+Svetozar Toskov
+
 email: s.toskov@gmail.com
