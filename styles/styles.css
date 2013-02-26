@@ -53,7 +53,7 @@ ul {
 }
 /* Styles */
 html {
-  font: 100% SegoeUIRegular, arial, helvetica, sans-serif;
+  font: 100% "Segoe UI", SegoeUIRegular, arial, helvetica, sans-serif;
   text-transform: lowercase;
 }
 #site-wrap {
