@@ -5,7 +5,7 @@
         var constDataExpiryType = "never";
 
         //Define new namaspace for all game objects
-        triviaGame = window.triviaGame || {};
+        var triviaGame = triviaGame || {};
 
         //#region Rest communicator
         triviaGame.restComunicator = new trivia.RestComunicator("http://trivia-game.apphb.com/api/trivia");

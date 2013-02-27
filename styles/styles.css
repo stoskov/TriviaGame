@@ -102,6 +102,7 @@ html {
   float: left;
   width: 50%;
   height: 100%;
+  font-weight: normal;
 }
 #site-header #site-title a {
   color: #787878;
