@@ -1,4 +1,94 @@
-﻿var trivia = trivia || {};
+﻿(function ($) {
+
+    var ns = '__jquery_xdomain__',
+        sc = 'SESSION_COOKIE_NAME';
+
+    if ($.browser.msie && 'XDomainRequest' in window && !(ns in $)) {
+
+        $[ns] = $.support.cors = true;
+
+        function parseUrl(url) {
+            if ($.type(url) === "object") {
+                return url;
+            }
+            var matches = /^(((([^:\/#\?]+:)?(?:\/\/((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?]+)(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/.exec(url);
+            return matches ? {
+                href: matches[0] || "",
+                hrefNoHash: matches[1] || "",
+                hrefNoSearch: matches[2] || "",
+                domain: matches[3] || "",
+                protocol: matches[4] || "",
+                authority: matches[5] || "",
+                username: matches[7] || "",
+                password: matches[8] || "",
+                host: matches[9] || "",
+                hostname: matches[10] || "",
+                port: matches[11] || "",
+                pathname: matches[12] || "",
+                directory: matches[13] || "",
+                filename: matches[14] || "",
+                search: matches[15] || "",
+                hash: matches[16] || ""
+            } : {};
+        }
+
+        var oldxhr = $.ajaxSettings.xhr,
+            sessionCookie = sc in window ? window[sc] : "jsessionid",
+            domain = parseUrl(document.location.href).domain;
+
+        $.ajaxSettings.xhr = function () {
+            var target = parseUrl(this.url).domain;
+            if (target === "" || target === domain) {
+                return oldxhr.call($.ajaxSettings)
+            } else {
+                try {
+                    var xdr = new XDomainRequest();
+                    if (!xdr.setRequestHeader) {
+                        xdr.setRequestHeader = $.noop;
+                    }
+                    if (!xdr.getAllResponseHeaders) {
+                        xdr.getAllResponseHeaders = $.noop;
+                    }
+                    if (sessionCookie) {
+                        var open = xdr.open;
+                        xdr.open = function () {
+                            var cookie = new RegExp('(?:^|; )' + sessionCookie + '=([^;]*)', 'i').exec(document.cookie);
+                            cookie = cookie && cookie[1];
+                            if (cookie) {
+                                var q = arguments[1].indexOf('?');
+                                if (q == -1) {
+                                    arguments[1] += ';' + sessionCookie + '=' + cookie;
+                                } else {
+                                    arguments[1] = arguments[1].substring(0, q) + ';' + sessionCookie + '=' + cookie + arguments[1].substring(q);
+                                }
+                            }
+                            return open.apply(this, arguments);
+                        };
+                    }
+                    xdr.onload = function () {
+                        if (typeof xdr.onreadystatechange === 'function') {
+                            xdr.readyState = 4;
+                            xdr.status = 200;
+                            xdr.onreadystatechange.call(xdr, null, false);
+                        }
+                    };
+                    xdr.onerror = xdr.ontimeout = function () {
+                        if (typeof xdr.onreadystatechange === 'function') {
+                            xdr.readyState = 4;
+                            xdr.status = 500;
+                            xdr.onreadystatechange.call(xdr, null, false);
+                        }
+                    };
+                    return xdr;
+                } catch (e) {
+                }
+            }
+        };
+
+    }
+})(jQuery);
+
+var trivia = trivia || {};
 
 trivia.createClass = function (baseClass, currentClassConstructor) {
     var SubClass = function () {
